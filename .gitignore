@@ -41,3 +41,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .next-build/
+
+# Agent/editor instruction files — local only, never tracked.
+AGENTS.md
+CLAUDE.md
