@@ -1,26 +1,212 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
+/**
+ * Nasara Agro — "Pale Husk" palette v2.1 (from the Claude Design project).
+ * A trading-house paper aesthetic: husk surfaces, viridian bands, ochre-gold
+ * tags, ledger rules and hard offset shadows. Light theme only by design.
+ */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  /* Brand tokens — use these for page work; shadcn vars map onto them. */
+  --color-surface: #eff1e8;
+  --color-surface-alt: #e6eae0;
+  --color-paper: #fbfcf7;
+  --color-husk: #d9dece;
+  --color-forest: #155744;
+  --color-board: #0c332a;
+  --color-footer: #0b2d25;
+  --color-harvest: #d89c2e;
+  --color-harvest-deep: #7a611c;
+  --color-soil: #59523b;
+  --color-leaf: #3e7d62;
+  --color-ink: #1f211c;
+  --color-error: #9b3a22;
+
+  --font-sans: var(--font-public-sans);
+  --font-display: var(--font-archivo);
+  --font-stencil: var(--font-stardos);
+  --font-mono: ui-monospace, monospace;
+  --font-heading: var(--font-archivo);
+
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --background: #eff1e8; /* surface — pale husk, ink text 14.2:1 */
+  --foreground: #1f211c; /* ink */
+  --card: #fbfcf7; /* paper */
+  --card-foreground: #1f211c;
+  --popover: #eff1e8;
+  --popover-foreground: #1f211c;
+  --primary: #155744; /* forest — dark bands, primary actions */
+  --primary-foreground: #eff1e8;
+  --secondary: #e6eae0; /* surface-alt — document tint */
+  --secondary-foreground: #155744;
+  --muted: #e6eae0;
+  --muted-foreground: #59523b; /* soil — secondary text 6.8:1 */
+  --accent: #d89c2e; /* harvest — tags + CTAs, ink on gold 6.7:1 */
+  --accent-foreground: #1f211c;
+  --destructive: #9b3a22; /* validation errors and failed states only */
+  --border: rgb(89 82 59 / 0.35); /* soil rules */
+  --input: rgb(89 82 59 / 0.35);
+  --ring: #3e7d62; /* leaf — focus */
+  --chart-1: #155744;
+  --chart-2: #d89c2e;
+  --chart-3: #3e7d62;
+  --chart-4: #59523b;
+  --chart-5: #7a611c;
+  --radius: 0.25rem; /* the design squares almost everything off */
+  --sidebar: #e6eae0;
+  --sidebar-foreground: #1f211c;
+  --sidebar-primary: #155744;
+  --sidebar-primary-foreground: #eff1e8;
+  --sidebar-accent: #d89c2e;
+  --sidebar-accent-foreground: #1f211c;
+  --sidebar-border: rgb(89 82 59 / 0.35);
+  --sidebar-ring: #3e7d62;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  /* Faint husk grain on light surfaces (hero, page shells). */
+  .texture-grain {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22140%22 height=%22140%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.85%22 numOctaves=%222%22/%3E%3CfeColorMatrix values=%220 0 0 0 0.28 0 0 0 0 0.31 0 0 0 0 0.18 0 0 0 0.05 0%22/%3E%3C/filter%3E%3Crect width=%22140%22 height=%22140%22 filter=%22url(%23n)%22/%3E%3C/svg%3E");
+  }
+  /* Pale noise on dark forest/board/footer bands. */
+  .texture-grain-dark {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22150%22 height=%22150%22%3E%3Cfilter id=%22m%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%222%22/%3E%3CfeColorMatrix values=%220 0 0 0 1 0 0 0 0 1 0 0 0 0 0.9 0 0 0 0.04 0%22/%3E%3C/filter%3E%3Crect width=%22150%22 height=%22150%22 filter=%22url(%23m)%22/%3E%3C/svg%3E");
+  }
+  /* Hard offset "paperwork" shadows — the design never blurs card shadows. */
+  .shadow-doc {
+    box-shadow: 5px 5px 0 rgb(31 33 28 / 0.15);
+  }
+  .shadow-doc-sm {
+    box-shadow: 3px 3px 0 rgb(89 82 59 / 0.4);
+  }
+  .shadow-doc-dark {
+    box-shadow: 6px 6px 0 rgb(31 33 28 / 0.22);
+  }
+  .shadow-block {
+    box-shadow: 3px 3px 0 #1f211c;
+  }
+  .shadow-block-sm {
+    box-shadow: 2px 2px 0 rgb(89 82 59 / 0.35);
+  }
+  /* The double "ledger rule" that closes the header and section breaks. */
+  .ledger-rule {
+    border-top: 1.5px solid rgb(89 82 59 / 0.5);
+    border-bottom: 1px solid rgb(89 82 59 / 0.3);
+    height: 4px;
+  }
+  /* Stencilled utility text — eyebrows, tags, nav numerals. */
+  .stencil {
+    font-family: var(--font-stencil);
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  /* Every photo gets the forest→soil treatment so imagery sits in-palette. */
+  .photo-treatment {
+    background: linear-gradient(rgb(21 87 68 / 0.3), rgb(89 82 59 / 0.36));
+  }
+}
+
+/* Board tags settle in on load; idle tags nudge occasionally. */
+@keyframes tag-settle {
+  0% {
+    opacity: 0;
+    transform: translateY(-12px) scale(1.04);
+  }
+  65% {
+    opacity: 1;
+    transform: translateY(1px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes sack-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }
