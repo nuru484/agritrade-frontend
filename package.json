@@ -1,5 +1,5 @@
 {
-  "name": "nasara-agro",
+  "name": "agritrade-frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -14,6 +14,7 @@
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
     "@reduxjs/toolkit": "^2.12.0",
+    "@tanstack/react-table": "^8.21.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.24.0",
