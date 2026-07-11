@@ -45,3 +45,7 @@ next-env.d.ts
 # Agent/editor instruction files — local only, never tracked.
 AGENTS.md
 CLAUDE.md
+
+# Agent/editor instruction files — local only, never tracked.
+AGENTS.md
+CLAUDE.md
