@@ -43,10 +43,10 @@ export function ErrorMessage({
             Not processed
           </Stamp>
         </div>
-        <h3 className="mb-2 font-display text-[20px] font-bold text-forest">
+        <h3 className="break-words mb-2 font-display text-[20px] font-bold text-forest">
           {title}
         </h3>
-        <p className="mx-auto max-w-[40ch] text-[13.5px] leading-[1.65] text-soil">
+        <p className="break-words mx-auto max-w-[40ch] text-[13.5px] leading-[1.65] text-soil">
           {description}
         </p>
         {onRetry ? (

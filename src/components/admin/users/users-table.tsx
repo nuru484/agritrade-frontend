@@ -294,6 +294,10 @@ export function UsersTable() {
         </p>
       </div>
 
+      {/* dms rule: a failed PLAIN load hides the toolbar (dead UI beside an
+          error card) — but when the user's own search/filters might be the
+          cause, the toolbar stays so they can clear or adjust them. */}
+      {isError && !search && activeFilterCount === 0 ? null : (
       <ConsoleFilterBar
         search={searchInput}
         onSearch={setSearchInput}
@@ -327,6 +331,7 @@ export function UsersTable() {
           className="md:w-[150px]"
         />
       </ConsoleFilterBar>
+      )}
 
       {isLoading ? (
         <DataTableSkeleton />

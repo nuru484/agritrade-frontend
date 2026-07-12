@@ -43,6 +43,12 @@ const NO_REAUTH_URLS = new Set([
 const requestUrl = (args: string | FetchArgs): string =>
   typeof args === "string" ? args : args.url;
 
+// After a refresh fails there is no session — a retry milliseconds later can't
+// succeed either. Back off briefly so a burst of 401s (e.g. queries refetching
+// after the reset) doesn't hammer /auth/refresh-token in a loop.
+const REFRESH_FAILURE_COOLDOWN_MS = 5_000;
+let refreshFailedAt = 0;
+
 const baseQueryWithReauth: BaseQueryFn<
   string | FetchArgs,
   unknown,
@@ -50,7 +56,11 @@ const baseQueryWithReauth: BaseQueryFn<
 > = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions);
 
-  if (result.error?.status === 401 && !NO_REAUTH_URLS.has(requestUrl(args))) {
+  if (
+    result.error?.status === 401 &&
+    !NO_REAUTH_URLS.has(requestUrl(args)) &&
+    Date.now() - refreshFailedAt > REFRESH_FAILURE_COOLDOWN_MS
+  ) {
     if (!mutex.isLocked()) {
       const release = await mutex.acquire();
       try {
@@ -70,6 +80,7 @@ const baseQueryWithReauth: BaseQueryFn<
           // rendering the console; its error path now engages and bounces to
           // login. The refresh call above is a raw `baseQuery` (not routed
           // through this reauth wrapper), so its own 401 never re-triggers us.
+          refreshFailedAt = Date.now();
           api.dispatch(userLoggedOut());
           api.dispatch(apiSlice.util.resetApiState());
         }
