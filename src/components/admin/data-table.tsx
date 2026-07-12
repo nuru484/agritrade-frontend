@@ -54,6 +54,15 @@ declare module "@tanstack/react-table" {
  *   selector, and — dms rule — it only appears once there are more rows than
  *   the smallest page size. Two items never get a pager.
  */
+export interface ServerPagination {
+  totalCount: number;
+  /** 1-based current page. */
+  page: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
+}
+
 export function ConsoleDataTable<TData>({
   columns,
   data,
@@ -66,6 +75,8 @@ export function ConsoleDataTable<TData>({
   className,
   enableSelection = false,
   renderBulkActions,
+  serverPagination,
+  isFetching = false,
 }: {
   columns: ColumnDef<TData, unknown>[];
   data: TData[];
@@ -85,6 +96,14 @@ export function ConsoleDataTable<TData>({
     selected: TData[],
     clearSelection: () => void,
   ) => React.ReactNode;
+  /**
+   * Server mode (dms pattern): searching/filtering/paging happen backend-side;
+   * `data` is exactly the current page and the footer drives these callbacks.
+   */
+  serverPagination?: ServerPagination;
+  /** True while a refetch is in flight — the current rows stay visible,
+   * slightly dimmed, and snap to the new list when it lands. */
+  isFetching?: boolean;
 }) {
   const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -124,28 +143,33 @@ export function ConsoleDataTable<TData>({
     return [select, ...columns];
   }, [columns, enableSelection]);
 
+  const manual = Boolean(serverPagination);
   const table = useReactTable({
     data,
     columns: allColumns,
-    state: { sorting, globalFilter, rowSelection },
+    state: { sorting, globalFilter: manual ? "" : globalFilter, rowSelection },
     onSortingChange: setSorting,
     onRowSelectionChange: setRowSelection,
     enableRowSelection: enableSelection,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    ...(manual ? {} : { getPaginationRowModel: getPaginationRowModel() }),
+    manualPagination: manual,
+    manualFiltering: manual,
     globalFilterFn: "includesString",
     initialState: { pagination: { pageSize: initialPageSize } },
   });
 
-  // Keep TanStack's page size in step with the footer's selector.
+  // Keep TanStack's page size in step with the footer's selector (client mode).
   useEffect(() => {
-    table.setPageSize(pageSize);
-  }, [pageSize, table]);
+    if (!manual) table.setPageSize(pageSize);
+  }, [pageSize, table, manual]);
 
   const rows = table.getRowModel().rows;
-  const total = table.getFilteredRowModel().rows.length;
+  const total = serverPagination
+    ? serverPagination.totalCount
+    : table.getFilteredRowModel().rows.length;
   const { pageIndex } = table.getState().pagination;
   const selectedRows = table
     .getSelectedRowModel()
@@ -167,6 +191,13 @@ export function ConsoleDataTable<TData>({
         </div>
       ) : null}
 
+      <div
+        className={cn(
+          "overflow-x-auto transition-opacity",
+          isFetching && "pointer-events-none opacity-60",
+        )}
+        aria-busy={isFetching || undefined}
+      >
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -249,16 +280,25 @@ export function ConsoleDataTable<TData>({
           )}
         </TableBody>
       </Table>
+      </div>
 
       {showPagination ? (
         <DataTablePagination
           totalCount={total}
-          page={pageIndex + 1}
-          pageSize={pageSize}
+          page={serverPagination ? serverPagination.page : pageIndex + 1}
+          pageSize={serverPagination ? serverPagination.pageSize : pageSize}
           selectedCount={selectedRows.length}
           itemNoun={itemNoun}
-          onPageChange={(p) => table.setPageIndex(p - 1)}
-          onPageSizeChange={setPageSize}
+          onPageChange={(p) =>
+            serverPagination
+              ? serverPagination.onPageChange(p)
+              : table.setPageIndex(p - 1)
+          }
+          onPageSizeChange={(size) =>
+            serverPagination
+              ? serverPagination.onPageSizeChange(size)
+              : setPageSize(size)
+          }
         />
       ) : total > 0 ? (
         <div className="border-t border-slate-200 px-4 py-2.5 text-[12.5px] text-slate-500">

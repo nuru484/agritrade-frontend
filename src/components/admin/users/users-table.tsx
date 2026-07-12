@@ -5,15 +5,11 @@ import Link from "next/link";
 import type { ColumnDef } from "@tanstack/react-table";
 import { cn } from "@/lib/utils";
 import { ConsoleDataTable } from "@/components/admin/data-table";
-import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { AdminCard, adminSelectClass } from "@/components/admin/ui";
+  ConsoleFilterBar,
+  ConsoleLabeledSelect,
+} from "@/components/admin/filter-bar";
+import { AdminCard } from "@/components/admin/ui";
 import { DataTableSkeleton } from "@/components/ui/DataTableSkeleton";
 import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import {
@@ -22,21 +18,48 @@ import {
 } from "@/redux/users/users-api";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { useDebounce } from "@/hooks/use-debounce";
 import { extractApiError } from "@/lib/extract-api-error";
 import { notify } from "@/lib/notify";
-import type { IUser } from "@/types/user.types";
+import { UserRole, type IUser, type IUserListQuery } from "@/types/user.types";
 import { UserActionsDropdown } from "./user-actions";
 import {
   initialsOf,
   lastActiveLabel,
   ROLE_LABEL,
   StatusBadge,
-  userStatus,
   visibilityLabel,
 } from "./user-bits";
 
-const ROLE_FILTERS = ["All roles", "Super admin", "Office staff", "Field agent"] as const;
-const STATUS_FILTERS = ["All statuses", "Active", "Suspended", "Blocked"] as const;
+const ROLE_FILTER_OPTIONS = [
+  { value: "all", label: "All roles" },
+  { value: UserRole.SUPER_ADMIN, label: "Super admin" },
+  { value: UserRole.STAFF, label: "Office staff" },
+  { value: UserRole.AGENT, label: "Field agent" },
+] as const;
+
+const STATUS_FILTER_OPTIONS = [
+  { value: "all", label: "All statuses" },
+  { value: "active", label: "Active" },
+  { value: "suspended", label: "Suspended" },
+  { value: "blocked", label: "Blocked" },
+] as const;
+
+type StatusFilter = (typeof STATUS_FILTER_OPTIONS)[number]["value"];
+
+/** Maps the status facet onto the backend's isActive/blocked filters. */
+const statusToQuery = (status: StatusFilter): Partial<IUserListQuery> => {
+  switch (status) {
+    case "active":
+      return { isActive: true, blocked: false };
+    case "suspended":
+      return { isActive: false };
+    case "blocked":
+      return { blocked: true };
+    default:
+      return {};
+  }
+};
 
 const columnMeta = (opts?: { wide?: boolean }) => ({
   className: cn(
@@ -48,18 +71,64 @@ const columnMeta = (opts?: { wide?: boolean }) => ({
 });
 
 /**
- * The live Users register: same visual language as the config-driven register
- * template, but fed by GET /admin/users. The whole team fits one page, so
- * search and the role/status filters run client-side over the fetched list;
- * the navbar's global search (?q=) seeds the search box.
+ * The live Users register, fully server-driven (dms pattern): the debounced
+ * search, the role/status facets, the page and the page size all travel to
+ * GET /admin/users, and the table renders exactly the page the backend
+ * returns. While a refetch is in flight the current list stays visible
+ * (dimmed) and snaps to the new result — the skeleton shows only on first
+ * load. The navbar's global search (?q=) seeds the search box.
  */
 export function UsersTable() {
-  const { data, isLoading, isError, error, refetch } = useGetUsersQuery({
-    limit: 100,
-  });
   const me = useCurrentUser();
+  const [searchInput, setSearchInput] = useState("");
+  const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const search = useDebounce(searchInput.trim());
+
+  // The navbar search lands here as ?q=… (deferred a tick so hydration
+  // completes before the controlled value changes).
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("q");
+    if (!q) return;
+    const timer = setTimeout(() => setSearchInput(q), 0);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Any narrowing change starts back at page 1 — the render-time derived-state
+  // reset (React's documented pattern; no effect, no cascading render).
+  const filterKey = `${search}|${roleFilter}|${statusFilter}|${String(pageSize)}`;
+  const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
+  if (filterKey !== prevFilterKey) {
+    setPrevFilterKey(filterKey);
+    setPage(1);
+  }
+
+  const queryArgs = useMemo<IUserListQuery>(
+    () => ({
+      page,
+      limit: pageSize,
+      ...(search ? { search } : {}),
+      ...(roleFilter !== "all" ? { role: roleFilter as UserRole } : {}),
+      ...statusToQuery(statusFilter),
+    }),
+    [page, pageSize, search, roleFilter, statusFilter],
+  );
+
+  // `data` holds the last successful page across argument changes, which is
+  // exactly the keep-current-list-then-snap behaviour; `isLoading` is only
+  // true before the very first result.
+  const { data, isLoading, isFetching, isError, error, refetch } =
+    useGetUsersQuery(queryArgs);
+  const users = data?.data ?? [];
+  const totalCount = data?.meta.total ?? 0;
+
   const [deleteUser] = useDeleteUserMutation();
   const { confirm, confirmationDialog } = useConfirm();
+
+  const activeFilterCount =
+    (roleFilter !== "all" ? 1 : 0) + (statusFilter !== "all" ? 1 : 0);
 
   const deleteSelected = async (selected: IUser[], clear: () => void) => {
     const deletable = selected.filter((u) => u.id !== me?.id);
@@ -93,29 +162,6 @@ export function UsersTable() {
       });
     }
   };
-  const [query, setQuery] = useState("");
-  const [roleFilter, setRoleFilter] = useState<string>(ROLE_FILTERS[0]);
-  const [statusFilter, setStatusFilter] = useState<string>(STATUS_FILTERS[0]);
-
-  // The navbar search lands here as ?q=… (deferred a tick so hydration
-  // completes before the controlled value changes).
-  useEffect(() => {
-    const q = new URLSearchParams(window.location.search).get("q");
-    if (!q) return;
-    const timer = setTimeout(() => setQuery(q), 0);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const users = useMemo(() => {
-    let rows = data?.data ?? [];
-    if (roleFilter !== "All roles") {
-      rows = rows.filter((u) => ROLE_LABEL[u.role] === roleFilter);
-    }
-    if (statusFilter !== "All statuses") {
-      rows = rows.filter((u) => userStatus(u).label === statusFilter);
-    }
-    return rows;
-  }, [data, roleFilter, statusFilter]);
 
   const columns = useMemo<ColumnDef<IUser, unknown>[]>(
     () => [
@@ -211,7 +257,6 @@ export function UsersTable() {
       },
       {
         id: "status",
-        accessorFn: (u) => userStatus(u).label,
         header: "Status",
         enableSorting: false,
         meta: columnMeta(),
@@ -219,10 +264,16 @@ export function UsersTable() {
       },
       {
         id: "actions",
-        header: "",
+        header: "Actions",
         enableSorting: false,
-        meta: { className: "w-10 pl-0 text-right" },
-        cell: ({ row }) => <UserActionsDropdown user={row.original} />,
+        meta: {
+          className: "w-16 pl-0 text-right",
+        },
+        cell: ({ row }) => (
+          <span className="inline-flex justify-end">
+            <UserActionsDropdown user={row.original} />
+          </span>
+        ),
       },
     ],
     [],
@@ -230,69 +281,48 @@ export function UsersTable() {
 
   return (
     <div>
-      <div className="mb-3.5 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-[22px] font-bold tracking-[-0.01em] text-slate-900">
-            Users
-          </h1>
-          <p className="mt-0.5 text-[13px] text-slate-500">
-            Staff accounts and permissions
-          </p>
-        </div>
-        <Link
-          href="/admin/users/new"
-          className="inline-flex h-[34px] items-center whitespace-nowrap rounded-[6px] bg-console px-4 text-[13.5px] font-semibold text-white transition-colors hover:bg-console-deep"
-        >
-          + Add user
-        </Link>
+      <div className="mb-3.5">
+        <h1 className="text-[22px] font-bold tracking-[-0.01em] text-slate-900">
+          Users
+        </h1>
+        <p className="mt-0.5 text-[13px] text-slate-500">
+          Staff accounts and permissions
+        </p>
       </div>
 
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <label className="flex h-8 w-full max-w-[250px] items-center gap-1.5 rounded-[6px] border border-slate-200 bg-white px-2.5 focus-within:border-console">
-          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <circle cx="7" cy="7" r="5" stroke="#9ba6b3" strokeWidth="1.5" />
-            <path d="M11 11l3.2 3.2" stroke="#9ba6b3" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-          <Input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search user…"
-            aria-label="Search users"
-            className="h-full w-full min-w-0 rounded-none border-0 bg-transparent p-0 text-[13px] text-slate-900 outline-none placeholder:text-slate-300 focus-visible:ring-0 md:text-[13px]"
-          />
-        </label>
-        <Select value={roleFilter} onValueChange={setRoleFilter}>
-          <SelectTrigger
-            aria-label="Filter by role"
-            className={cn(adminSelectClass, "h-8 w-auto text-[13px] text-slate-700")}
+      <ConsoleFilterBar
+        search={searchInput}
+        onSearch={setSearchInput}
+        searchPlaceholder="Search user…"
+        activeCount={activeFilterCount}
+        onClear={() => {
+          setRoleFilter("all");
+          setStatusFilter("all");
+        }}
+        action={
+          <Link
+            href="/admin/users/new"
+            className="inline-flex h-8 items-center whitespace-nowrap rounded-[6px] bg-console px-3.5 text-[13px] font-semibold text-white transition-colors hover:bg-console-deep"
           >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {ROLE_FILTERS.map((f) => (
-              <SelectItem key={f} value={f}>
-                {f}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger
-            aria-label="Filter by status"
-            className={cn(adminSelectClass, "h-8 w-auto text-[13px] text-slate-700")}
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {STATUS_FILTERS.map((f) => (
-              <SelectItem key={f} value={f}>
-                {f}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+            + Add user
+          </Link>
+        }
+      >
+        <ConsoleLabeledSelect
+          label="Role"
+          value={roleFilter}
+          onChange={setRoleFilter}
+          options={ROLE_FILTER_OPTIONS}
+          className="md:w-[150px]"
+        />
+        <ConsoleLabeledSelect
+          label="Status"
+          value={statusFilter}
+          onChange={(v) => setStatusFilter(v as StatusFilter)}
+          options={STATUS_FILTER_OPTIONS}
+          className="md:w-[150px]"
+        />
+      </ConsoleFilterBar>
 
       {isLoading ? (
         <DataTableSkeleton />
@@ -307,7 +337,14 @@ export function UsersTable() {
             columns={columns}
             data={users}
             itemNoun="users"
-            globalFilter={query}
+            isFetching={isFetching}
+            serverPagination={{
+              totalCount,
+              page,
+              pageSize,
+              onPageChange: setPage,
+              onPageSizeChange: setPageSize,
+            }}
             enableSelection
             renderBulkActions={(selected, clear) => (
               <button
@@ -323,11 +360,13 @@ export function UsersTable() {
             emptyState={
               <div className="px-6 py-14 text-center">
                 <div className="mb-1 text-[15px] font-bold text-slate-800">
-                  {query ? "No matches" : "No users yet"}
+                  {search || activeFilterCount > 0
+                    ? "No matches"
+                    : "No users yet"}
                 </div>
                 <p className="text-[13.5px] text-slate-500">
-                  {query
-                    ? "Try a different search."
+                  {search || activeFilterCount > 0
+                    ? "Try a different search or clear the filters."
                     : "Add your first staff account to get started."}
                 </p>
               </div>
