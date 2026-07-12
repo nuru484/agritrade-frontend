@@ -170,13 +170,17 @@ export function UserActionsDropdown({ user }: { user: IUser }) {
               Change role
             </DropdownMenuItem>
           ) : null}
-          <DropdownMenuItem
-            className="cursor-pointer gap-2 text-[13px]"
-            onClick={() => void onSendReset().catch(fail("Couldn't send the link"))}
-          >
-            <KeyRound className="h-3.5 w-3.5" aria-hidden="true" />
-            Send reset link
-          </DropdownMenuItem>
+          {!isSelf ? (
+            <DropdownMenuItem
+              className="cursor-pointer gap-2 text-[13px]"
+              onClick={() =>
+                void onSendReset().catch(fail("Couldn't send the link"))
+              }
+            >
+              <KeyRound className="h-3.5 w-3.5" aria-hidden="true" />
+              Send reset link
+            </DropdownMenuItem>
+          ) : null}
           {user.blockedAt ? (
             <DropdownMenuItem
               className="cursor-pointer gap-2 text-[13px]"
