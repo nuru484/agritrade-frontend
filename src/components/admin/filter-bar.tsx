@@ -57,13 +57,22 @@ export function ConsoleLabeledSelect({
   );
 }
 
-/** Labelled native date input for From/To windows in the toolbar. */
+/**
+ * Labelled native date input for From/To windows in the toolbar.
+ *
+ * Date inputs ignore the `placeholder` attribute, and mobile browsers render
+ * an empty one as a blank box (desktop Chrome at least shows mm/dd/yyyy).
+ * So while empty and unfocused we hide the native text and overlay our own
+ * placeholder; focus (or a picked value) hands the field back to the native
+ * editor.
+ */
 export function ConsoleDateField({
   label,
   value,
   onChange,
   min,
   max,
+  placeholder = "Any date",
   className,
 }: {
   label: string;
@@ -72,6 +81,7 @@ export function ConsoleDateField({
   onChange: (value: string) => void;
   min?: string;
   max?: string;
+  placeholder?: string;
   className?: string;
 }) {
   return (
@@ -82,17 +92,29 @@ export function ConsoleDateField({
       )}
     >
       {label}
-      <input
-        type="date"
-        value={value}
-        min={min || undefined}
-        max={max || undefined}
-        onChange={(e) => onChange(e.target.value)}
-        className={cn(
-          "h-8 w-full cursor-pointer rounded-[6px] border bg-white px-2 text-[13px] font-normal normal-case tracking-normal text-slate-700 outline-none focus:border-console",
-          value ? "border-console/50" : "border-slate-200",
+      <span className="relative block min-w-0">
+        <input
+          type="date"
+          value={value}
+          min={min || undefined}
+          max={max || undefined}
+          onChange={(e) => onChange(e.target.value)}
+          className={cn(
+            "peer h-8 w-full cursor-pointer appearance-none rounded-[6px] border bg-white px-2 text-[13px] font-normal normal-case tracking-normal outline-none focus:border-console",
+            value
+              ? "border-console/50 text-slate-700"
+              : "border-slate-200 text-transparent focus:text-slate-700",
+          )}
+        />
+        {!value && (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-y-0 left-2 flex items-center text-[13px] font-normal normal-case tracking-normal text-slate-300 peer-focus:hidden"
+          >
+            {placeholder}
+          </span>
         )}
-      />
+      </span>
     </label>
   );
 }
