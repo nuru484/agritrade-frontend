@@ -1,7 +1,7 @@
 import type { Tone } from "@/components/admin/ui";
 
 /**
- * The config-driven registers (from the Nasara Console design): 13 modules
+ * The config-driven registers (from the DB Plus Console design): 13 modules
  * share one list template, one detail template and one form template. Each
  * entry mirrors the design's `regCfg()` plus its `seedRegRows()` stub data.
  * Custom screens (purchases, sales, shipments…) have their own routes and are
@@ -85,7 +85,6 @@ export type RegisterSlug =
   | "repayments"
   | "suppliers"
   | "buyers"
-  | "users"
   | "audit";
 
 export const REGISTERS: Record<RegisterSlug, RegisterConfig & { rows: RegisterRow[] }> = {
@@ -399,33 +398,8 @@ export const REGISTERS: Record<RegisterSlug, RegisterConfig & { rows: RegisterRo
       ["Wilmar Ghana", "Tema", "1", "GH₵ 79,900", "GH₵ 0", { t: "Prospect", tone: "sky" }],
     ],
   },
-  users: {
-    avatar: true,
-    title: "Users",
-    sub: "Staff accounts and permissions",
-    single: "User",
-    add: "+ Invite user",
-    search: "Search user…",
-    filters: ["Role", "Status"],
-    newTag: { t: "Invited", tone: "sky" },
-    headers: [
-      { l: "User" },
-      { l: "Role" },
-      { l: "Phone", wide: true },
-      { l: "Visibility" },
-      { l: "Last active", wide: true },
-      { l: "Status", tag: true },
-    ],
-    figs: [],
-    ledger: null,
-    rows: [
-      ["Abdul Danaa", "Owner", "024 400 1122", "Full", "Now", { t: "Active", tone: "leaf" }],
-      ["Amina Abdulai", "Office", "020 556 3348", "Full", "07:40", { t: "Active", tone: "leaf" }],
-      ["Yakubu Mohammed", "Office", "055 302 9917", "Hidden", "06:55", { t: "Active", tone: "leaf" }],
-      ["Ibrahim Fuseini", "Agent", "024 556 8841", "Own only", "Yesterday", { t: "Active", tone: "leaf" }],
-      ["Salifu Issahaku", "Agent", "020 771 2204", "Own only", "Yesterday", { t: "Suspended", tone: "alert" }],
-    ],
-  },
+  // `users` retired from the stub registers: /admin/users is now a live,
+  // backend-driven module (src/app/admin/users + components/admin/users).
   audit: {
     readOnly: true,
     title: "Audit Log",

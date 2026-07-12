@@ -41,3 +41,41 @@ export interface IUserResponse {
   message: string;
   data: { user: IUser };
 }
+
+/** Paginated user list (`GET /admin/users`). */
+export interface IUserListResponse {
+  message: string;
+  data: IUser[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}
+
+export interface IUserListQuery {
+  page?: number;
+  limit?: number;
+  role?: UserRole;
+  isActive?: boolean;
+  blocked?: boolean;
+  search?: string;
+}
+
+/** Mirrors the backend `createUserSchema` (POST /admin/users). */
+export interface ICreateUserInput {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  phone?: string;
+  role?: UserRole;
+  canApprove?: boolean;
+  financialVisibility?: boolean;
+}
+
+/** Mirrors the backend `updateUserSchema` (PATCH /admin/users/:id). */
+export interface IUpdateUserInput {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string | null;
+  canApprove?: boolean;
+  financialVisibility?: boolean;
+}
