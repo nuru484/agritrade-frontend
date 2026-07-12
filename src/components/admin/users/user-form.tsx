@@ -128,6 +128,7 @@ export function UserForm() {
           <div className="grid gap-[13px] sm:grid-cols-2">
             <AdminField label="First name" error={errors.firstName?.message}>
               <Input
+                placeholder="e.g. Amina"
                 className={cn(
                   adminInputClass,
                   errors.firstName && "border-console-red",
@@ -137,6 +138,7 @@ export function UserForm() {
             </AdminField>
             <AdminField label="Last name" error={errors.lastName?.message}>
               <Input
+                placeholder="e.g. Abdulai"
                 className={cn(
                   adminInputClass,
                   errors.lastName && "border-console-red",
