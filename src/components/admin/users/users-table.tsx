@@ -16,9 +16,16 @@ import {
 import { AdminCard, adminSelectClass } from "@/components/admin/ui";
 import { DataTableSkeleton } from "@/components/ui/DataTableSkeleton";
 import { ErrorMessage } from "@/components/ui/ErrorMessage";
-import { useGetUsersQuery } from "@/redux/users/users-api";
+import {
+  useDeleteUserMutation,
+  useGetUsersQuery,
+} from "@/redux/users/users-api";
+import { useConfirm } from "@/hooks/use-confirm";
+import { useCurrentUser } from "@/hooks/use-current-user";
 import { extractApiError } from "@/lib/extract-api-error";
+import { notify } from "@/lib/notify";
 import type { IUser } from "@/types/user.types";
+import { UserActionsDropdown } from "./user-actions";
 import {
   initialsOf,
   lastActiveLabel,
@@ -50,6 +57,42 @@ export function UsersTable() {
   const { data, isLoading, isError, error, refetch } = useGetUsersQuery({
     limit: 100,
   });
+  const me = useCurrentUser();
+  const [deleteUser] = useDeleteUserMutation();
+  const { confirm, confirmationDialog } = useConfirm();
+
+  const deleteSelected = async (selected: IUser[], clear: () => void) => {
+    const deletable = selected.filter((u) => u.id !== me?.id);
+    if (deletable.length === 0) {
+      notify.error("Nothing to delete", {
+        description: "You cannot delete your own account.",
+      });
+      return;
+    }
+    const ok = await confirm({
+      title: `Delete ${String(deletable.length)} selected user${deletable.length > 1 ? "s" : ""}?`,
+      description:
+        "This permanently removes their access and cannot be undone. Type 'delete selected' to confirm.",
+      confirmText: "Delete selected",
+      isDestructive: true,
+      requireExactMatch: "delete selected",
+    });
+    if (!ok) return;
+    try {
+      await Promise.all(deletable.map((u) => deleteUser(u.id).unwrap()));
+      clear();
+      notify.success(
+        `${String(deletable.length)} user${deletable.length > 1 ? "s" : ""} deleted`,
+        selected.length !== deletable.length
+          ? { description: "Your own account was skipped." }
+          : undefined,
+      );
+    } catch (err) {
+      notify.error("Couldn't delete every selected user", {
+        description: extractApiError(err).message,
+      });
+    }
+  };
   const [query, setQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>(ROLE_FILTERS[0]);
   const [statusFilter, setStatusFilter] = useState<string>(STATUS_FILTERS[0]);
@@ -174,6 +217,13 @@ export function UsersTable() {
         meta: columnMeta(),
         cell: ({ row }) => <StatusBadge user={row.original} />,
       },
+      {
+        id: "actions",
+        header: "",
+        enableSorting: false,
+        meta: { className: "w-10 pl-0 text-right" },
+        cell: ({ row }) => <UserActionsDropdown user={row.original} />,
+      },
     ],
     [],
   );
@@ -258,6 +308,16 @@ export function UsersTable() {
             data={users}
             itemNoun="users"
             globalFilter={query}
+            enableSelection
+            renderBulkActions={(selected, clear) => (
+              <button
+                type="button"
+                onClick={() => void deleteSelected(selected, clear)}
+                className="inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-[6px] bg-console-red px-2.5 text-[12px] font-semibold text-white hover:bg-console-red-deep"
+              >
+                Delete selected
+              </button>
+            )}
             rowHref={(u) => `/admin/users/${u.id}`}
             rowClassName={() => "h-12 hover:bg-slate-50/70"}
             emptyState={
@@ -275,6 +335,7 @@ export function UsersTable() {
           />
         </AdminCard>
       )}
+      {confirmationDialog}
     </div>
   );
 }
