@@ -116,14 +116,14 @@ function IdentityCard() {
           <ProfilePhoto user={user} />
           <div className="min-w-0 flex-1 text-center sm:pb-2 sm:text-left">
             <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-              <h2 className="text-[20px] font-bold tracking-[-0.01em] text-slate-900">
+              <h2 className="max-w-full break-words text-[20px] font-bold tracking-[-0.01em] text-slate-900">
                 {user.firstName} {user.lastName}
               </h2>
               <ToneBadge tone="forest">
                 {ROLE_TITLE[user.role] ?? user.role}
               </ToneBadge>
             </div>
-            <p className="mt-0.5 truncate text-[13px] text-slate-500">
+            <p className="mt-0.5 break-all text-[13px] text-slate-500">
               {user.email}
             </p>
             {user.pendingEmail ? (

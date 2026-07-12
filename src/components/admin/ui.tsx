@@ -91,9 +91,13 @@ export function AdminPageHeader({
         className,
       )}
     >
-      <div>
-        <h1 className="text-[19px] font-bold text-slate-900">{title}</h1>
-        {sub ? <p className="mt-0.5 text-[13px] text-slate-500">{sub}</p> : null}
+      <div className="min-w-0 max-w-full">
+        <h1 className="break-words text-[19px] font-bold text-slate-900">
+          {title}
+        </h1>
+        {sub ? (
+          <p className="mt-0.5 break-words text-[13px] text-slate-500">{sub}</p>
+        ) : null}
       </div>
       {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
     </div>

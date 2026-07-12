@@ -335,6 +335,32 @@ export function UsersTable() {
           description={extractApiError(error).message}
           onRetry={() => void refetch()}
         />
+      ) : users.length === 0 ? (
+        // Outside the table on purpose (dms pattern): inside it, the nowrap
+        // headers force a wide scroll area and the card overflows on phones.
+        <AdminCard className="overflow-hidden">
+          {search || activeFilterCount > 0 ? (
+            <EmptyState
+              icon={SearchX}
+              title="No matching users"
+              description="Nothing matches this search and filter combination. Adjust the criteria or clear them to see everyone."
+              actionLabel="Clear search & filters"
+              onAction={() => {
+                setSearchInput("");
+                setRoleFilter("all");
+                setStatusFilter("all");
+              }}
+            />
+          ) : (
+            <EmptyState
+              icon={UserPlus}
+              title="No users yet"
+              description="Add your first staff account — assign a role, set the permission flags and hand over the first password."
+              actionLabel="Add your first user"
+              onAction={() => router.push("/admin/users/new")}
+            />
+          )}
+        </AdminCard>
       ) : (
         <AdminCard className="overflow-hidden">
           <ConsoleDataTable<IUser>
@@ -361,29 +387,6 @@ export function UsersTable() {
             )}
             rowHref={(u) => `/admin/users/${u.id}`}
             rowClassName={() => "h-12 hover:bg-slate-50/70"}
-            emptyState={
-              search || activeFilterCount > 0 ? (
-                <EmptyState
-                  icon={SearchX}
-                  title="No matching users"
-                  description="Nothing matches this search and filter combination. Adjust the criteria or clear them to see everyone."
-                  actionLabel="Clear search & filters"
-                  onAction={() => {
-                    setSearchInput("");
-                    setRoleFilter("all");
-                    setStatusFilter("all");
-                  }}
-                />
-              ) : (
-                <EmptyState
-                  icon={UserPlus}
-                  title="No users yet"
-                  description="Add your first staff account — assign a role, set the permission flags and hand over the first password."
-                  actionLabel="Add your first user"
-                  onAction={() => router.push("/admin/users/new")}
-                />
-              )
-            }
           />
         </AdminCard>
       )}

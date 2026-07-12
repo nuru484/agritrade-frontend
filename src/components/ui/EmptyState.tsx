@@ -25,21 +25,21 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center px-6 py-16 text-center",
+        "flex w-full min-w-0 flex-col items-center justify-center px-3 py-10 text-center sm:px-6 sm:py-16",
         className,
       )}
     >
-      <div className="w-[min(420px,100%)] border border-dashed border-soil/50 bg-surface-alt/60 px-8 py-10">
+      <div className="w-[min(420px,100%)] min-w-0 border border-dashed border-soil/50 bg-surface-alt/60 px-4 py-8 sm:px-8 sm:py-10">
         <span className="stencil mb-6 inline-block border-b border-dotted border-soil/40 pb-2 text-[10px] tracking-[0.28em] text-harvest-deep">
           File empty
         </span>
         <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-[3px] border-2 border-soil/40 text-soil">
           <Icon aria-hidden="true" className="h-6 w-6" />
         </div>
-        <h3 className="mb-2 font-display text-[19px] font-semibold text-forest">
+        <h3 className="mb-2 break-words font-display text-[17px] font-semibold text-forest sm:text-[19px]">
           {title}
         </h3>
-        <p className="mx-auto mb-0 max-w-[38ch] text-[13.5px] leading-[1.65] text-soil">
+        <p className="mx-auto mb-0 max-w-[38ch] break-words text-[13px] leading-[1.65] text-soil sm:text-[13.5px]">
           {description}
         </p>
         {actionLabel && onAction ? (
