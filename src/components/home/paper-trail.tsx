@@ -34,12 +34,12 @@ const DOCS: PaperDoc[] = [
     stampTone: "leaf",
   },
   {
-    title: "SMS RECEIPT",
+    title: "PAYMENT RECEIPT",
     fileNo: "SALE NA-____",
     rows: [
       { label: "REFERENCE", value: "Quoted on your invoice" },
       { label: "PAYMENT", value: "MoMo, card or transfer" },
-      { label: "CONFIRMED", value: "The moment it lands" },
+      { label: "CONFIRMED", value: "SMS & email, instantly" },
     ],
     stamp: "Paid in full",
     stampTone: "leaf",

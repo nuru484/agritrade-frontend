@@ -28,7 +28,7 @@ const HOW_IT_WORKS = [
   {
     no: "03",
     title: "Pay securely with Hubtel",
-    body: "Mobile money or card. Your receipt arrives by SMS the moment payment lands.",
+    body: "Mobile money or card. Your receipt arrives by SMS and email the moment payment lands.",
   },
 ];
 
@@ -76,7 +76,7 @@ export default function PayPage() {
               ),
             )}
             <span className="text-[12px] text-soil">
-              Receipt by SMS on every payment.
+              Receipt by SMS &amp; email on every payment.
             </span>
           </div>
         </div>

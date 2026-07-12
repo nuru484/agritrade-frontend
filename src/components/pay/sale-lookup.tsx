@@ -204,7 +204,8 @@ export function SaleLookup() {
             </h2>
             <p className="mx-auto max-w-[42ch] text-[14px] leading-[1.6] text-soil">
               {formatMoney(view.sale.amountOutstanding)} paid on sale{" "}
-              {view.sale.reference}. A receipt has been sent by SMS. Thank you
+              {view.sale.reference}. A receipt has been sent by SMS and email.
+              Thank you
               for your business.
             </p>
           </div>
