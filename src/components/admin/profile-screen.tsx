@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Camera, Loader2, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import {
   AdminButton,
   AdminCard,
@@ -11,6 +13,7 @@ import {
   AdminPageHeader,
   adminInputClass,
 } from "@/components/admin/ui";
+import { useConfirm } from "@/hooks/use-confirm";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import {
   useChangePasswordMutation,
@@ -18,13 +21,17 @@ import {
   useDisableTwoFactorMutation,
   useRegenerateRecoveryCodesMutation,
   useRequestTwoFactorSetupMutation,
+  useUpdateMeMutation,
 } from "@/redux/auth/auth-api";
 import { extractApiError } from "@/lib/extract-api-error";
 import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
+import type { IUser } from "@/types/user.types";
 import {
   changePasswordSchema,
   type ChangePasswordValues,
+  profileSchema,
+  type ProfileValues,
 } from "@/validations/auth-schema";
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
@@ -44,46 +51,325 @@ const ROLE_LABEL: Record<string, string> = {
 const memberSince = (iso: string) =>
   new Date(iso).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
 
-/** Header card: the signed-in user's identity, read from the auth store. */
-function IdentityCard() {
-  const user = useCurrentUser();
-  if (!user) return null;
+/* ── Avatar ──────────────────────────────────────────────────────────────── */
+
+function Avatar({
+  user,
+  previewUrl,
+  size = 72,
+  busy = false,
+}: {
+  user: IUser;
+  /** A locally-chosen file's object URL, shown before the save lands. */
+  previewUrl?: string | null;
+  size?: number;
+  busy?: boolean;
+}) {
+  const src = previewUrl ?? user.profilePicture;
   const initials =
     `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
   return (
-    <AdminCard className="flex flex-wrap items-center gap-3.5 px-5 py-[18px]">
-      <div className="flex h-14 w-14 flex-none items-center justify-center rounded-full bg-console text-[19px] font-bold text-white">
-        {initials}
-      </div>
-      <div className="min-w-[160px] flex-1">
-        <div className="text-[16px] font-bold text-slate-900">
-          {user.firstName} {user.lastName}
+    <div
+      className="relative flex-none overflow-hidden rounded-full"
+      style={{ width: size, height: size }}
+    >
+      {src ? (
+        // eslint-disable-next-line @next/next/no-img-element -- Cloudinary/objectURL avatar
+        <img
+          src={src}
+          alt=""
+          width={size}
+          height={size}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <div
+          className="flex h-full w-full items-center justify-center bg-console font-bold text-white"
+          style={{ fontSize: size * 0.28 }}
+        >
+          {initials}
         </div>
-        <div className="text-[13px] text-slate-500">
-          {ROLE_LABEL[user.role] ?? user.role}
-          {user.phone ? ` · ${user.phone}` : ""} · {user.email}
+      )}
+      {busy ? (
+        <div className="absolute inset-0 flex items-center justify-center rounded-full bg-slate-900/45">
+          <Loader2
+            className="h-5 w-5 animate-spin text-white"
+            aria-hidden="true"
+          />
         </div>
-        <div className="mt-0.5 text-[12px] text-slate-400">
-          Member since {memberSince(user.createdAt)}
-          {user.lastLoginAt
-            ? ` · Last sign-in ${new Date(user.lastLoginAt).toLocaleString("en-GB")}`
-            : ""}
-        </div>
-        {user.pendingEmail ? (
-          <div className="mt-1 text-[12px] font-medium text-console-gold">
-            Email change to {user.pendingEmail} awaiting confirmation — check
-            that inbox.
+      ) : null}
+    </div>
+  );
+}
+
+/* ── Identity / edit profile ─────────────────────────────────────────────── */
+
+function IdentityCard() {
+  const user = useCurrentUser();
+  const [editing, setEditing] = useState(false);
+  if (!user) return null;
+
+  return (
+    <AdminCard className="px-5 py-[18px]">
+      {editing ? (
+        <ProfileEditForm user={user} onClose={() => setEditing(false)} />
+      ) : (
+        <div className="flex flex-wrap items-center gap-4">
+          <Avatar user={user} />
+          <div className="min-w-[180px] flex-1">
+            <div className="text-[16px] font-bold text-slate-900">
+              {user.firstName} {user.lastName}
+            </div>
+            <div className="text-[13px] text-slate-500">
+              {ROLE_LABEL[user.role] ?? user.role}
+              {user.phone ? ` · ${user.phone}` : ""} · {user.email}
+            </div>
+            <div className="mt-0.5 text-[12px] text-slate-400">
+              Member since {memberSince(user.createdAt)}
+              {user.lastLoginAt
+                ? ` · Last sign-in ${new Date(user.lastLoginAt).toLocaleString("en-GB")}`
+                : ""}
+            </div>
+            {user.pendingEmail ? (
+              <div className="mt-1 text-[12px] font-medium text-console-gold">
+                Email change to {user.pendingEmail} awaiting confirmation —
+                check that inbox.
+              </div>
+            ) : null}
           </div>
-        ) : null}
-      </div>
+          <AdminButton
+            variant="secondary"
+            className="h-[34px] px-3.5 text-[13px] whitespace-nowrap"
+            onClick={() => setEditing(true)}
+          >
+            Edit profile
+          </AdminButton>
+        </div>
+      )}
     </AdminCard>
   );
 }
 
-/** Change-password card, wired to PATCH /auth/change-password. A success keeps
- * this device signed in (the backend re-issues the session) and signs out
- * every other device. */
+function ProfileEditForm({
+  user,
+  onClose,
+}: {
+  user: IUser;
+  onClose: () => void;
+}) {
+  const [updateMe, { isLoading }] = useUpdateMeMutation();
+  const fileInput = useRef<HTMLInputElement>(null);
+  // File + its object URL travel together; URLs are created/revoked in the
+  // event handlers (not an effect) and once more on unmount via the ref.
+  const [chosen, setChosen] = useState<{ file: File; url: string } | null>(
+    null,
+  );
+  const chosenUrl = useRef<string | null>(null);
+  const [removePhoto, setRemovePhoto] = useState(false);
+  const photo = chosen?.file ?? null;
+  const previewUrl = chosen?.url ?? null;
+
+  const dropPreview = () => {
+    if (chosenUrl.current) URL.revokeObjectURL(chosenUrl.current);
+    chosenUrl.current = null;
+  };
+  // Revoke a still-live preview URL when the form unmounts.
+  useEffect(() => dropPreview, []);
+
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm<ProfileValues>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phone: user.phone ?? "",
+    },
+  });
+
+  const choosePhoto = (file: File | undefined) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      notify.error("Choose an image file (JPG or PNG).");
+      return;
+    }
+    dropPreview();
+    const url = URL.createObjectURL(file);
+    chosenUrl.current = url;
+    setChosen({ file, url });
+    setRemovePhoto(false);
+  };
+
+  const clearPhoto = () => {
+    dropPreview();
+    setChosen(null);
+    if (fileInput.current) fileInput.current.value = "";
+    // Clearing an EXISTING photo is a real deletion (Cloudinary + DB) that
+    // happens on save; clearing a just-chosen file is purely local.
+    if (user.profilePicture) setRemovePhoto(true);
+  };
+
+  const hasVisiblePhoto = Boolean(
+    previewUrl ?? (removePhoto ? null : user.profilePicture),
+  );
+
+  const onSubmit = async (values: ProfileValues) => {
+    try {
+      const res = await updateMe({
+        body: {
+          firstName: values.firstName,
+          lastName: values.lastName,
+          // Only send the email when it actually changed — sending the same
+          // address is a no-op, a new one starts the confirmation flow.
+          ...(values.email !== user.email ? { email: values.email } : {}),
+          phone: values.phone?.trim() ? values.phone.trim() : null,
+          ...(removePhoto ? { removeProfilePicture: true } : {}),
+        },
+        photo: photo ?? undefined,
+      }).unwrap();
+      notify.success("Profile updated");
+      if (res.data.emailChangeRequested) {
+        notify.info("Confirm your new email", {
+          description:
+            "We sent a link to the new address — your sign-in email changes after you confirm it.",
+        });
+      }
+      onClose();
+    } catch (err) {
+      const { message, fieldErrors, hasFieldErrors } = extractApiError(err);
+      if (hasFieldErrors && fieldErrors) {
+        for (const field of ["firstName", "lastName", "email", "phone"] as const) {
+          if (fieldErrors[field]) setError(field, { message: fieldErrors[field] });
+        }
+      }
+      notify.error("Couldn't save your profile", { description: message });
+    }
+  };
+
+  return (
+    <form
+      noValidate
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-col gap-5 sm:flex-row sm:items-start"
+    >
+      {/* Photo block — avatar left, controls under it */}
+      <div className="flex flex-none flex-col items-center gap-2">
+        <button
+          type="button"
+          onClick={() => fileInput.current?.click()}
+          disabled={isLoading}
+          aria-label="Choose a profile photo"
+          className="group relative cursor-pointer rounded-full outline-none focus-visible:ring-2 focus-visible:ring-console/40 disabled:cursor-not-allowed"
+        >
+          <Avatar
+            user={{
+              ...user,
+              profilePicture: removePhoto ? null : user.profilePicture,
+            }}
+            previewUrl={previewUrl}
+            size={84}
+            busy={isLoading && (photo !== null || removePhoto)}
+          />
+          <span className="absolute -right-0.5 -bottom-0.5 flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors group-hover:text-console">
+            <Camera className="h-3.5 w-3.5" aria-hidden="true" />
+          </span>
+        </button>
+        <input
+          ref={fileInput}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => choosePhoto(e.target.files?.[0])}
+        />
+        <span className="text-[11px] text-slate-400">JPG or PNG</span>
+        {hasVisiblePhoto ? (
+          <button
+            type="button"
+            onClick={clearPhoto}
+            disabled={isLoading}
+            className="inline-flex cursor-pointer items-center gap-1 text-[12px] font-semibold text-console-red hover:underline disabled:opacity-50"
+          >
+            <Trash2 className="h-3 w-3" aria-hidden="true" />
+            Remove photo
+          </button>
+        ) : null}
+      </div>
+
+      {/* Details flow to the right */}
+      <div className="grid min-w-0 flex-1 gap-[13px] sm:max-w-[420px]">
+        <div className="grid gap-[13px] sm:grid-cols-2">
+          <AdminField label="First name" error={errors.firstName?.message}>
+            <Input
+              className={cn(
+                adminInputClass,
+                errors.firstName && "border-console-red",
+              )}
+              {...register("firstName")}
+            />
+          </AdminField>
+          <AdminField label="Last name" error={errors.lastName?.message}>
+            <Input
+              className={cn(
+                adminInputClass,
+                errors.lastName && "border-console-red",
+              )}
+              {...register("lastName")}
+            />
+          </AdminField>
+        </div>
+        <AdminField label="Email" error={errors.email?.message}>
+          <Input
+            type="email"
+            className={cn(adminInputClass, errors.email && "border-console-red")}
+            {...register("email")}
+          />
+        </AdminField>
+        <AdminField label="Phone" error={errors.phone?.message}>
+          <Input
+            type="tel"
+            placeholder="024 000 0000"
+            className={cn(adminInputClass, errors.phone && "border-console-red")}
+            {...register("phone")}
+          />
+        </AdminField>
+        <p className="text-[12px] leading-[1.5] text-slate-400">
+          Changing your email sends a confirmation link to the new address —
+          your sign-in email only switches after you confirm it.
+        </p>
+        <div className="flex gap-2">
+          <AdminButton
+            type="submit"
+            disabled={isLoading}
+            className="h-[36px] px-4 text-[13px]"
+          >
+            {isLoading ? "Saving…" : "Save changes"}
+          </AdminButton>
+          <AdminButton
+            type="button"
+            variant="ghost"
+            disabled={isLoading}
+            className="h-[36px] px-3.5 text-[13px]"
+            onClick={onClose}
+          >
+            Cancel
+          </AdminButton>
+        </div>
+      </div>
+    </form>
+  );
+}
+
+/* ── Password ────────────────────────────────────────────────────────────── */
+
+/** Read-only until "Change password" opens the form; the save itself sits
+ * behind a confirmation modal (it signs out every other device). */
 function PasswordCard() {
+  const [open, setOpen] = useState(false);
+  const { confirm, confirmationDialog } = useConfirm();
   const [changePassword, { isLoading }] = useChangePasswordMutation();
   const {
     register,
@@ -96,13 +382,25 @@ function PasswordCard() {
     defaultValues: { currentPassword: "", newPassword: "", confirm: "" },
   });
 
+  const close = () => {
+    setOpen(false);
+    reset();
+  };
+
   const onSubmit = async (values: ChangePasswordValues) => {
+    const ok = await confirm({
+      title: "Change your password?",
+      description:
+        "Every other device will be signed out; this one stays signed in.",
+      confirmText: "Change password",
+    });
+    if (!ok) return;
     try {
       await changePassword({
         currentPassword: values.currentPassword,
         newPassword: values.newPassword,
       }).unwrap();
-      reset();
+      close();
       notify.success("Password updated", {
         description: "Other devices were signed out; this one stays in.",
       });
@@ -120,67 +418,96 @@ function PasswordCard() {
 
   return (
     <AdminCard className="px-5 py-[18px]">
-      <SectionLabel>Change password</SectionLabel>
-      <form
-        noValidate
-        onSubmit={handleSubmit(onSubmit)}
-        className="flex max-w-[380px] flex-col gap-[13px]"
-      >
-        <AdminField
-          label="Current password"
-          error={errors.currentPassword?.message}
+      <SectionLabel>Password</SectionLabel>
+      {open ? (
+        <form
+          noValidate
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex max-w-[380px] flex-col gap-[13px]"
         >
-          <Input
-            type="password"
-            autoComplete="current-password"
-            placeholder="Enter your current password"
-            className={cn(
-              adminInputClass,
-              errors.currentPassword && "border-console-red",
-            )}
-            {...register("currentPassword")}
-          />
-        </AdminField>
-        <AdminField label="New password" error={errors.newPassword?.message}>
-          <Input
-            type="password"
-            autoComplete="new-password"
-            placeholder="At least 8 characters"
-            className={cn(
-              adminInputClass,
-              errors.newPassword && "border-console-red",
-            )}
-            {...register("newPassword")}
-          />
-        </AdminField>
-        <AdminField label="Confirm new password" error={errors.confirm?.message}>
-          <Input
-            type="password"
-            autoComplete="new-password"
-            placeholder="Repeat the new password"
-            className={cn(
-              adminInputClass,
-              errors.confirm && "border-console-red",
-            )}
-            {...register("confirm")}
-          />
-        </AdminField>
-        <div>
-          <AdminButton
-            type="submit"
-            disabled={isLoading}
-            className="h-[38px] px-[18px]"
+          <AdminField
+            label="Current password"
+            error={errors.currentPassword?.message}
           >
-            {isLoading ? "Updating…" : "Update password"}
+            <PasswordInput
+              autoComplete="current-password"
+              placeholder="Enter your current password"
+              className={cn(
+                adminInputClass,
+                errors.currentPassword && "border-console-red",
+              )}
+              {...register("currentPassword")}
+            />
+          </AdminField>
+          <AdminField label="New password" error={errors.newPassword?.message}>
+            <PasswordInput
+              autoComplete="new-password"
+              placeholder="At least 8 characters"
+              className={cn(
+                adminInputClass,
+                errors.newPassword && "border-console-red",
+              )}
+              {...register("newPassword")}
+            />
+          </AdminField>
+          <AdminField
+            label="Confirm new password"
+            error={errors.confirm?.message}
+          >
+            <PasswordInput
+              autoComplete="new-password"
+              placeholder="Repeat the new password"
+              className={cn(
+                adminInputClass,
+                errors.confirm && "border-console-red",
+              )}
+              {...register("confirm")}
+            />
+          </AdminField>
+          <div className="flex gap-2">
+            <AdminButton
+              type="submit"
+              disabled={isLoading}
+              className="h-[36px] px-4 text-[13px]"
+            >
+              {isLoading ? "Updating…" : "Update password"}
+            </AdminButton>
+            <AdminButton
+              type="button"
+              variant="ghost"
+              className="h-[36px] px-3.5 text-[13px]"
+              onClick={close}
+            >
+              Cancel
+            </AdminButton>
+          </div>
+        </form>
+      ) : (
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <div className="font-adminmono text-[15px] tracking-[0.2em] text-slate-400">
+              ••••••••••
+            </div>
+            <div className="mt-0.5 text-[12.5px] text-slate-500">
+              Changing your password signs out every other device.
+            </div>
+          </div>
+          <AdminButton
+            variant="secondary"
+            className="h-[34px] flex-none px-3.5 text-[13px] whitespace-nowrap"
+            onClick={() => setOpen(true)}
+          >
+            Change password
           </AdminButton>
         </div>
-      </form>
+      )}
+      {confirmationDialog}
     </AdminCard>
   );
 }
 
-/** One-time display of freshly issued recovery codes — the only moment they
- * exist in plaintext. Offers copy-to-clipboard; dismissing is deliberate. */
+/* ── Two-factor authentication ───────────────────────────────────────────── */
+
 function RecoveryCodesPanel({
   codes,
   onDismiss,
@@ -230,10 +557,11 @@ function RecoveryCodesPanel({
   );
 }
 
-/** Email-OTP 2FA lifecycle: request → confirm with the emailed code → save the
- * one-time recovery codes; disable and regenerate both re-check the password. */
+/** Email-OTP 2FA lifecycle. Turning it ON sits behind a confirmation modal
+ * (it changes every future sign-in); the emailed code then confirms it. */
 function TwoFactorCard() {
   const user = useCurrentUser();
+  const { confirm, confirmationDialog } = useConfirm();
   const [requestSetup, { isLoading: isRequesting }] =
     useRequestTwoFactorSetupMutation();
   const [confirmSetup, { isLoading: isConfirming }] =
@@ -252,6 +580,13 @@ function TwoFactorCard() {
   const enabled = user?.twoFactorEnabled ?? false;
 
   const begin = async () => {
+    const ok = await confirm({
+      title: "Turn on two-factor authentication?",
+      description:
+        "Every sign-in will then require a 6-digit code emailed to you, on top of your password. We'll email a code now to confirm the setup.",
+      confirmText: "Send the code",
+    });
+    if (!ok) return;
     try {
       await requestSetup().unwrap();
       setStep("confirm");
@@ -265,7 +600,7 @@ function TwoFactorCard() {
     }
   };
 
-  const confirm = async () => {
+  const confirmCode = async () => {
     try {
       const res = await confirmSetup({ code: code.trim() }).unwrap();
       setFreshCodes(res.data.recoveryCodes);
@@ -374,7 +709,7 @@ function TwoFactorCard() {
             <AdminButton
               className="h-[34px] px-3.5 text-[12.5px]"
               disabled={isConfirming || !/^\d{6}$/.test(code.trim())}
-              onClick={confirm}
+              onClick={confirmCode}
             >
               {isConfirming ? "Confirming…" : "Confirm & enable"}
             </AdminButton>
@@ -401,8 +736,7 @@ function TwoFactorCard() {
                 : "Confirm your password to replace your recovery codes"
             }
           >
-            <Input
-              type="password"
+            <PasswordInput
               autoComplete="current-password"
               placeholder="Your password"
               value={password}
@@ -449,8 +783,8 @@ function TwoFactorCard() {
         <div className="mt-3 flex items-center gap-2 rounded-[6px] bg-[#E6F0E9] px-3 py-[9px] text-[12.5px] text-[#2F5E3D]">
           <span className="font-bold">✓</span>
           <span>
-            Two-factor authentication is on. Lost your recovery codes?
-            Generate a new set above.
+            Two-factor authentication is on. Lost your recovery codes? Generate
+            a new set above.
           </span>
         </div>
       ) : null}
@@ -461,6 +795,7 @@ function TwoFactorCard() {
           onDismiss={() => setFreshCodes(null)}
         />
       ) : null}
+      {confirmationDialog}
     </AdminCard>
   );
 }

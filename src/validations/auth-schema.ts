@@ -72,3 +72,18 @@ export const changePasswordSchema = z
     path: ["confirm"],
   });
 export type ChangePasswordValues = z.infer<typeof changePasswordSchema>;
+
+/** Mirrors the backend `updateProfileSchema` (auth PATCH /me). */
+export const profileSchema = z.object({
+  firstName: z.string().trim().min(1, "Enter your first name").max(50),
+  lastName: z.string().trim().min(1, "Enter your last name").max(50),
+  email: z.email("Enter a valid email").max(255),
+  phone: z
+    .string()
+    .trim()
+    .min(6, "Enter a full phone number")
+    .max(20)
+    .or(z.literal(""))
+    .optional(),
+});
+export type ProfileValues = z.infer<typeof profileSchema>;

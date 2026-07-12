@@ -56,6 +56,45 @@ export const authApi = apiSlice.injectEndpoints({
       },
     }),
 
+    /** Update the signed-in user's profile; refreshes the stored user. A new
+     * photo travels WITH the save as multipart (payload JSON + file) — the
+     * backend uploads it to Cloudinary inside the same request and cleans up
+     * on failure, so nothing is ever pre-uploaded or orphaned. Clearing an
+     * existing photo sends `removeProfilePicture: true`; the backend deletes
+     * the Cloudinary asset and nulls the stored URL. A changed email is NOT
+     * applied directly — the backend parks it pending mailbox confirmation. */
+    updateMe: builder.mutation<
+      IUserResponse & { data: { emailChangeRequested?: boolean } },
+      {
+        body: {
+          firstName?: string;
+          lastName?: string;
+          email?: string;
+          phone?: string | null;
+          removeProfilePicture?: boolean;
+        };
+        photo?: File;
+      }
+    >({
+      query: ({ body, photo }) => {
+        if (photo) {
+          const form = new FormData();
+          form.append("payload", JSON.stringify(body));
+          form.append("profilePicture", photo);
+          return { url: "auth/me", method: "PATCH", body: form };
+        }
+        return { url: "auth/me", method: "PATCH", body };
+      },
+      async onQueryStarted(_arg, { queryFulfilled, dispatch }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(userLoggedIn({ user: data.data.user }));
+        } catch {
+          // Surfaced to the caller via `unwrap()`.
+        }
+      },
+    }),
+
     /** Change the signed-in user's password (requires the current one). */
     changePassword: builder.mutation<
       IUserResponse,
@@ -173,6 +212,7 @@ export const authApi = apiSlice.injectEndpoints({
 
 export const {
   useGetMeQuery,
+  useUpdateMeMutation,
   useChangePasswordMutation,
   useLoginMutation,
   useVerifyTwoFactorMutation,
