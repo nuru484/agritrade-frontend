@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 /**
- * Console primitives: shadcn components re-skinned to the Nasara Console
+ * Console primitives: shadcn components re-skinned to the DB Plus Console
  * system (Meridian slate + forest/gold/red accents, mono numerals). The
  * shadcn pieces provide behavior and a11y; the classes here pin the exact
  * console look — screens compose these, never restyle shadcn directly.
@@ -180,6 +180,6 @@ export function AdminField({
 /** Console control skin — layer onto shadcn Input/native selects so every
  * field matches the 38px slate box with the forest focus ring. */
 export const adminInputClass =
-  "h-[38px] w-full rounded-[6px] border border-slate-300 bg-white px-2.5 text-[14px] font-normal text-slate-900 shadow-none outline-none placeholder:text-slate-400 focus:border-console focus:shadow-[0_0_0_3px_rgb(30_61_43/0.15)] focus-visible:border-console focus-visible:ring-0";
+  "h-[38px] w-full rounded-[6px] border border-slate-300 bg-white px-2.5 text-[14px] font-normal text-slate-900 shadow-none outline-none placeholder:text-slate-300 focus:border-console focus:shadow-[0_0_0_3px_rgb(30_61_43/0.15)] focus-visible:border-console focus-visible:ring-0";
 
 export const adminSelectClass = cn(adminInputClass, "cursor-pointer");

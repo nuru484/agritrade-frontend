@@ -154,7 +154,7 @@ export function RegisterTable({
             onChange={(e) => setQuery(e.target.value)}
             placeholder={register.search}
             aria-label={register.search}
-            className="h-full w-full min-w-0 rounded-none border-0 bg-transparent p-0 text-[13px] text-slate-900 outline-none placeholder:text-slate-400 focus-visible:ring-0 md:text-[13px]"
+            className="h-full w-full min-w-0 rounded-none border-0 bg-transparent p-0 text-[13px] text-slate-900 outline-none placeholder:text-slate-300 focus-visible:ring-0 md:text-[13px]"
           />
         </label>
         {register.filters.map((filter) => (
