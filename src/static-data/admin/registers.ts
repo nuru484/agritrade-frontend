@@ -84,8 +84,7 @@ export type RegisterSlug =
   | "grants"
   | "repayments"
   | "suppliers"
-  | "buyers"
-  | "audit";
+  | "buyers";
 
 export const REGISTERS: Record<RegisterSlug, RegisterConfig & { rows: RegisterRow[] }> = {
   stock: {
@@ -400,33 +399,8 @@ export const REGISTERS: Record<RegisterSlug, RegisterConfig & { rows: RegisterRo
   },
   // `users` retired from the stub registers: /admin/users is now a live,
   // backend-driven module (src/app/admin/users + components/admin/users).
-  audit: {
-    readOnly: true,
-    title: "Audit Log",
-    sub: "Every change, by whom, from where",
-    single: "Entry",
-    add: null,
-    search: "Search user or record…",
-    filters: ["User", "Action"],
-    newTag: null,
-    headers: [
-      { l: "Time" },
-      { l: "User" },
-      { l: "Action" },
-      { l: "Record" },
-      { l: "Result", tag: true },
-    ],
-    figs: [],
-    ledger: null,
-    rows: [
-      ["11 Jul, 07:42", "Amina", "Recorded purchase", "P-0891", { t: "OK", tone: "leaf" }],
-      ["11 Jul, 07:10", "Amina", "Requested dispatch approval", "SH-0119", { t: "Pending", tone: "harvest" }],
-      ["10 Jul, 18:03", "Abdul", "Voided purchase — duplicate", "P-0886", { t: "OK", tone: "leaf" }],
-      ["10 Jul, 16:20", "Warehouse", "Loaded lot LOT-0442", "SH-0119", { t: "OK", tone: "leaf" }],
-      ["10 Jul, 11:48", "Salifu", "Edit purchase price", "P-0885", { t: "Denied", tone: "alert" }],
-      ["09 Jul, 09:12", "Amina", "Sent payment link", "S-0341", { t: "OK", tone: "leaf" }],
-    ],
-  },
+  // `audit` retired from the stub registers: /admin/audit is now a live,
+  // backend-driven module (src/app/admin/audit + components/admin/audit).
 };
 
 export function getRegister(

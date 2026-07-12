@@ -57,6 +57,46 @@ export function ConsoleLabeledSelect({
   );
 }
 
+/** Labelled native date input for From/To windows in the toolbar. */
+export function ConsoleDateField({
+  label,
+  value,
+  onChange,
+  min,
+  max,
+  className,
+}: {
+  label: string;
+  /** YYYY-MM-DD or "". */
+  value: string;
+  onChange: (value: string) => void;
+  min?: string;
+  max?: string;
+  className?: string;
+}) {
+  return (
+    <label
+      className={cn(
+        "grid min-w-0 gap-1 text-[10.5px] font-bold uppercase tracking-[0.08em] text-slate-400",
+        className,
+      )}
+    >
+      {label}
+      <input
+        type="date"
+        value={value}
+        min={min || undefined}
+        max={max || undefined}
+        onChange={(e) => onChange(e.target.value)}
+        className={cn(
+          "h-8 w-full cursor-pointer rounded-[6px] border bg-white px-2 text-[13px] font-normal normal-case tracking-normal text-slate-700 outline-none focus:border-console",
+          value ? "border-console/50" : "border-slate-200",
+        )}
+      />
+    </label>
+  );
+}
+
 /**
  * The console list toolbar (khadys-frontend's FilterBar pattern in the DB
  * Plus skin).
