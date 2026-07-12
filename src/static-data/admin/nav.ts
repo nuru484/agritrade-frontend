@@ -66,11 +66,10 @@ export const adminNavGroups: AdminNavGroup[] = [
     label: "Admin",
     items: [
       item("users", "Users"),
-      item("settings", "Settings"),
       item("audit", "Audit Log"),
       item("notifications", "Notifications"),
-      // "My profile" deliberately absent: the profile lives behind the
-      // navbar avatar menu (dms-frontend convention), not the rail.
+      // "My profile" and "Settings" deliberately absent: both live behind
+      // the navbar avatar menu (dms-frontend convention), not the rail.
     ],
   },
 ];
@@ -88,6 +87,9 @@ export function activeNavKey(pathname: string): string {
 /** Breadcrumb title for the topbar. */
 export function screenTitle(pathname: string): string {
   const key = activeNavKey(pathname);
+  // settings: fall back gracefully now that it lives outside the nav groups.
+  if (key === "settings") return "Settings";
+  if (key === "profile") return "My profile";
   for (const group of adminNavGroups) {
     const found = group.items.find((i) => i.key === key);
     if (found) return found.label;

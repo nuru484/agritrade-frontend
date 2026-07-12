@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LogOut, User as UserIcon, X } from "lucide-react";
+import { LogOut, Settings, User as UserIcon, X } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -151,6 +151,13 @@ function NavbarUser() {
             >
               <UserIcon className="h-3.5 w-3.5" aria-hidden="true" />
               My profile
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="cursor-pointer gap-2 text-[13px]"
+              onClick={() => router.push(`${ADMIN_HOME}/settings`)}
+            >
+              <Settings className="h-3.5 w-3.5" aria-hidden="true" />
+              Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem

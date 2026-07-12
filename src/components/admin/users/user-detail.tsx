@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Pencil } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -19,6 +20,7 @@ import {
   AdminCard,
   AdminField,
   AdminPageHeader,
+  ToneBadge,
   adminInputClass,
   adminSelectClass,
 } from "@/components/admin/ui";
@@ -42,12 +44,12 @@ import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
 import { UserRole, type IUser } from "@/types/user.types";
 import { editUserSchema, type EditUserValues } from "@/validations/user-schema";
+import { ROLE_LABEL, ROLE_OPTIONS, StatusBadge } from "./user-bits";
 import {
-  initialsOf,
-  ROLE_LABEL,
-  ROLE_OPTIONS,
-  StatusBadge,
-} from "./user-bits";
+  IdentityFacts,
+  ROLE_TITLE,
+  ViewablePhoto,
+} from "./user-identity";
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -61,19 +63,116 @@ const onApiError = (title: string) => (err: unknown) => {
   notify.error(title, { description: extractApiError(err).message });
 };
 
-/* ── Details (profile fields + permission flags) ─────────────────────────── */
+/* ── Identity + details (read-only until Edit) ───────────────────────────── */
 
-function DetailsCard({ user, isSelf }: { user: IUser; isSelf: boolean }) {
+function IdentityCard({ user, isSelf }: { user: IUser; isSelf: boolean }) {
+  const [editing, setEditing] = useState(false);
+
+  return (
+    <AdminCard className="px-6 py-6">
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
+        <ViewablePhoto user={user} size={96} />
+
+        <div className="min-w-0 flex-1">
+          {editing ? (
+            <EditDetailsForm
+              user={user}
+              isSelf={isSelf}
+              onClose={() => setEditing(false)}
+            />
+          ) : (
+            <>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <h2 className="text-[19px] font-bold tracking-[-0.01em] text-slate-900">
+                      {user.firstName} {user.lastName}
+                    </h2>
+                    <ToneBadge tone="forest">
+                      {ROLE_TITLE[user.role] ?? user.role}
+                    </ToneBadge>
+                    <StatusBadge user={user} />
+                    {isSelf ? (
+                      <span className="text-[11px] font-semibold text-slate-400">
+                        (you)
+                      </span>
+                    ) : null}
+                  </div>
+                  {user.pendingEmail ? (
+                    <p className="mt-1.5 text-[12px] font-medium text-console-gold">
+                      Email change to {user.pendingEmail} awaiting confirmation.
+                    </p>
+                  ) : null}
+                </div>
+                <AdminButton
+                  variant="secondary"
+                  className="h-[34px] flex-none px-3.5 text-[13px] whitespace-nowrap"
+                  onClick={() => setEditing(true)}
+                >
+                  <Pencil className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+                  Edit details
+                </AdminButton>
+              </div>
+
+              <div className="mt-5 border-t border-slate-100 pt-5">
+                <IdentityFacts user={user} />
+              </div>
+
+              <div className="mt-5 border-t border-slate-100 pt-4">
+                <dl className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
+                  <div>
+                    <dt className="text-[10.5px] font-bold uppercase tracking-[0.1em] text-slate-400">
+                      Can approve
+                    </dt>
+                    <dd className="mt-1 text-[13.5px] font-medium text-slate-800">
+                      {user.canApprove ? (
+                        <span className="text-console">Yes — may decide approvals</span>
+                      ) : (
+                        "No"
+                      )}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-[10.5px] font-bold uppercase tracking-[0.1em] text-slate-400">
+                      Financial visibility
+                    </dt>
+                    <dd className="mt-1 text-[13.5px] font-medium text-slate-800">
+                      {user.financialVisibility ? (
+                        <span className="text-console">Full — sees money columns</span>
+                      ) : (
+                        "Hidden"
+                      )}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </AdminCard>
+  );
+}
+
+function EditDetailsForm({
+  user,
+  isSelf,
+  onClose,
+}: {
+  user: IUser;
+  isSelf: boolean;
+  onClose: () => void;
+}) {
   const [updateUser, { isLoading }] = useUpdateUserMutation();
   const {
     register,
     control,
     handleSubmit,
     setError,
-    formState: { errors, isDirty },
+    formState: { errors },
   } = useForm<EditUserValues>({
     resolver: zodResolver(editUserSchema),
-    values: {
+    defaultValues: {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
@@ -102,6 +201,7 @@ function DetailsCard({ user, isSelf }: { user: IUser; isSelf: boolean }) {
         },
       }).unwrap();
       notify.success("User updated");
+      onClose();
     } catch (err) {
       const { message, fieldErrors, hasFieldErrors } = extractApiError(err);
       if (hasFieldErrors && fieldErrors) {
@@ -114,122 +214,132 @@ function DetailsCard({ user, isSelf }: { user: IUser; isSelf: boolean }) {
   };
 
   return (
-    <AdminCard className="px-5 py-[18px]">
-      <SectionLabel>Details</SectionLabel>
-      <form
-        noValidate
-        onSubmit={handleSubmit(onSubmit)}
-        className="flex max-w-[440px] flex-col gap-[13px]"
+    <form
+      noValidate
+      onSubmit={handleSubmit(onSubmit)}
+      className="grid max-w-[560px] gap-[15px]"
+    >
+      <div className="grid gap-[15px] sm:grid-cols-2">
+        <AdminField label="First name" error={errors.firstName?.message}>
+          <Input
+            placeholder="e.g. Amina"
+            className={cn(
+              adminInputClass,
+              errors.firstName && "border-console-red",
+            )}
+            {...register("firstName")}
+          />
+        </AdminField>
+        <AdminField label="Last name" error={errors.lastName?.message}>
+          <Input
+            placeholder="e.g. Abdulai"
+            className={cn(
+              adminInputClass,
+              errors.lastName && "border-console-red",
+            )}
+            {...register("lastName")}
+          />
+        </AdminField>
+      </div>
+      <AdminField
+        label="Email"
+        hint="Admin changes apply immediately (no confirmation email)."
+        error={errors.email?.message}
       >
-        <div className="grid gap-[13px] sm:grid-cols-2">
-          <AdminField label="First name" error={errors.firstName?.message}>
-            <Input
-              className={cn(
-                adminInputClass,
-                errors.firstName && "border-console-red",
-              )}
-              {...register("firstName")}
-            />
-          </AdminField>
-          <AdminField label="Last name" error={errors.lastName?.message}>
-            <Input
-              className={cn(
-                adminInputClass,
-                errors.lastName && "border-console-red",
-              )}
-              {...register("lastName")}
-            />
-          </AdminField>
-        </div>
-        <AdminField
-          label="Email"
-          hint="Admin changes apply immediately (no confirmation email)."
-          error={errors.email?.message}
+        <Input
+          type="email"
+          placeholder="them@dbplus.com"
+          className={cn(adminInputClass, errors.email && "border-console-red")}
+          {...register("email")}
+        />
+      </AdminField>
+      <AdminField label="Phone" optional error={errors.phone?.message}>
+        <Input
+          type="tel"
+          placeholder="024 000 0000"
+          className={cn(adminInputClass, errors.phone && "border-console-red")}
+          {...register("phone")}
+        />
+      </AdminField>
+
+      <div className="grid gap-3 rounded-[6px] border border-slate-200 bg-slate-50/60 p-3.5">
+        {isSelf ? (
+          <p className="text-[12px] text-slate-500">
+            You cannot change your own permission flags.
+          </p>
+        ) : null}
+        <Controller
+          control={control}
+          name="canApprove"
+          render={({ field }) => (
+            <label className="flex cursor-pointer items-center justify-between gap-3">
+              <span>
+                <span className="block text-[13px] font-semibold text-slate-800">
+                  Can approve
+                </span>
+                <span className="block text-[12px] text-slate-500">
+                  May decide pending approval requests.
+                </span>
+              </span>
+              <Switch
+                checked={field.value}
+                onCheckedChange={field.onChange}
+                disabled={isSelf}
+              />
+            </label>
+          )}
+        />
+        <Controller
+          control={control}
+          name="financialVisibility"
+          render={({ field }) => (
+            <label className="flex cursor-pointer items-center justify-between gap-3">
+              <span>
+                <span className="block text-[13px] font-semibold text-slate-800">
+                  Financial visibility
+                </span>
+                <span className="block text-[12px] text-slate-500">
+                  May see prices, totals and profit.
+                </span>
+              </span>
+              <Switch
+                checked={field.value}
+                onCheckedChange={field.onChange}
+                disabled={isSelf}
+              />
+            </label>
+          )}
+        />
+      </div>
+
+      <div className="flex gap-2">
+        <AdminButton
+          type="submit"
+          disabled={isLoading}
+          className="h-[36px] px-4 text-[13px]"
         >
-          <Input
-            type="email"
-            className={cn(adminInputClass, errors.email && "border-console-red")}
-            {...register("email")}
-          />
-        </AdminField>
-        <AdminField label="Phone" optional error={errors.phone?.message}>
-          <Input
-            type="tel"
-            placeholder="024 000 0000"
-            className={cn(adminInputClass, errors.phone && "border-console-red")}
-            {...register("phone")}
-          />
-        </AdminField>
-
-        <div className="grid gap-3 rounded-[6px] border border-slate-200 bg-slate-50/60 p-3.5">
-          {isSelf ? (
-            <p className="text-[12px] text-slate-500">
-              You cannot change your own permission flags.
-            </p>
-          ) : null}
-          <Controller
-            control={control}
-            name="canApprove"
-            render={({ field }) => (
-              <label className="flex cursor-pointer items-center justify-between gap-3">
-                <span>
-                  <span className="block text-[13px] font-semibold text-slate-800">
-                    Can approve
-                  </span>
-                  <span className="block text-[12px] text-slate-500">
-                    May decide pending approval requests.
-                  </span>
-                </span>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                  disabled={isSelf}
-                />
-              </label>
-            )}
-          />
-          <Controller
-            control={control}
-            name="financialVisibility"
-            render={({ field }) => (
-              <label className="flex cursor-pointer items-center justify-between gap-3">
-                <span>
-                  <span className="block text-[13px] font-semibold text-slate-800">
-                    Financial visibility
-                  </span>
-                  <span className="block text-[12px] text-slate-500">
-                    May see prices, totals and profit.
-                  </span>
-                </span>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                  disabled={isSelf}
-                />
-              </label>
-            )}
-          />
-        </div>
-
-        <div>
-          <AdminButton
-            type="submit"
-            disabled={isLoading || !isDirty}
-            className="h-[36px] px-4 text-[13px]"
-          >
-            {isLoading ? "Saving…" : "Save changes"}
-          </AdminButton>
-        </div>
-      </form>
-    </AdminCard>
+          {isLoading ? "Saving…" : "Save changes"}
+        </AdminButton>
+        <AdminButton
+          type="button"
+          variant="ghost"
+          disabled={isLoading}
+          className="h-[36px] px-3.5 text-[13px]"
+          onClick={onClose}
+        >
+          Cancel
+        </AdminButton>
+      </div>
+    </form>
   );
 }
 
-/* ── Role ────────────────────────────────────────────────────────────────── */
+/* ── Role (read-only until "Change role") ────────────────────────────────── */
 
 function RoleCard({ user, isSelf }: { user: IUser; isSelf: boolean }) {
   const { confirm, confirmationDialog } = useConfirm();
   const [changeRole, { isLoading }] = useChangeUserRoleMutation();
+  const [open, setOpen] = useState(false);
   const [role, setRole] = useState<UserRole>(user.role);
 
   const apply = async () => {
@@ -242,6 +352,7 @@ function RoleCard({ user, isSelf }: { user: IUser; isSelf: boolean }) {
     if (!ok) return;
     try {
       await changeRole({ id: user.id, role }).unwrap();
+      setOpen(false);
       notify.success(`Role changed to ${ROLE_LABEL[role]}`);
     } catch (err) {
       setRole(user.role);
@@ -250,46 +361,75 @@ function RoleCard({ user, isSelf }: { user: IUser; isSelf: boolean }) {
   };
 
   return (
-    <AdminCard className="px-5 py-[18px]">
+    // Plain-div anchor: the row-actions menu deep-links here as /users/:id#role.
+    <div id="role" className="scroll-mt-20">
+      <AdminCard className="px-6 py-[18px]">
       <SectionLabel>Role</SectionLabel>
-      <div className="flex max-w-[440px] items-end gap-2">
-        <div className="min-w-0 flex-1">
-          <AdminField
-            label="Access level"
-            hint={
-              isSelf
-                ? "You cannot change your own role."
-                : "Role changes sign the user out everywhere."
-            }
-          >
-            <Select
-              value={role}
-              onValueChange={(v) => setRole(v as UserRole)}
-              disabled={isSelf}
+      {open ? (
+        <div className="flex max-w-[560px] items-end gap-2">
+          <div className="min-w-0 flex-1">
+            <AdminField
+              label="Access level"
+              hint="Role changes sign the user out everywhere."
             >
-              <SelectTrigger className={cn(adminSelectClass, "w-full")}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {ROLE_OPTIONS.map((r) => (
-                  <SelectItem key={r} value={r}>
-                    {ROLE_LABEL[r]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </AdminField>
+              <Select value={role} onValueChange={(v) => setRole(v as UserRole)}>
+                <SelectTrigger className={cn(adminSelectClass, "w-full")}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {ROLE_OPTIONS.map((r) => (
+                    <SelectItem key={r} value={r} className="cursor-pointer">
+                      {ROLE_LABEL[r]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </AdminField>
+          </div>
+          <AdminButton
+            className="h-[38px] flex-none px-4 text-[13px]"
+            disabled={isLoading || role === user.role}
+            onClick={() => void apply()}
+          >
+            {isLoading ? "Applying…" : "Apply"}
+          </AdminButton>
+          <AdminButton
+            variant="ghost"
+            className="h-[38px] flex-none px-3 text-[13px]"
+            onClick={() => {
+              setOpen(false);
+              setRole(user.role);
+            }}
+          >
+            Cancel
+          </AdminButton>
         </div>
-        <AdminButton
-          className="h-[38px] flex-none px-4 text-[13px]"
-          disabled={isSelf || isLoading || role === user.role}
-          onClick={() => void apply()}
-        >
-          {isLoading ? "Applying…" : "Apply"}
-        </AdminButton>
-      </div>
+      ) : (
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <div className="text-[13.5px] font-semibold text-slate-900">
+              {ROLE_TITLE[user.role] ?? user.role}
+            </div>
+            <div className="mt-0.5 text-[12.5px] text-slate-500">
+              {isSelf
+                ? "You cannot change your own role."
+                : "Changing the role signs the user out everywhere."}
+            </div>
+          </div>
+          {!isSelf ? (
+            <AdminButton
+              variant="secondary"
+              className="h-[34px] flex-none px-3.5 text-[13px] whitespace-nowrap"
+              onClick={() => setOpen(true)}
+            >
+              Change role
+            </AdminButton>
+          ) : null}
+        </div>
+      )}
       {confirmationDialog}
-    </AdminCard>
+      </AdminCard>
+    </div>
   );
 }
 
@@ -453,13 +593,13 @@ function ActionsCard({ user, isSelf }: { user: IUser; isSelf: boolean }) {
 
   return (
     <AdminCard className="overflow-hidden">
-      <div className="px-5 pt-3.5 pb-1 text-[10.5px] font-bold tracking-[0.1em] text-slate-400 uppercase">
+      <div className="px-6 pt-3.5 pb-1 text-[10.5px] font-bold tracking-[0.1em] text-slate-400 uppercase">
         Account actions
       </div>
       {visible.map((row) => (
         <div
           key={row.key}
-          className="flex items-center gap-3 border-t border-slate-100 px-5 py-3 first:border-t-0"
+          className="flex items-center gap-3 border-t border-slate-100 px-6 py-3 first:border-t-0"
         >
           <div className="min-w-0 flex-1">
             <div className="text-[13.5px] font-semibold text-slate-900">
@@ -504,10 +644,10 @@ export function UserDetail({ id }: { id: string }) {
   const isSelf = me?.id === user.id;
 
   return (
-    <div className="max-w-[640px]">
+    <div className="max-w-[720px]">
       <AdminPageHeader
         title={`${user.firstName} ${user.lastName}`}
-        sub={`${ROLE_LABEL[user.role]} · ${user.email}`}
+        sub={`${ROLE_TITLE[user.role] ?? user.role} · ${user.email}`}
         actions={
           <Link
             href="/admin/users"
@@ -519,52 +659,7 @@ export function UserDetail({ id }: { id: string }) {
       />
 
       <div className="flex flex-col gap-4">
-        <AdminCard className="flex flex-wrap items-center gap-3.5 px-5 py-[16px]">
-          {user.profilePicture ? (
-            // eslint-disable-next-line @next/next/no-img-element -- avatar
-            <img
-              src={user.profilePicture}
-              alt=""
-              width={52}
-              height={52}
-              className="h-[52px] w-[52px] flex-none rounded-full object-cover"
-            />
-          ) : (
-            <div className="flex h-[52px] w-[52px] flex-none items-center justify-center rounded-full bg-console text-[17px] font-bold text-white">
-              {initialsOf(user)}
-            </div>
-          )}
-          <div className="min-w-[160px] flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[15px] font-bold text-slate-900">
-                {user.firstName} {user.lastName}
-              </span>
-              <StatusBadge user={user} />
-              {user.twoFactorEnabled ? (
-                <span className="text-[11px] font-semibold text-console">
-                  2FA on
-                </span>
-              ) : null}
-              {isSelf ? (
-                <span className="text-[11px] font-semibold text-slate-400">
-                  (you)
-                </span>
-              ) : null}
-            </div>
-            <div className="mt-0.5 text-[12.5px] text-slate-500">
-              Member since{" "}
-              {new Date(user.createdAt).toLocaleDateString("en-GB", {
-                month: "long",
-                year: "numeric",
-              })}
-              {user.lastLoginAt
-                ? ` · Last sign-in ${new Date(user.lastLoginAt).toLocaleString("en-GB")}`
-                : " · Never signed in"}
-            </div>
-          </div>
-        </AdminCard>
-
-        <DetailsCard user={user} isSelf={isSelf} />
+        <IdentityCard user={user} isSelf={isSelf} />
         <RoleCard user={user} isSelf={isSelf} />
         <ActionsCard user={user} isSelf={isSelf} />
       </div>
