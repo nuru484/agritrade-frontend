@@ -404,7 +404,7 @@ function PasswordCard() {
           </div>
         </form>
       ) : (
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <div className="font-adminmono text-[15px] tracking-[0.2em] text-slate-400">
               ••••••••••
@@ -568,7 +568,7 @@ function TwoFactorCard() {
   return (
     <AdminCard className="px-6 py-[18px]">
       <SectionLabel>Two-factor authentication</SectionLabel>
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <div className="text-[13.5px] font-semibold text-slate-900">
             {enabled ? "Email codes — enabled" : "Email codes — off"}
@@ -580,7 +580,7 @@ function TwoFactorCard() {
           </div>
         </div>
         {enabled ? (
-          <div className="flex flex-none gap-2">
+          <div className="flex flex-none flex-wrap gap-2">
             <AdminButton
               variant="secondary"
               className="h-[32px] px-3 text-[12.5px] whitespace-nowrap"
@@ -723,7 +723,7 @@ function TwoFactorCard() {
 
 export function ProfileScreen() {
   return (
-    <div className="max-w-[720px]">
+    <div className="w-full xl:max-w-[820px]">
       <AdminPageHeader
         title="My profile"
         sub="Your account, security and sign-in settings"

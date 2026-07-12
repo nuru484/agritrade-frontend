@@ -586,7 +586,7 @@ function ActionsCard({ user, isSelf }: { user: IUser; isSelf: boolean }) {
       {visible.map((row) => (
         <div
           key={row.key}
-          className="flex items-center gap-3 border-t border-slate-100 px-6 py-3 first:border-t-0"
+          className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-slate-100 px-4 py-3 first:border-t-0 sm:px-6"
         >
           <div className="min-w-0 flex-1">
             <div className="text-[13.5px] font-semibold text-slate-900">
@@ -631,7 +631,7 @@ export function UserDetail({ id }: { id: string }) {
   const isSelf = me?.id === user.id;
 
   return (
-    <div className="max-w-[720px]">
+    <div className="w-full xl:max-w-[820px]">
       <AdminPageHeader
         title={`${user.firstName} ${user.lastName}`}
         sub={`${ROLE_TITLE[user.role] ?? user.role} · ${user.email}`}
