@@ -21,7 +21,9 @@ function pageWindow(page: number, totalPages: number): (number | "…")[] {
 
 /**
  * Numbered pagination for plain lists (cards, grids — anything that isn't a
- * data table). Hides itself entirely for a single page, dms-frontend style.
+ * data table), in the DB Plus ledger idiom: mono page figures as underline
+ * tabs (the current page carries the console rule) between round ghost
+ * chevrons. Hides itself entirely for a single page.
  */
 export function ListPagination({
   page,
@@ -37,17 +39,17 @@ export function ListPagination({
 }) {
   if (totalPages <= 1) return null;
 
-  const button =
-    "flex h-8 min-w-8 cursor-pointer items-center justify-center rounded-[6px] border px-2 text-[12.5px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40";
+  const chevron =
+    "flex h-8 w-8 flex-none cursor-pointer items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-console/10 hover:text-console disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-500";
 
   return (
     <nav
       aria-label="Pagination"
-      className={cn("flex flex-wrap items-center justify-center gap-1.5", className)}
+      className={cn("flex flex-wrap items-center justify-center gap-1", className)}
     >
       <button
         type="button"
-        className={cn(button, "border-slate-200 bg-white text-slate-600 hover:bg-slate-50")}
+        className={chevron}
         onClick={() => onPageChange(Math.max(1, page - 1))}
         disabled={page <= 1}
         aria-label="Previous page"
@@ -56,7 +58,10 @@ export function ListPagination({
       </button>
       {pageWindow(page, totalPages).map((p, i) =>
         p === "…" ? (
-          <span key={`gap-${String(i)}`} className="px-1 text-slate-400">
+          <span
+            key={`gap-${String(i)}`}
+            className="font-adminmono px-0.5 text-[12px] text-slate-300"
+          >
             …
           </span>
         ) : (
@@ -66,10 +71,10 @@ export function ListPagination({
             aria-current={p === page ? "page" : undefined}
             onClick={() => onPageChange(p)}
             className={cn(
-              button,
+              "font-adminmono flex h-8 min-w-7 cursor-pointer items-center justify-center border-b-2 px-1 text-[12.5px] font-bold transition-colors",
               p === page
-                ? "border-console bg-console text-white"
-                : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
+                ? "border-console text-console"
+                : "border-transparent text-slate-500 hover:text-console",
             )}
           >
             {p}
@@ -78,7 +83,7 @@ export function ListPagination({
       )}
       <button
         type="button"
-        className={cn(button, "border-slate-200 bg-white text-slate-600 hover:bg-slate-50")}
+        className={chevron}
         onClick={() => onPageChange(Math.min(totalPages, page + 1))}
         disabled={page >= totalPages}
         aria-label="Next page"
