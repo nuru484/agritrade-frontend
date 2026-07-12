@@ -210,6 +210,7 @@ export function AuditTable() {
             value={filters.category}
             onChange={(v) => setFilter("category", v)}
             options={CATEGORY_OPTIONS}
+            active={filters.category !== "all"}
             className="md:w-[170px]"
           />
           <ConsoleDateField
