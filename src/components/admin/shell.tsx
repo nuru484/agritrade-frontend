@@ -17,6 +17,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
+  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 import {
@@ -411,6 +412,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
       <SidebarInset className="bg-transparent pb-[62px] md:pb-0">
         <header className="sticky top-0 z-40 flex h-[54px] flex-none items-center gap-3 border-b border-slate-200 bg-white px-4 lg:px-[26px]">
+          {/* Collapse/expand the rail (sheet on mobile) — dms behaviour in the
+              console skin, living on the topbar's left edge. */}
+          <SidebarTrigger className="h-[30px] w-[30px] flex-none cursor-pointer rounded-[6px] border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-console max-md:hidden" />
           <div className="flex min-w-0 items-center gap-1.5 overflow-hidden whitespace-nowrap text-[13px] text-slate-500">
             <span className="text-slate-400 max-sm:hidden">DB Plus</span>
             <span className="text-slate-300 max-sm:hidden">/</span>
