@@ -319,7 +319,7 @@ export function UsersTable() {
           onChange={(v) => setFilter("role", v)}
           options={ROLE_FILTER_OPTIONS}
           active={roleFilter !== "all"}
-          className="md:w-[150px]"
+          className="lg:w-[150px]"
         />
         <ConsoleLabeledSelect
           label="Status"
@@ -327,7 +327,7 @@ export function UsersTable() {
           onChange={(v) => setFilter("status", v)}
           options={STATUS_FILTER_OPTIONS}
           active={statusFilter !== "all"}
-          className="md:w-[150px]"
+          className="lg:w-[150px]"
         />
       </ConsoleFilterBar>
       )}

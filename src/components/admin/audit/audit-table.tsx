@@ -211,21 +211,21 @@ export function AuditTable() {
             onChange={(v) => setFilter("category", v)}
             options={CATEGORY_OPTIONS}
             active={filters.category !== "all"}
-            className="md:w-[170px]"
+            className="lg:w-[170px]"
           />
           <ConsoleDateField
             label="From"
             value={filters.from}
             max={filters.to || undefined}
             onChange={(v) => setFilter("from", v)}
-            className="md:w-[150px]"
+            className="lg:w-[150px]"
           />
           <ConsoleDateField
             label="To"
             value={filters.to}
             min={filters.from || undefined}
             onChange={(v) => setFilter("to", v)}
-            className="md:w-[150px]"
+            className="lg:w-[150px]"
           />
         </ConsoleFilterBar>
       )}

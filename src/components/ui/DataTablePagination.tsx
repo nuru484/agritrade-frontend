@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 export const PAGE_SIZE_OPTIONS = [5, 10, 20, 30, 50, 100] as const;
 
 const microLabel =
-  "text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400";
+  "text-[10.5px] font-bold uppercase tracking-[0.1em] text-slate-500";
 
 /** Zero-pads a page number to the ledger width ("02 ∕ 12"). */
 const pad = (n: number, width: number) => String(n).padStart(width, "0");

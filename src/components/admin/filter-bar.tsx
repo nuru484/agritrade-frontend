@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
  * criteria read at a glance.
  */
 const fieldLabel =
-  "grid min-w-0 gap-1 text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400";
+  "grid min-w-0 gap-1 text-[10.5px] font-bold uppercase tracking-[0.1em] text-slate-500";
 
 const fieldRule = (active: boolean) =>
   cn(
@@ -130,14 +130,17 @@ export function ConsoleDateField({
  * The console list toolbar in the DB Plus field idiom — labelled underline
  * fields on the page ground, no boxed inputs.
  *
- * Desktop (md+): ONE ordered row — the search field, then the labelled
- * filters aligned to its baseline, Clear, and the persistent action pushed
- * to the right edge. Nothing wraps haphazardly; the row is the standard
- * admin-toolbar shape.
+ * Desktop (lg+): ONE ordered row — the search field standing wide, then as
+ * many labelled filters as the register defines aligned to its baseline,
+ * Clear, and the persistent action pushed to the right edge.
  *
- * Mobile: the search runs full width on its own line; a "Filters" toggle
- * with a mono active-count reveals the filters as an even two-column grid,
- * with the action anchored beside the toggle.
+ * Tablet (md–lg): the search takes the full width on its own line; the
+ * filters come down into an even grid capped at four columns, with the
+ * action anchored at the right end of that row.
+ *
+ * Mobile: full-width search, then a "Filters" toggle with a mono
+ * active-count revealing the filters as a two-column grid, the action
+ * anchored beside the toggle.
  */
 export function ConsoleFilterBar({
   search,
@@ -163,7 +166,7 @@ export function ConsoleFilterBar({
   const [open, setOpen] = useState(false);
 
   const searchField = (
-    <label className={cn(fieldLabel, "w-full md:w-[240px] lg:w-[260px]")}>
+    <label className={cn(fieldLabel, "w-full lg:w-[300px] xl:w-[340px]")}>
       Search
       <span className={fieldRule(search.length > 0)}>
         <span
@@ -207,16 +210,28 @@ export function ConsoleFilterBar({
 
   return (
     <div className="mb-3">
-      {/* ── Desktop: one ordered toolbar row ─────────────────────────────── */}
-      <div className="hidden md:flex md:flex-wrap md:items-end md:gap-x-5 md:gap-y-2.5">
+      {/* ── Desktop: one ordered toolbar row, search standing wide ───────── */}
+      <div className="hidden lg:flex lg:flex-wrap lg:items-end lg:gap-x-5 lg:gap-y-2.5">
         {searchField}
         {children}
         {clearButton ? (
-          <div className="md:flex md:h-8 md:items-center md:self-end">
-            {clearButton}
-          </div>
+          <div className="flex h-8 items-center self-end">{clearButton}</div>
         ) : null}
-        <div className="ml-auto md:self-end">{action}</div>
+        <div className="ml-auto self-end">{action}</div>
+      </div>
+
+      {/* ── Tablet: full-width search, filters down in a ≤4-col grid ─────── */}
+      <div className="hidden md:block lg:hidden">
+        {searchField}
+        <div className="mt-3 flex items-end gap-4">
+          <div className="grid flex-1 grid-cols-4 items-end gap-x-4 gap-y-3">
+            {children}
+            {clearButton ? (
+              <div className="flex h-8 items-center self-end">{clearButton}</div>
+            ) : null}
+          </div>
+          <div className="flex-none">{action}</div>
+        </div>
       </div>
 
       {/* ── Mobile: search line, then toggle + action, then the panel ────── */}
@@ -232,7 +247,7 @@ export function ConsoleFilterBar({
               "inline-flex h-8 cursor-pointer items-center gap-2 whitespace-nowrap border-b px-0.5 text-[10.5px] font-bold uppercase tracking-[0.1em] transition-colors",
               open
                 ? "border-console text-console"
-                : "border-slate-300 text-slate-500 hover:text-console",
+                : "border-slate-300 text-slate-600 hover:text-console",
             )}
           >
             <span
