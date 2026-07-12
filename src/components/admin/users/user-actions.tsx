@@ -129,7 +129,12 @@ export function UserActionsDropdown({ user }: { user: IUser }) {
   };
 
   return (
-    <>
+    // display:contents wrapper — layout-neutral, but it intercepts the React
+    // SYNTHETIC bubble from the portaled menu/dialogs. Radix portals render at
+    // <body> in the DOM, yet React events still bubble through the component
+    // tree — without this, a click inside the role dialog or a confirm dialog
+    // reaches the table row's onClick and navigates to the detail page.
+    <span className="contents" onClick={(e) => e.stopPropagation()}>
       <DropdownMenu>
         <DropdownMenuTrigger
           aria-label={`Actions for ${name}`}
@@ -210,6 +215,6 @@ export function UserActionsDropdown({ user }: { user: IUser }) {
         onOpenChange={setRoleDialogOpen}
       />
       {confirmationDialog}
-    </>
+    </span>
   );
 }
