@@ -116,9 +116,12 @@ function IdentityCard({ user, isSelf }: { user: IUser; isSelf: boolean }) {
       <div className="px-4 pb-6 sm:px-6">
         <div className="-mt-[52px] flex flex-col items-center gap-3 sm:flex-row sm:items-end sm:gap-5">
           <UserPhoto user={user} />
-          <div className="min-w-0 flex-1 text-center sm:pb-2 sm:text-left">
+          <div className="w-full min-w-0 flex-1 text-center sm:w-auto sm:pb-2 sm:text-left">
             <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-              <h2 className="max-w-full break-words text-[20px] font-bold tracking-[-0.01em] text-slate-900">
+              <h2
+                title={`${user.firstName} ${user.lastName}`}
+                className="line-clamp-2 max-w-full break-words text-[17px] font-bold tracking-[-0.01em] text-slate-900 sm:text-[20px]"
+              >
                 {user.firstName} {user.lastName}
               </h2>
               <ToneBadge tone="forest">
@@ -131,7 +134,10 @@ function IdentityCard({ user, isSelf }: { user: IUser; isSelf: boolean }) {
                 </span>
               ) : null}
             </div>
-            <p className="mt-0.5 break-all text-[13px] text-slate-500">
+            <p
+              className="mt-0.5 truncate text-[13px] text-slate-500"
+              title={user.email}
+            >
               {user.email}
             </p>
             {user.pendingEmail ? (
