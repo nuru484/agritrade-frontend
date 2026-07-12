@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Camera, Loader2, Trash2 } from "lucide-react";
+import { Camera, Pencil, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import {
@@ -11,8 +11,15 @@ import {
   AdminCard,
   AdminField,
   AdminPageHeader,
+  ToneBadge,
   adminInputClass,
 } from "@/components/admin/ui";
+import {
+  IdentityAvatar,
+  IdentityFacts,
+  PhotoViewDialog,
+  ROLE_TITLE,
+} from "@/components/admin/users/user-identity";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import {
@@ -42,67 +49,124 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-const ROLE_LABEL: Record<string, string> = {
-  SUPER_ADMIN: "Super admin",
-  STAFF: "Office staff",
-  AGENT: "Field agent",
-};
+/* ── Profile photo (managed on its own — no Edit mode required) ──────────── */
 
-const memberSince = (iso: string) =>
-  new Date(iso).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+/**
+ * The avatar with its own lifecycle: click the photo to view it full-size
+ * (square), the camera button to pick a new one (uploads immediately with a
+ * busy overlay — the file travels multipart and the backend owns Cloudinary),
+ * and the trash to remove it (confirm-gated; the backend deletes the asset
+ * and clears the stored URL).
+ */
+function AvatarManager({ user }: { user: IUser }) {
+  const [updateMe, { isLoading }] = useUpdateMeMutation();
+  const { confirm, confirmationDialog } = useConfirm();
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [viewing, setViewing] = useState(false);
 
-/* ── Avatar ──────────────────────────────────────────────────────────────── */
+  const upload = async (file: File | undefined) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      notify.error("Choose an image file (JPG or PNG).");
+      return;
+    }
+    try {
+      await updateMe({ body: {}, photo: file }).unwrap();
+      notify.success("Profile photo updated");
+    } catch (err) {
+      notify.error("Couldn't upload the photo", {
+        description: extractApiError(err).message,
+      });
+    } finally {
+      if (fileInput.current) fileInput.current.value = "";
+    }
+  };
 
-function Avatar({
-  user,
-  previewUrl,
-  size = 72,
-  busy = false,
-}: {
-  user: IUser;
-  /** A locally-chosen file's object URL, shown before the save lands. */
-  previewUrl?: string | null;
-  size?: number;
-  busy?: boolean;
-}) {
-  const src = previewUrl ?? user.profilePicture;
-  const initials =
-    `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
+  const remove = async () => {
+    const ok = await confirm({
+      title: "Remove your profile photo?",
+      description: "The photo is deleted from storage as well.",
+      confirmText: "Remove photo",
+      isDestructive: true,
+    });
+    if (!ok) return;
+    try {
+      await updateMe({ body: { removeProfilePicture: true } }).unwrap();
+      notify.success("Profile photo removed");
+    } catch (err) {
+      notify.error("Couldn't remove the photo", {
+        description: extractApiError(err).message,
+      });
+    }
+  };
+
   return (
-    <div
-      className="relative flex-none overflow-hidden rounded-full"
-      style={{ width: size, height: size }}
-    >
-      {src ? (
-        // eslint-disable-next-line @next/next/no-img-element -- Cloudinary/objectURL avatar
-        <img
-          src={src}
-          alt=""
-          width={size}
-          height={size}
-          className="h-full w-full object-cover"
-        />
-      ) : (
-        <div
-          className="flex h-full w-full items-center justify-center bg-console font-bold text-white"
-          style={{ fontSize: size * 0.28 }}
+    <div className="flex flex-none flex-col items-center gap-2">
+      {user.profilePicture ? (
+        <button
+          type="button"
+          onClick={() => setViewing(true)}
+          aria-label="View profile photo"
+          title="View photo"
+          className="cursor-zoom-in rounded-full outline-none focus-visible:ring-2 focus-visible:ring-console/40"
         >
-          {initials}
-        </div>
-      )}
-      {busy ? (
-        <div className="absolute inset-0 flex items-center justify-center rounded-full bg-slate-900/45">
-          <Loader2
-            className="h-5 w-5 animate-spin text-white"
-            aria-hidden="true"
+          <IdentityAvatar
+            user={user}
+            src={user.profilePicture}
+            size={104}
+            busy={isLoading}
           />
-        </div>
+        </button>
+      ) : (
+        <IdentityAvatar user={user} src={null} size={104} busy={isLoading} />
+      )}
+
+      <div className="flex items-center gap-1.5">
+        <button
+          type="button"
+          onClick={() => fileInput.current?.click()}
+          disabled={isLoading}
+          className="inline-flex cursor-pointer items-center gap-1.5 rounded-[6px] border border-slate-200 bg-white px-2.5 py-1.5 text-[12px] font-semibold text-slate-600 transition-colors hover:border-console hover:text-console disabled:opacity-50"
+        >
+          <Camera className="h-3.5 w-3.5" aria-hidden="true" />
+          {user.profilePicture ? "Change" : "Add photo"}
+        </button>
+        {user.profilePicture ? (
+          <button
+            type="button"
+            onClick={() => void remove()}
+            disabled={isLoading}
+            aria-label="Remove photo"
+            title="Remove photo"
+            className="flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-[6px] border border-slate-200 bg-white text-slate-400 transition-colors hover:border-console-red hover:text-console-red disabled:opacity-50"
+          >
+            <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+          </button>
+        ) : null}
+      </div>
+      <span className="text-[11px] text-slate-400">JPG or PNG</span>
+
+      <input
+        ref={fileInput}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => void upload(e.target.files?.[0])}
+      />
+      {user.profilePicture ? (
+        <PhotoViewDialog
+          src={user.profilePicture}
+          name={`${user.firstName} ${user.lastName}`}
+          open={viewing}
+          onOpenChange={setViewing}
+        />
       ) : null}
+      {confirmationDialog}
     </div>
   );
 }
 
-/* ── Identity / edit profile ─────────────────────────────────────────────── */
+/* ── Identity ────────────────────────────────────────────────────────────── */
 
 function IdentityCard() {
   const user = useCurrentUser();
@@ -110,42 +174,49 @@ function IdentityCard() {
   if (!user) return null;
 
   return (
-    <AdminCard className="px-5 py-[18px]">
-      {editing ? (
-        <ProfileEditForm user={user} onClose={() => setEditing(false)} />
-      ) : (
-        <div className="flex flex-wrap items-center gap-4">
-          <Avatar user={user} />
-          <div className="min-w-[180px] flex-1">
-            <div className="text-[16px] font-bold text-slate-900">
-              {user.firstName} {user.lastName}
-            </div>
-            <div className="text-[13px] text-slate-500">
-              {ROLE_LABEL[user.role] ?? user.role}
-              {user.phone ? ` · ${user.phone}` : ""} · {user.email}
-            </div>
-            <div className="mt-0.5 text-[12px] text-slate-400">
-              Member since {memberSince(user.createdAt)}
-              {user.lastLoginAt
-                ? ` · Last sign-in ${new Date(user.lastLoginAt).toLocaleString("en-GB")}`
-                : ""}
-            </div>
-            {user.pendingEmail ? (
-              <div className="mt-1 text-[12px] font-medium text-console-gold">
-                Email change to {user.pendingEmail} awaiting confirmation —
-                check that inbox.
+    <AdminCard className="px-6 py-6">
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
+        <AvatarManager user={user} />
+
+        <div className="min-w-0 flex-1">
+          {editing ? (
+            <ProfileEditForm user={user} onClose={() => setEditing(false)} />
+          ) : (
+            <>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <h2 className="text-[19px] font-bold tracking-[-0.01em] text-slate-900">
+                      {user.firstName} {user.lastName}
+                    </h2>
+                    <ToneBadge tone="forest">
+                      {ROLE_TITLE[user.role] ?? user.role}
+                    </ToneBadge>
+                  </div>
+                  {user.pendingEmail ? (
+                    <p className="mt-1.5 text-[12px] font-medium text-console-gold">
+                      Email change to {user.pendingEmail} awaiting confirmation
+                      — check that inbox.
+                    </p>
+                  ) : null}
+                </div>
+                <AdminButton
+                  variant="secondary"
+                  className="h-[34px] flex-none px-3.5 text-[13px] whitespace-nowrap"
+                  onClick={() => setEditing(true)}
+                >
+                  <Pencil className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+                  Edit profile
+                </AdminButton>
               </div>
-            ) : null}
-          </div>
-          <AdminButton
-            variant="secondary"
-            className="h-[34px] px-3.5 text-[13px] whitespace-nowrap"
-            onClick={() => setEditing(true)}
-          >
-            Edit profile
-          </AdminButton>
+
+              <div className="mt-5 border-t border-slate-100 pt-5">
+                <IdentityFacts user={user} />
+              </div>
+            </>
+          )}
         </div>
-      )}
+      </div>
     </AdminCard>
   );
 }
@@ -158,23 +229,6 @@ function ProfileEditForm({
   onClose: () => void;
 }) {
   const [updateMe, { isLoading }] = useUpdateMeMutation();
-  const fileInput = useRef<HTMLInputElement>(null);
-  // File + its object URL travel together; URLs are created/revoked in the
-  // event handlers (not an effect) and once more on unmount via the ref.
-  const [chosen, setChosen] = useState<{ file: File; url: string } | null>(
-    null,
-  );
-  const chosenUrl = useRef<string | null>(null);
-  const [removePhoto, setRemovePhoto] = useState(false);
-  const photo = chosen?.file ?? null;
-  const previewUrl = chosen?.url ?? null;
-
-  const dropPreview = () => {
-    if (chosenUrl.current) URL.revokeObjectURL(chosenUrl.current);
-    chosenUrl.current = null;
-  };
-  // Revoke a still-live preview URL when the form unmounts.
-  useEffect(() => dropPreview, []);
 
   const {
     register,
@@ -191,45 +245,17 @@ function ProfileEditForm({
     },
   });
 
-  const choosePhoto = (file: File | undefined) => {
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      notify.error("Choose an image file (JPG or PNG).");
-      return;
-    }
-    dropPreview();
-    const url = URL.createObjectURL(file);
-    chosenUrl.current = url;
-    setChosen({ file, url });
-    setRemovePhoto(false);
-  };
-
-  const clearPhoto = () => {
-    dropPreview();
-    setChosen(null);
-    if (fileInput.current) fileInput.current.value = "";
-    // Clearing an EXISTING photo is a real deletion (Cloudinary + DB) that
-    // happens on save; clearing a just-chosen file is purely local.
-    if (user.profilePicture) setRemovePhoto(true);
-  };
-
-  const hasVisiblePhoto = Boolean(
-    previewUrl ?? (removePhoto ? null : user.profilePicture),
-  );
-
   const onSubmit = async (values: ProfileValues) => {
     try {
       const res = await updateMe({
         body: {
           firstName: values.firstName,
           lastName: values.lastName,
-          // Only send the email when it actually changed — sending the same
-          // address is a no-op, a new one starts the confirmation flow.
+          // Only send the email when it actually changed — a new one starts
+          // the confirmation flow rather than switching directly.
           ...(values.email !== user.email ? { email: values.email } : {}),
           phone: values.phone?.trim() ? values.phone.trim() : null,
-          ...(removePhoto ? { removeProfilePicture: true } : {}),
         },
-        photo: photo ?? undefined,
       }).unwrap();
       notify.success("Profile updated");
       if (res.data.emailChangeRequested) {
@@ -254,110 +280,67 @@ function ProfileEditForm({
     <form
       noValidate
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col gap-5 sm:flex-row sm:items-start"
+      className="grid max-w-[560px] gap-[15px]"
     >
-      {/* Photo block — avatar left, controls under it */}
-      <div className="flex flex-none flex-col items-center gap-2">
-        <button
-          type="button"
-          onClick={() => fileInput.current?.click()}
-          disabled={isLoading}
-          aria-label="Choose a profile photo"
-          className="group relative cursor-pointer rounded-full outline-none focus-visible:ring-2 focus-visible:ring-console/40 disabled:cursor-not-allowed"
-        >
-          <Avatar
-            user={{
-              ...user,
-              profilePicture: removePhoto ? null : user.profilePicture,
-            }}
-            previewUrl={previewUrl}
-            size={84}
-            busy={isLoading && (photo !== null || removePhoto)}
+      <div className="grid gap-[15px] sm:grid-cols-2">
+        <AdminField label="First name" error={errors.firstName?.message}>
+          <Input
+            placeholder="e.g. Abdul"
+            className={cn(
+              adminInputClass,
+              errors.firstName && "border-console-red",
+            )}
+            {...register("firstName")}
           />
-          <span className="absolute -right-0.5 -bottom-0.5 flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors group-hover:text-console">
-            <Camera className="h-3.5 w-3.5" aria-hidden="true" />
-          </span>
-        </button>
-        <input
-          ref={fileInput}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => choosePhoto(e.target.files?.[0])}
-        />
-        <span className="text-[11px] text-slate-400">JPG or PNG</span>
-        {hasVisiblePhoto ? (
-          <button
-            type="button"
-            onClick={clearPhoto}
-            disabled={isLoading}
-            className="inline-flex cursor-pointer items-center gap-1 text-[12px] font-semibold text-console-red hover:underline disabled:opacity-50"
-          >
-            <Trash2 className="h-3 w-3" aria-hidden="true" />
-            Remove photo
-          </button>
-        ) : null}
+        </AdminField>
+        <AdminField label="Last name" error={errors.lastName?.message}>
+          <Input
+            placeholder="e.g. Danaa"
+            className={cn(
+              adminInputClass,
+              errors.lastName && "border-console-red",
+            )}
+            {...register("lastName")}
+          />
+        </AdminField>
       </div>
-
-      {/* Details flow to the right */}
-      <div className="grid min-w-0 flex-1 gap-[13px] sm:max-w-[420px]">
-        <div className="grid gap-[13px] sm:grid-cols-2">
-          <AdminField label="First name" error={errors.firstName?.message}>
-            <Input
-              className={cn(
-                adminInputClass,
-                errors.firstName && "border-console-red",
-              )}
-              {...register("firstName")}
-            />
-          </AdminField>
-          <AdminField label="Last name" error={errors.lastName?.message}>
-            <Input
-              className={cn(
-                adminInputClass,
-                errors.lastName && "border-console-red",
-              )}
-              {...register("lastName")}
-            />
-          </AdminField>
-        </div>
-        <AdminField label="Email" error={errors.email?.message}>
-          <Input
-            type="email"
-            className={cn(adminInputClass, errors.email && "border-console-red")}
-            {...register("email")}
-          />
-        </AdminField>
-        <AdminField label="Phone" error={errors.phone?.message}>
-          <Input
-            type="tel"
-            placeholder="024 000 0000"
-            className={cn(adminInputClass, errors.phone && "border-console-red")}
-            {...register("phone")}
-          />
-        </AdminField>
-        <p className="text-[12px] leading-[1.5] text-slate-400">
-          Changing your email sends a confirmation link to the new address —
-          your sign-in email only switches after you confirm it.
-        </p>
-        <div className="flex gap-2">
-          <AdminButton
-            type="submit"
-            disabled={isLoading}
-            className="h-[36px] px-4 text-[13px]"
-          >
-            {isLoading ? "Saving…" : "Save changes"}
-          </AdminButton>
-          <AdminButton
-            type="button"
-            variant="ghost"
-            disabled={isLoading}
-            className="h-[36px] px-3.5 text-[13px]"
-            onClick={onClose}
-          >
-            Cancel
-          </AdminButton>
-        </div>
+      <AdminField
+        label="Email"
+        hint="Changing it sends a confirmation link to the new address first."
+        error={errors.email?.message}
+      >
+        <Input
+          type="email"
+          placeholder="you@dbplus.com"
+          className={cn(adminInputClass, errors.email && "border-console-red")}
+          {...register("email")}
+        />
+      </AdminField>
+      <AdminField label="Phone" optional error={errors.phone?.message}>
+        <Input
+          type="tel"
+          placeholder="024 000 0000"
+          className={cn(adminInputClass, errors.phone && "border-console-red")}
+          {...register("phone")}
+        />
+      </AdminField>
+      <div className="flex gap-2">
+        <AdminButton
+          type="submit"
+          disabled={isLoading}
+          className="h-[36px] px-4 text-[13px]"
+        >
+          {isLoading ? "Saving…" : "Save changes"}
+        </AdminButton>
+        <AdminButton
+          type="button"
+          variant="ghost"
+          disabled={isLoading}
+          className="h-[36px] px-3.5 text-[13px]"
+          onClick={onClose}
+        >
+          Cancel
+        </AdminButton>
       </div>
     </form>
   );
@@ -417,13 +400,13 @@ function PasswordCard() {
   };
 
   return (
-    <AdminCard className="px-5 py-[18px]">
+    <AdminCard className="px-6 py-[18px]">
       <SectionLabel>Password</SectionLabel>
       {open ? (
         <form
           noValidate
           onSubmit={handleSubmit(onSubmit)}
-          className="flex max-w-[380px] flex-col gap-[13px]"
+          className="grid max-w-[560px] gap-[15px]"
         >
           <AdminField
             label="Current password"
@@ -439,31 +422,33 @@ function PasswordCard() {
               {...register("currentPassword")}
             />
           </AdminField>
-          <AdminField label="New password" error={errors.newPassword?.message}>
-            <PasswordInput
-              autoComplete="new-password"
-              placeholder="At least 8 characters"
-              className={cn(
-                adminInputClass,
-                errors.newPassword && "border-console-red",
-              )}
-              {...register("newPassword")}
-            />
-          </AdminField>
-          <AdminField
-            label="Confirm new password"
-            error={errors.confirm?.message}
-          >
-            <PasswordInput
-              autoComplete="new-password"
-              placeholder="Repeat the new password"
-              className={cn(
-                adminInputClass,
-                errors.confirm && "border-console-red",
-              )}
-              {...register("confirm")}
-            />
-          </AdminField>
+          <div className="grid gap-[15px] sm:grid-cols-2">
+            <AdminField label="New password" error={errors.newPassword?.message}>
+              <PasswordInput
+                autoComplete="new-password"
+                placeholder="At least 8 characters"
+                className={cn(
+                  adminInputClass,
+                  errors.newPassword && "border-console-red",
+                )}
+                {...register("newPassword")}
+              />
+            </AdminField>
+            <AdminField
+              label="Confirm new password"
+              error={errors.confirm?.message}
+            >
+              <PasswordInput
+                autoComplete="new-password"
+                placeholder="Repeat the new password"
+                className={cn(
+                  adminInputClass,
+                  errors.confirm && "border-console-red",
+                )}
+                {...register("confirm")}
+              />
+            </AdminField>
+          </div>
           <div className="flex gap-2">
             <AdminButton
               type="submit"
@@ -645,7 +630,7 @@ function TwoFactorCard() {
   };
 
   return (
-    <AdminCard className="px-5 py-[18px]">
+    <AdminCard className="px-6 py-[18px]">
       <SectionLabel>Two-factor authentication</SectionLabel>
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
@@ -693,7 +678,7 @@ function TwoFactorCard() {
       </div>
 
       {step === "confirm" ? (
-        <div className="mt-3.5 flex max-w-[380px] flex-col gap-2.5">
+        <div className="mt-3.5 grid max-w-[560px] gap-2.5">
           <AdminField label="Confirmation code">
             <Input
               inputMode="numeric"
@@ -728,7 +713,7 @@ function TwoFactorCard() {
       ) : null}
 
       {step === "disable" || step === "regen" ? (
-        <div className="mt-3.5 flex max-w-[380px] flex-col gap-2.5">
+        <div className="mt-3.5 grid max-w-[560px] gap-2.5">
           <AdminField
             label={
               step === "disable"
@@ -802,7 +787,7 @@ function TwoFactorCard() {
 
 export function ProfileScreen() {
   return (
-    <div className="max-w-[640px]">
+    <div className="max-w-[720px]">
       <AdminPageHeader
         title="My profile"
         sub="Your account, security and sign-in settings"

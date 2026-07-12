@@ -1,0 +1,200 @@
+"use client";
+
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
+import type { IUser } from "@/types/user.types";
+
+export const ROLE_TITLE: Record<string, string> = {
+  SUPER_ADMIN: "Super admin",
+  STAFF: "Office staff",
+  AGENT: "Field agent",
+};
+
+export const initialsFor = (user: Pick<IUser, "firstName" | "lastName">) =>
+  `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
+
+/** Photo-or-initials avatar with an optional busy overlay. */
+export function IdentityAvatar({
+  user,
+  src,
+  size = 96,
+  busy = false,
+  className,
+}: {
+  user: Pick<IUser, "firstName" | "lastName">;
+  /** Explicit source (preview/object URL); falls back to initials when null. */
+  src?: string | null;
+  size?: number;
+  busy?: boolean;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn("relative flex-none overflow-hidden rounded-full", className)}
+      style={{ width: size, height: size }}
+    >
+      {src ? (
+        // eslint-disable-next-line @next/next/no-img-element -- Cloudinary/objectURL avatar
+        <img
+          src={src}
+          alt=""
+          width={size}
+          height={size}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <div
+          className="flex h-full w-full items-center justify-center bg-console font-bold text-white"
+          style={{ fontSize: size * 0.3 }}
+        >
+          {initialsFor(user)}
+        </div>
+      )}
+      {busy ? (
+        <div className="absolute inset-0 flex items-center justify-center rounded-full bg-slate-900/45">
+          <Loader2 className="h-5 w-5 animate-spin text-white" aria-hidden="true" />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/** Full-size square view of a profile photo, opened from the avatar. */
+export function PhotoViewDialog({
+  src,
+  name,
+  open,
+  onOpenChange,
+}: {
+  src: string;
+  name: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-[420px] gap-3 border-slate-200 p-4">
+        <DialogHeader>
+          <DialogTitle className="text-[14px] font-semibold text-slate-800">
+            {name}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="aspect-square w-full overflow-hidden rounded-[8px] bg-slate-100">
+          {/* eslint-disable-next-line @next/next/no-img-element -- full-view photo */}
+          <img src={src} alt={name} className="h-full w-full object-cover" />
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/** One labelled fact in the identity grid. */
+function Fact({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="min-w-0">
+      <dt className="text-[10.5px] font-bold uppercase tracking-[0.1em] text-slate-400">
+        {label}
+      </dt>
+      <dd className="mt-1 truncate text-[13.5px] font-medium text-slate-800">
+        {children}
+      </dd>
+    </div>
+  );
+}
+
+/**
+ * The spacious identity fact grid shared by the profile page and the admin's
+ * user-detail view — labelled facts breathing in two columns instead of one
+ * cramped sentence.
+ */
+export function IdentityFacts({
+  user,
+  className,
+}: {
+  user: IUser;
+  className?: string;
+}) {
+  return (
+    <dl
+      className={cn(
+        "grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2",
+        className,
+      )}
+    >
+      <Fact label="Email">{user.email}</Fact>
+      <Fact label="Phone">{user.phone ?? "—"}</Fact>
+      <Fact label="Role">{ROLE_TITLE[user.role] ?? user.role}</Fact>
+      <Fact label="Two-factor">
+        {user.twoFactorEnabled ? (
+          <span className="text-console">Enabled</span>
+        ) : (
+          "Off"
+        )}
+      </Fact>
+      <Fact label="Member since">
+        {new Date(user.createdAt).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        })}
+      </Fact>
+      <Fact label="Last sign-in">
+        {user.lastLoginAt
+          ? new Date(user.lastLoginAt).toLocaleString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          : "Never"}
+      </Fact>
+    </dl>
+  );
+}
+
+/** Avatar that opens the square full-photo view when a photo exists. */
+export function ViewablePhoto({
+  user,
+  size = 96,
+}: {
+  user: IUser;
+  size?: number;
+}) {
+  const [open, setOpen] = useState(false);
+  if (!user.profilePicture) {
+    return <IdentityAvatar user={user} src={null} size={size} />;
+  }
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label="View profile photo"
+        title="View photo"
+        className="cursor-zoom-in rounded-full outline-none focus-visible:ring-2 focus-visible:ring-console/40"
+      >
+        <IdentityAvatar user={user} src={user.profilePicture} size={size} />
+      </button>
+      <PhotoViewDialog
+        src={user.profilePicture}
+        name={`${user.firstName} ${user.lastName}`}
+        open={open}
+        onOpenChange={setOpen}
+      />
+    </>
+  );
+}
