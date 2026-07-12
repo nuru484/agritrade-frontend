@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { LogOut, User as UserIcon, X } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -18,6 +20,13 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   ADMIN_HOME,
   activeNavKey,
   adminNavGroups,
@@ -25,10 +34,10 @@ import {
   screenTitle,
 } from "@/static-data/admin/nav";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { useConfirm } from "@/hooks/use-confirm";
 import { useLogoutMutation } from "@/redux/auth/auth-api";
 import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
 
 const APPROVALS_HREF = `${ADMIN_HOME}/approvals`;
 
@@ -51,19 +60,20 @@ const ROLE_LABEL: Record<string, string> = {
   AGENT: "Field agent",
 };
 
-/** The signed-in user row in the sidebar footer: profile link + sign out. */
-function SidebarUser({ onNavigate }: { onNavigate: () => void }) {
-  const user = useCurrentUser();
+/** Shared sign-out flow: confirm, call the API (client session clears
+ * regardless of the server result), land on /login. */
+function useSignOut() {
   const router = useRouter();
+  const { confirm, confirmationDialog } = useConfirm();
   const [logout, { isLoading }] = useLogoutMutation();
 
-  const initials = user
-    ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
-    : "··";
-
-  const onLogout = async () => {
-    // logout's onQueryStarted clears the client session and cache even if the
-    // server call fails — the user intends to be signed out regardless.
+  const signOut = async () => {
+    const ok = await confirm({
+      title: "Sign out?",
+      description: "You'll need your password to sign back in.",
+      confirmText: "Sign out",
+    });
+    if (!ok) return;
     await logout()
       .unwrap()
       .catch(() => {});
@@ -71,43 +81,170 @@ function SidebarUser({ onNavigate }: { onNavigate: () => void }) {
     router.replace("/login");
   };
 
+  return { signOut, isLoading, confirmationDialog };
+}
+
+/** Initials-or-photo avatar used by the navbar menu. */
+function UserAvatar({ size = 30 }: { size?: number }) {
+  const user = useCurrentUser();
+  const initials = user
+    ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
+    : "··";
+  if (user?.profilePicture) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- Cloudinary URL, avatar-sized
+      <img
+        src={user.profilePicture}
+        alt=""
+        width={size}
+        height={size}
+        className="rounded-full object-cover"
+        style={{ width: size, height: size }}
+      />
+    );
+  }
   return (
-    <div className="flex items-center gap-1 pr-2">
-      <Link
-        href={`${ADMIN_HOME}/profile`}
-        onClick={onNavigate}
-        className="flex min-w-0 flex-1 items-center gap-2.5 px-5 py-3.5 hover:bg-slate-50"
+    <span
+      className="flex flex-none items-center justify-center rounded-full bg-console font-bold text-white"
+      style={{ width: size, height: size, fontSize: size * 0.4 }}
+    >
+      {initials}
+    </span>
+  );
+}
+
+/** Top-right profile menu (dms-frontend convention): avatar trigger opening
+ * an account card with the profile link and sign out. */
+function NavbarUser() {
+  const user = useCurrentUser();
+  const router = useRouter();
+  const { signOut, isLoading, confirmationDialog } = useSignOut();
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          aria-label="Account menu"
+          className="cursor-pointer rounded-full outline-none focus-visible:ring-2 focus-visible:ring-console/40"
+        >
+          <UserAvatar size={32} />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-60 border-slate-200 p-0">
+          <div className="flex items-center gap-2.5 border-b border-slate-100 px-3.5 py-3">
+            <UserAvatar size={38} />
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-[13px] font-semibold text-slate-800">
+                {user ? `${user.firstName} ${user.lastName}` : "Signed in"}
+              </div>
+              <div className="truncate text-[11.5px] text-slate-500">
+                {user?.email ?? ""}
+              </div>
+              <div className="text-[11px] text-slate-400">
+                {(user && ROLE_LABEL[user.role]) ?? ""}
+              </div>
+            </div>
+          </div>
+          <div className="p-1">
+            <DropdownMenuItem
+              className="cursor-pointer gap-2 text-[13px]"
+              onClick={() => router.push(`${ADMIN_HOME}/profile`)}
+            >
+              <UserIcon className="h-3.5 w-3.5" aria-hidden="true" />
+              My profile
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              disabled={isLoading}
+              className="cursor-pointer gap-2 text-[13px] text-console-red focus:text-console-red"
+              onClick={() => void signOut()}
+            >
+              <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
+              Sign out
+            </DropdownMenuItem>
+          </div>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      {confirmationDialog}
+    </>
+  );
+}
+
+/**
+ * The navbar search. Type + Enter navigates to the current screen with
+ * `?q=<term>` (screens read it as their initial filter); the X clears both
+ * the box and the param. The placeholder never wraps — it truncates.
+ */
+function NavbarSearch() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [term, setTerm] = useState("");
+
+  // Initialise from the URL once on mount (window, not useSearchParams, so the
+  // statically-rendered admin pages don't pick up a CSR bailout). Deferred a
+  // tick so hydration completes before the controlled value changes.
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("q");
+    if (!q) return;
+    const timer = setTimeout(() => setTerm(q), 0);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const submit = () => {
+    const q = term.trim();
+    router.push(q ? `${pathname}?q=${encodeURIComponent(q)}` : pathname);
+  };
+
+  const clear = () => {
+    setTerm("");
+    if (new URLSearchParams(window.location.search).has("q")) {
+      router.push(pathname);
+    }
+  };
+
+  return (
+    <div className="hidden h-8 w-[210px] items-center gap-2 rounded-[6px] border border-slate-200 bg-slate-50 px-2.5 text-[13px] focus-within:border-console focus-within:bg-white md:flex lg:w-[260px]">
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 16 16"
+        fill="none"
+        aria-hidden="true"
+        className="flex-none text-slate-400"
       >
-        <span className="flex h-[30px] w-[30px] flex-none items-center justify-center rounded-full bg-console text-[12px] font-bold text-white">
-          {initials}
+        <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5" />
+        <path
+          d="M11 11l3.2 3.2"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+      </svg>
+      <input
+        type="search"
+        value={term}
+        onChange={(e) => setTerm(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") submit();
+          if (e.key === "Escape") clear();
+        }}
+        placeholder="Search purchases, agents, buyers…"
+        aria-label="Search the console"
+        className="[&::-webkit-search-cancel-button]:hidden h-full w-full min-w-0 truncate bg-transparent text-slate-900 outline-none placeholder:truncate placeholder:whitespace-nowrap placeholder:text-slate-300"
+      />
+      {term ? (
+        <button
+          type="button"
+          onClick={clear}
+          aria-label="Clear search"
+          className="flex h-4 w-4 flex-none cursor-pointer items-center justify-center rounded-full text-slate-400 hover:bg-slate-200 hover:text-slate-600"
+        >
+          <X className="h-3 w-3" aria-hidden="true" />
+        </button>
+      ) : (
+        <span className="font-adminmono flex-none rounded-[4px] border border-slate-200 bg-white px-[5px] text-[11px] text-slate-400">
+          ⌘K
         </span>
-        <span className="min-w-0 flex-1">
-          <span className="block truncate whitespace-nowrap text-[13px] font-semibold text-slate-800">
-            {user ? `${user.firstName} ${user.lastName}` : "Signed in"}
-          </span>
-          <span className="block truncate text-[11px] text-slate-500">
-            {(user && ROLE_LABEL[user.role]) ?? "Account"} · View profile
-          </span>
-        </span>
-      </Link>
-      <button
-        type="button"
-        onClick={onLogout}
-        disabled={isLoading}
-        aria-label="Sign out"
-        title="Sign out"
-        className="flex h-[30px] w-[30px] flex-none cursor-pointer items-center justify-center rounded-[6px] text-slate-400 hover:bg-slate-100 hover:text-console-red disabled:opacity-50"
-      >
-        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path
-            d="M6 2H3.5A1.5 1.5 0 0 0 2 3.5v9A1.5 1.5 0 0 0 3.5 14H6M10.5 11 14 8l-3.5-3M14 8H6"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </button>
+      )}
     </div>
   );
 }
@@ -121,6 +258,25 @@ function NavBadge({ count }: { count: number }) {
   );
 }
 
+/** Sign-out row anchoring the rail (the profile itself lives in the navbar menu). */
+function SidebarSignOut() {
+  const { signOut, isLoading, confirmationDialog } = useSignOut();
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => void signOut()}
+        disabled={isLoading}
+        className="flex w-full cursor-pointer items-center gap-2.5 px-5 py-3.5 text-left text-[13px] font-semibold text-slate-600 hover:bg-slate-50 hover:text-console-red disabled:opacity-50"
+      >
+        <LogOut className="h-[15px] w-[15px]" aria-hidden="true" />
+        Sign out
+      </button>
+      {confirmationDialog}
+    </>
+  );
+}
+
 /** The rail itself — shadcn Sidebar pinned to the console's exact look.
  * On mobile shadcn renders it as a sheet, opened from the Menu tab below. */
 function ConsoleSidebar({ activeKey }: { activeKey: string }) {
@@ -129,7 +285,7 @@ function ConsoleSidebar({ activeKey }: { activeKey: string }) {
     <Sidebar>
       <SidebarHeader className="gap-0 border-b border-slate-100 px-5 pb-4 pt-5">
         <div className="text-[16px] font-extrabold tracking-[0.14em] text-console">
-          NASARA
+          DB PLUS
         </div>
         <div className="mt-0.5 text-[11px] uppercase tracking-[0.06em] text-slate-500">
           Agro Trading · Tamale
@@ -168,7 +324,7 @@ function ConsoleSidebar({ activeKey }: { activeKey: string }) {
         ))}
       </SidebarContent>
       <SidebarFooter className="border-t border-slate-100 p-0">
-        <SidebarUser onNavigate={() => setOpenMobile(false)} />
+        <SidebarSignOut />
       </SidebarFooter>
     </Sidebar>
   );
@@ -231,10 +387,11 @@ function MobileTabs({ activeKey }: { activeKey: string }) {
 }
 
 /**
- * The console chrome (from the Nasara Console design), built on the shadcn
- * Sidebar: 224px white rail with grouped nav + profile footer, a 54px
- * breadcrumb topbar with search and the approvals bell, and — on mobile —
- * bottom tabs whose Menu tab opens the sidebar as a sheet.
+ * The console chrome (from the DB Plus Console design), built on the shadcn
+ * Sidebar: 224px white rail with grouped nav + a sign-out footer, a 54px
+ * breadcrumb topbar with live search, the notifications bell and the account
+ * menu (top right, dms-frontend style), and — on mobile — bottom tabs whose
+ * Menu tab opens the sidebar as a sheet.
  */
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -248,27 +405,20 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <SidebarInset className="bg-transparent pb-[62px] md:pb-0">
         <header className="sticky top-0 z-40 flex h-[54px] flex-none items-center gap-3 border-b border-slate-200 bg-white px-4 lg:px-[26px]">
           <div className="flex min-w-0 items-center gap-1.5 overflow-hidden whitespace-nowrap text-[13px] text-slate-500">
-            <span className="text-slate-400 max-sm:hidden">Nasara Agro</span>
+            <span className="text-slate-400 max-sm:hidden">DB Plus</span>
             <span className="text-slate-300 max-sm:hidden">/</span>
             <span className="overflow-hidden text-ellipsis font-semibold text-slate-800">
               {title}
             </span>
           </div>
           <div className="flex-1" />
-          <div className="hidden h-8 w-[260px] cursor-text items-center gap-2 rounded-[6px] border border-slate-200 bg-slate-50 px-2.5 text-[13px] text-slate-400 xl:flex">
-            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5" />
-              <path d="M11 11l3.2 3.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-            <span className="flex-1">Search purchases, agents, buyers…</span>
-            <span className="font-adminmono rounded-[4px] border border-slate-200 bg-white px-[5px] text-[11px]">
-              ⌘K
-            </span>
-          </div>
-          <Link
-            href={APPROVALS_HREF}
-            aria-label={`Approvals — ${String(PENDING_APPROVALS)} pending`}
-            className="relative flex h-[34px] w-[34px] items-center justify-center rounded-[6px] border border-slate-200 bg-white hover:bg-slate-50"
+          <NavbarSearch />
+          {/* Notifications: intentionally inert until the notifications feed
+              ships — it must NOT navigate anywhere. */}
+          <button
+            type="button"
+            aria-label={`Notifications — ${String(PENDING_APPROVALS)} pending`}
+            className="relative flex h-[34px] w-[34px] flex-none cursor-pointer items-center justify-center rounded-[6px] border border-slate-200 bg-white hover:bg-slate-50"
           >
             <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
               <path
@@ -284,7 +434,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 {PENDING_APPROVALS}
               </span>
             ) : null}
-          </Link>
+          </button>
+          <NavbarUser />
         </header>
 
         <main className="mx-auto w-full max-w-[1360px] flex-1 p-4 lg:p-[26px]">

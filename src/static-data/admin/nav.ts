@@ -1,5 +1,5 @@
 /**
- * The console's navigation registry (from the Nasara Console design): five
+ * The console's navigation registry (from the DB Plus Console design): five
  * groups, one entry per module. `key` doubles as the register slug for the
  * config-driven modules; custom screens (dashboard, purchases, sales,
  * shipments, approvals, reports, settings, notifications, profile) have their
@@ -69,7 +69,8 @@ export const adminNavGroups: AdminNavGroup[] = [
       item("settings", "Settings"),
       item("audit", "Audit Log"),
       item("notifications", "Notifications"),
-      item("profile", "My profile"),
+      // "My profile" deliberately absent: the profile lives behind the
+      // navbar avatar menu (dms-frontend convention), not the rail.
     ],
   },
 ];
