@@ -191,7 +191,7 @@ function NavbarSearch() {
   // statically-rendered admin pages don't pick up a CSR bailout). Deferred a
   // tick so hydration completes before the controlled value changes.
   useEffect(() => {
-    const q = new URLSearchParams(window.location.search).get("q");
+    const q = new URLSearchParams(window.location.search).get("search");
     if (!q) return;
     const timer = setTimeout(() => setTerm(q), 0);
     return () => clearTimeout(timer);
@@ -199,12 +199,12 @@ function NavbarSearch() {
 
   const submit = () => {
     const q = term.trim();
-    router.push(q ? `${pathname}?q=${encodeURIComponent(q)}` : pathname);
+    router.push(q ? `${pathname}?search=${encodeURIComponent(q)}` : pathname);
   };
 
   const clear = () => {
     setTerm("");
-    if (new URLSearchParams(window.location.search).has("q")) {
+    if (new URLSearchParams(window.location.search).has("search")) {
       router.push(pathname);
     }
   };

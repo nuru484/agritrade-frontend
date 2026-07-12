@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import type { ColumnDef } from "@tanstack/react-table";
 import { cn } from "@/lib/utils";
@@ -21,7 +21,7 @@ import {
 } from "@/redux/users/users-api";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useCurrentUser } from "@/hooks/use-current-user";
-import { useDebounce } from "@/hooks/use-debounce";
+import { useTableQuery } from "@/hooks/use-table-query";
 import { extractApiError } from "@/lib/extract-api-error";
 import { notify } from "@/lib/notify";
 import { UserRole, type IUser, type IUserListQuery } from "@/types/user.types";
@@ -49,6 +49,10 @@ const STATUS_FILTER_OPTIONS = [
 ] as const;
 
 type StatusFilter = (typeof STATUS_FILTER_OPTIONS)[number]["value"];
+
+/** Stable defaults for the URL-synced table state (module const on purpose —
+ * the hook keys its effects on this identity). `size` is the page size. */
+const FILTER_DEFAULTS = { role: "all", status: "all", size: "10" };
 
 /** Maps the status facet onto the backend's isActive/blocked filters. */
 const statusToQuery = (status: StatusFilter): Partial<IUserListQuery> => {
@@ -84,30 +88,26 @@ const columnMeta = (opts?: { wide?: boolean }) => ({
 export function UsersTable() {
   const router = useRouter();
   const me = useCurrentUser();
-  const [searchInput, setSearchInput] = useState("");
-  const [roleFilter, setRoleFilter] = useState<string>("all");
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const search = useDebounce(searchInput.trim());
 
-  // The navbar search lands here as ?q=… (deferred a tick so hydration
-  // completes before the controlled value changes).
-  useEffect(() => {
-    const q = new URLSearchParams(window.location.search).get("q");
-    if (!q) return;
-    const timer = setTimeout(() => setSearchInput(q), 0);
-    return () => clearTimeout(timer);
-  }, []);
+  // URL-synced + session-remembered table state (khadys/dms convention):
+  // paginate to page 4, open a detail page or another tab, come back — the
+  // table is exactly where you left it. The navbar's global search seeds the
+  // same `search` param.
+  const {
+    page,
+    search: searchInput,
+    filters,
+    setSearch,
+    setFilter,
+    setPage,
+    resetFilters,
+    queryParams,
+  } = useTableQuery({ defaults: FILTER_DEFAULTS });
 
-  // Any narrowing change starts back at page 1 — the render-time derived-state
-  // reset (React's documented pattern; no effect, no cascading render).
-  const filterKey = `${search}|${roleFilter}|${statusFilter}|${String(pageSize)}`;
-  const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
-  if (filterKey !== prevFilterKey) {
-    setPrevFilterKey(filterKey);
-    setPage(1);
-  }
+  const roleFilter = filters.role;
+  const statusFilter = filters.status as StatusFilter;
+  const pageSize = Number(filters.size) || 10;
+  const search = (queryParams.search as string | undefined) ?? "";
 
   const queryArgs = useMemo<IUserListQuery>(
     () => ({
@@ -300,13 +300,10 @@ export function UsersTable() {
       {isError && !search && activeFilterCount === 0 ? null : (
       <ConsoleFilterBar
         search={searchInput}
-        onSearch={setSearchInput}
+        onSearch={setSearch}
         searchPlaceholder="Search user…"
         activeCount={activeFilterCount}
-        onClear={() => {
-          setRoleFilter("all");
-          setStatusFilter("all");
-        }}
+        onClear={resetFilters}
         action={
           <Link
             href="/admin/users/new"
@@ -319,14 +316,14 @@ export function UsersTable() {
         <ConsoleLabeledSelect
           label="Role"
           value={roleFilter}
-          onChange={setRoleFilter}
+          onChange={(v) => setFilter("role", v)}
           options={ROLE_FILTER_OPTIONS}
           className="md:w-[150px]"
         />
         <ConsoleLabeledSelect
           label="Status"
           value={statusFilter}
-          onChange={(v) => setStatusFilter(v as StatusFilter)}
+          onChange={(v) => setFilter("status", v)}
           options={STATUS_FILTER_OPTIONS}
           className="md:w-[150px]"
         />
@@ -351,9 +348,8 @@ export function UsersTable() {
               description="Nothing matches this search and filter combination. Adjust the criteria or clear them to see everyone."
               actionLabel="Clear search & filters"
               onAction={() => {
-                setSearchInput("");
-                setRoleFilter("all");
-                setStatusFilter("all");
+                setSearch("");
+                resetFilters();
               }}
             />
           ) : (
@@ -378,7 +374,7 @@ export function UsersTable() {
               page,
               pageSize,
               onPageChange: setPage,
-              onPageSizeChange: setPageSize,
+              onPageSizeChange: (size) => setFilter("size", String(size)),
             }}
             enableSelection
             renderBulkActions={(selected, clear) => (
