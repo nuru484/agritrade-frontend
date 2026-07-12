@@ -313,12 +313,8 @@ function EditDetailsForm({
         />
       </AdminField>
 
+      {isSelf ? null : (
       <div className="grid gap-3 rounded-[6px] border border-slate-200 bg-slate-50/60 p-3.5">
-        {isSelf ? (
-          <p className="text-[12px] text-slate-500">
-            You cannot change your own permission flags.
-          </p>
-        ) : null}
         <Controller
           control={control}
           name="canApprove"
@@ -335,7 +331,6 @@ function EditDetailsForm({
               <Switch
                 checked={field.value}
                 onCheckedChange={field.onChange}
-                disabled={isSelf}
               />
             </label>
           )}
@@ -356,12 +351,12 @@ function EditDetailsForm({
               <Switch
                 checked={field.value}
                 onCheckedChange={field.onChange}
-                disabled={isSelf}
               />
             </label>
           )}
         />
       </div>
+      )}
 
       <div className="flex gap-2">
         <AdminButton
@@ -456,6 +451,7 @@ function ActionsCard({ user, isSelf }: { user: IUser; isSelf: boolean }) {
       sub: "Emails them the standard single-use reset link.",
       button: "Send link",
       busy: sending,
+      hidden: isSelf,
       run: async () => {
         if (
           !(await confirm({
@@ -496,7 +492,7 @@ function ActionsCard({ user, isSelf }: { user: IUser; isSelf: boolean }) {
       sub: "For a user locked out of their codes; they sign in with password only and can re-enable it.",
       button: "Reset 2FA",
       busy: resetting,
-      hidden: !user.twoFactorEnabled,
+      hidden: !user.twoFactorEnabled || isSelf,
       run: async () => {
         if (
           !(await confirm({
