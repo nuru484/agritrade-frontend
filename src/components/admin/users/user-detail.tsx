@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,8 +15,9 @@ import {
   ToneBadge,
   adminInputClass,
 } from "@/components/admin/ui";
-import { LoadingScreen } from "@/components/ui/LoadingScreen";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorMessage } from "@/components/ui/ErrorMessage";
+import { BackButton } from "@/components/ui/BackButton";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import {
@@ -367,7 +367,7 @@ function EditDetailsForm({
         </AdminButton>
         <AdminButton
           type="button"
-          variant="ghost"
+          variant="outline"
           disabled={isLoading}
           className="h-[36px] px-3.5 text-[13px]"
           onClick={onClose}
@@ -611,13 +611,72 @@ function ActionsCard({ user, isSelf }: { user: IUser; isSelf: boolean }) {
   );
 }
 
+/* ── Loading shape ───────────────────────────────────────────────────────── */
+
+/**
+ * Skeleton mirroring the detail layout (dms convention: every screen loads in
+ * its own silhouette, never a generic spinner) — banner, overlapping avatar,
+ * fact grid and the role/actions cards, so nothing jumps when data lands.
+ */
+function UserDetailSkeleton() {
+  return (
+    <div aria-hidden="true" className="w-full xl:max-w-[820px]">
+      <Skeleton className="mb-2 h-6 w-24 rounded-[6px]" />
+      <div className="mb-5">
+        <Skeleton className="h-5 w-44 rounded-[4px]" />
+        <Skeleton className="mt-2 h-3 w-60 rounded-[4px]" />
+      </div>
+
+      <div className="flex flex-col gap-4">
+        <AdminCard className="overflow-hidden p-0">
+          <Skeleton className="h-[88px] w-full rounded-none" />
+          <div className="px-4 pb-6 sm:px-6">
+            <div className="-mt-[52px] flex flex-col items-center gap-3 sm:flex-row sm:items-end sm:gap-5">
+              <Skeleton className="h-[104px] w-[104px] flex-none rounded-full ring-4 ring-white" />
+              <div className="min-w-0 flex-1 space-y-2 text-center sm:pb-2 sm:text-left">
+                <Skeleton className="mx-auto h-4 w-40 rounded-[4px] sm:mx-0" />
+                <Skeleton className="mx-auto h-3 w-56 rounded-[4px] sm:mx-0" />
+              </div>
+              <Skeleton className="h-8 w-28 flex-none rounded-[6px] sm:mb-2" />
+            </div>
+            <div className="mt-6 grid grid-cols-1 gap-x-8 gap-y-4 border-t border-slate-100 pt-5 sm:grid-cols-2">
+              {Array.from({ length: 6 }, (_, i) => (
+                <div key={i} className="flex items-start gap-2.5">
+                  <Skeleton className="h-7 w-7 flex-none rounded-[6px]" />
+                  <div className="flex-1 space-y-1.5">
+                    <Skeleton className="h-2.5 w-16 rounded-[4px]" />
+                    <Skeleton className="h-3.5 w-[70%] rounded-[4px]" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </AdminCard>
+
+        {Array.from({ length: 2 }, (_, i) => (
+          <AdminCard key={i} className="px-4 py-[18px] sm:px-6">
+            <Skeleton className="h-2.5 w-20 rounded-[4px]" />
+            <div className="mt-3.5 flex items-center justify-between gap-3">
+              <div className="flex-1 space-y-1.5">
+                <Skeleton className="h-3.5 w-36 rounded-[4px]" />
+                <Skeleton className="h-3 w-64 max-w-full rounded-[4px]" />
+              </div>
+              <Skeleton className="h-8 w-24 flex-none rounded-[6px]" />
+            </div>
+          </AdminCard>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ── Screen ──────────────────────────────────────────────────────────────── */
 
 export function UserDetail({ id }: { id: string }) {
   const me = useCurrentUser();
   const { data, isLoading, isError, error, refetch } = useGetUserQuery(id);
 
-  if (isLoading) return <LoadingScreen />;
+  if (isLoading) return <UserDetailSkeleton />;
   if (isError || !data) {
     return (
       <ErrorMessage
@@ -632,17 +691,10 @@ export function UserDetail({ id }: { id: string }) {
 
   return (
     <div className="w-full xl:max-w-[820px]">
+      <BackButton href="/admin/users" label="All users" className="mb-2" />
       <AdminPageHeader
         title={`${user.firstName} ${user.lastName}`}
         sub={`${ROLE_TITLE[user.role] ?? user.role} · ${user.email}`}
-        actions={
-          <Link
-            href="/admin/users"
-            className="text-[13px] font-semibold text-slate-500 hover:text-console"
-          >
-            ← All users
-          </Link>
-        }
       />
 
       <div className="flex flex-col gap-4">

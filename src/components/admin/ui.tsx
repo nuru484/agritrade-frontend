@@ -116,23 +116,33 @@ export function Mono({
 }
 
 /** Console buttons: shadcn Button pinned to the console sizes/colours.
- * primary forest · secondary bordered white · danger red · gold warn · ghost. */
+ * primary forest · secondary bordered white · outline bordered transparent
+ * (Cancel and friends) · danger red · gold warn · ghost. */
 export function AdminButton({
   variant = "primary",
   className,
   ...props
 }: Omit<React.ComponentProps<typeof Button>, "variant"> & {
-  variant?: "danger" | "ghost" | "gold" | "primary" | "secondary";
+  variant?: "danger" | "ghost" | "gold" | "outline" | "primary" | "secondary";
 }) {
   return (
     <Button
       type="button"
-      variant={variant === "secondary" ? "outline" : variant === "ghost" ? "ghost" : "default"}
+      variant={
+        variant === "secondary" || variant === "outline"
+          ? "outline"
+          : variant === "ghost"
+            ? "ghost"
+            : "default"
+      }
       className={cn(
         "h-9 gap-1.5 rounded-[6px] px-4 text-[13.5px] font-semibold shadow-none",
         variant === "primary" && "bg-console text-white hover:bg-console-deep",
         variant === "secondary" &&
           "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-700",
+        // Bordered but quiet: transparent until hovered — the Cancel shape.
+        variant === "outline" &&
+          "border-slate-300 bg-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-700",
         variant === "danger" && "bg-console-red text-white hover:bg-console-red-deep",
         variant === "gold" && "bg-console-gold text-white hover:bg-console-gold-deep",
         variant === "ghost" && "text-slate-600 hover:bg-slate-100 hover:text-slate-700",

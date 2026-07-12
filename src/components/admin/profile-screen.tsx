@@ -270,7 +270,7 @@ function ProfileEditForm({
         </AdminButton>
         <AdminButton
           type="button"
-          variant="ghost"
+          variant="outline"
           disabled={isLoading}
           className="h-[36px] px-3.5 text-[13px]"
           onClick={onClose}
@@ -395,7 +395,7 @@ function PasswordCard() {
             </AdminButton>
             <AdminButton
               type="button"
-              variant="ghost"
+              variant="outline"
               className="h-[36px] px-3.5 text-[13px]"
               onClick={close}
             >
@@ -467,7 +467,7 @@ function RecoveryCodesPanel({
           Copy all
         </AdminButton>
         <AdminButton
-          variant="ghost"
+          variant="outline"
           className="h-[32px] px-3 text-[12.5px]"
           onClick={onDismiss}
         >
@@ -687,7 +687,7 @@ function TwoFactorCard() {
                   : "Generate new codes"}
             </AdminButton>
             <AdminButton
-              variant="ghost"
+              variant="outline"
               className="h-[34px] px-3 text-[12.5px]"
               onClick={() => {
                 setStep("idle");

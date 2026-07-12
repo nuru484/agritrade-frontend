@@ -401,27 +401,69 @@ function MobileTabs({ activeKey }: { activeKey: string }) {
  * menu (top right, dms-frontend style), and — on mobile — bottom tabs whose
  * Menu tab opens the sidebar as a sheet.
  */
+/** Breadcrumb beside the rail trigger: DB Plus / Section / (New | Detail).
+ * The section links back to its register when a sub-page is open, and the
+ * trail never disappears — on tiny widths only the brand root hides. */
+function Crumbs() {
+  const pathname = usePathname();
+  const title = screenTitle(pathname);
+  const segments = pathname
+    .slice(ADMIN_HOME.length)
+    .split("/")
+    .filter(Boolean);
+  const section = segments[0];
+  const sub =
+    segments.length > 1 ? (segments[1] === "new" ? "New" : "Detail") : null;
+
+  return (
+    <nav
+      aria-label="Breadcrumb"
+      className="flex min-w-0 items-center gap-1.5 overflow-hidden whitespace-nowrap text-[13px] text-slate-500"
+    >
+      <span className="text-slate-400 max-sm:hidden">DB Plus</span>
+      <span className="text-slate-300 max-sm:hidden">/</span>
+      {sub && section ? (
+        <>
+          <Link
+            href={`${ADMIN_HOME}/${section}`}
+            className="text-slate-500 transition-colors hover:text-console"
+          >
+            {title}
+          </Link>
+          <span className="text-slate-300">/</span>
+          <span
+            aria-current="page"
+            className="overflow-hidden text-ellipsis font-semibold text-slate-800"
+          >
+            {sub}
+          </span>
+        </>
+      ) : (
+        <span
+          aria-current="page"
+          className="overflow-hidden text-ellipsis font-semibold text-slate-800"
+        >
+          {title}
+        </span>
+      )}
+    </nav>
+  );
+}
+
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const activeKey = activeNavKey(pathname);
-  const title = screenTitle(pathname);
 
   return (
     <SidebarProvider style={SIDEBAR_VARS}>
       <ConsoleSidebar activeKey={activeKey} />
 
-      <SidebarInset className="bg-transparent pb-[62px] md:pb-0">
+      <SidebarInset className="min-w-0 bg-transparent pb-[62px] md:pb-0">
         <header className="sticky top-0 z-40 flex h-[54px] flex-none items-center gap-3 border-b border-slate-200 bg-white px-4 lg:px-[26px]">
           {/* Collapse/expand the rail (sheet on mobile) — dms behaviour in the
               console skin, living on the topbar's left edge. */}
           <SidebarTrigger className="h-[30px] w-[30px] flex-none cursor-pointer rounded-[6px] border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-console max-md:hidden" />
-          <div className="flex min-w-0 items-center gap-1.5 overflow-hidden whitespace-nowrap text-[13px] text-slate-500">
-            <span className="text-slate-400 max-sm:hidden">DB Plus</span>
-            <span className="text-slate-300 max-sm:hidden">/</span>
-            <span className="overflow-hidden text-ellipsis font-semibold text-slate-800">
-              {title}
-            </span>
-          </div>
+          <Crumbs />
           <div className="flex-1" />
           <NavbarSearch />
           {/* Notifications: intentionally inert until the notifications feed
@@ -449,7 +491,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <NavbarUser />
         </header>
 
-        <main className="mx-auto w-full max-w-[1360px] flex-1 p-4 lg:p-[26px]">
+        <main className="mx-auto w-full min-w-0 max-w-[1360px] flex-1 p-4 lg:p-[26px]">
           {children}
         </main>
       </SidebarInset>

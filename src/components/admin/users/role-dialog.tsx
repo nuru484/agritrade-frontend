@@ -91,7 +91,7 @@ export function RoleChangeDialog({
 
         <DialogFooter className="flex-row justify-end gap-2">
           <AdminButton
-            variant="ghost"
+            variant="outline"
             className="h-[34px] px-3.5 text-[13px]"
             disabled={isLoading}
             onClick={() => close(false)}

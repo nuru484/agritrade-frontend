@@ -21,6 +21,7 @@ import {
   adminInputClass,
   adminSelectClass,
 } from "@/components/admin/ui";
+import { BackButton } from "@/components/ui/BackButton";
 import { useCreateUserMutation } from "@/redux/users/users-api";
 import { extractApiError } from "@/lib/extract-api-error";
 import { notify } from "@/lib/notify";
@@ -113,6 +114,7 @@ export function UserForm() {
 
   return (
     <div className="max-w-[560px]">
+      <BackButton href="/admin/users" label="All users" className="mb-2" />
       <AdminPageHeader
         title="Add user"
         sub="Create a console account and hand over its first password"
@@ -265,7 +267,7 @@ export function UserForm() {
             </AdminButton>
             <AdminButton
               type="button"
-              variant="ghost"
+              variant="outline"
               className="h-[38px] px-3.5"
               onClick={() => router.push("/admin/users")}
             >
