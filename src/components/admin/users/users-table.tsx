@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { ColumnDef } from "@tanstack/react-table";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { SearchX, UserPlus } from "lucide-react";
 import { ConsoleDataTable } from "@/components/admin/data-table";
 import {
   ConsoleFilterBar,
@@ -11,6 +13,7 @@ import {
 } from "@/components/admin/filter-bar";
 import { AdminCard } from "@/components/admin/ui";
 import { DataTableSkeleton } from "@/components/ui/DataTableSkeleton";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import {
   useDeleteUserMutation,
@@ -79,6 +82,7 @@ const columnMeta = (opts?: { wide?: boolean }) => ({
  * load. The navbar's global search (?q=) seeds the search box.
  */
 export function UsersTable() {
+  const router = useRouter();
   const me = useCurrentUser();
   const [searchInput, setSearchInput] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
@@ -358,18 +362,27 @@ export function UsersTable() {
             rowHref={(u) => `/admin/users/${u.id}`}
             rowClassName={() => "h-12 hover:bg-slate-50/70"}
             emptyState={
-              <div className="px-6 py-14 text-center">
-                <div className="mb-1 text-[15px] font-bold text-slate-800">
-                  {search || activeFilterCount > 0
-                    ? "No matches"
-                    : "No users yet"}
-                </div>
-                <p className="text-[13.5px] text-slate-500">
-                  {search || activeFilterCount > 0
-                    ? "Try a different search or clear the filters."
-                    : "Add your first staff account to get started."}
-                </p>
-              </div>
+              search || activeFilterCount > 0 ? (
+                <EmptyState
+                  icon={SearchX}
+                  title="No matching users"
+                  description="Nothing matches this search and filter combination. Adjust the criteria or clear them to see everyone."
+                  actionLabel="Clear search & filters"
+                  onAction={() => {
+                    setSearchInput("");
+                    setRoleFilter("all");
+                    setStatusFilter("all");
+                  }}
+                />
+              ) : (
+                <EmptyState
+                  icon={UserPlus}
+                  title="No users yet"
+                  description="Add your first staff account — assign a role, set the permission flags and hand over the first password."
+                  actionLabel="Add your first user"
+                  onAction={() => router.push("/admin/users/new")}
+                />
+              )
             }
           />
         </AdminCard>

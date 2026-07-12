@@ -143,7 +143,10 @@ export function UserActionsDropdown({ user }: { user: IUser }) {
           className="w-52 border-slate-200"
           onClick={(e) => e.stopPropagation()}
         >
-          <DropdownMenuLabel className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400">
+          <DropdownMenuLabel
+            title={name}
+            className="max-w-full truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400"
+          >
             {name}
           </DropdownMenuLabel>
           <DropdownMenuItem

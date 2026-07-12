@@ -59,10 +59,16 @@ export function ConsoleLabeledSelect({
 
 /**
  * The console list toolbar (khadys-frontend's FilterBar pattern in the DB
- * Plus skin). Desktop: an inline row — search, filters, clear, action.
- * Mobile: the search stays full-width and the filters collapse behind a
- * "Filters" toggle with an active-count pill, so narrow screens (down to a
- * Galaxy Fold) get a tidy stack instead of a squeezed row.
+ * Plus skin).
+ *
+ * Desktop (md+): ONE ordered row — the search field, then the labelled
+ * filters aligned to its baseline, Clear filters, and the persistent action
+ * pushed to the right edge. Nothing wraps haphazardly; the row is the
+ * standard admin-toolbar shape.
+ *
+ * Mobile: the search runs full width on its own line; a "Filters" toggle
+ * with an active-count pill reveals the filters as an even two-column grid,
+ * with the action anchored beside the toggle.
  */
 export function ConsoleFilterBar({
   search,
@@ -88,7 +94,7 @@ export function ConsoleFilterBar({
   const [open, setOpen] = useState(false);
 
   const searchField = (
-    <label className="flex h-8 w-full min-w-0 items-center gap-1.5 rounded-[6px] border border-slate-200 bg-white px-2.5 focus-within:border-console md:max-w-[260px]">
+    <label className="flex h-8 w-full min-w-0 items-center gap-1.5 rounded-[6px] border border-slate-200 bg-white px-2.5 focus-within:border-console md:w-[240px] md:flex-none lg:w-[260px]">
       <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true" className="flex-none">
         <circle cx="7" cy="7" r="5" stroke="#9ba6b3" strokeWidth="1.5" />
         <path d="M11 11l3.2 3.2" stroke="#9ba6b3" strokeWidth="1.5" strokeLinecap="round" />
@@ -127,45 +133,41 @@ export function ConsoleFilterBar({
 
   return (
     <div className="mb-3">
-      {/* Row 1: search + (mobile) filters toggle + action. Wraps cleanly at
-          every width — nothing squeezes. */}
-      <div className="flex flex-wrap items-center gap-2">
-        {searchField}
-        <button
-          type="button"
-          onClick={() => setOpen((o) => !o)}
-          aria-expanded={open}
-          aria-controls="console-filters"
-          className="inline-flex h-8 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-[6px] border border-slate-200 bg-white px-2.5 text-[12.5px] font-semibold text-slate-600 transition-colors hover:border-console hover:text-console md:hidden"
-        >
-          <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" />
-          Filters
-          {activeCount > 0 ? (
-            <span className="font-adminmono flex h-4 min-w-4 items-center justify-center rounded-full bg-console px-1 text-[10px] font-bold text-white">
-              {activeCount}
-            </span>
-          ) : null}
-        </button>
-        <div className="ml-auto flex items-center gap-2">
-          <span className="hidden md:inline">{clearButton}</span>
-          {action}
-        </div>
+      {/* ── Desktop: one ordered toolbar row ─────────────────────────────── */}
+      <div className="hidden md:flex md:flex-wrap md:items-end md:gap-2.5">
+        <div className="md:self-end">{searchField}</div>
+        {children}
+        {clearButton ? <div className="md:self-center md:pt-4">{clearButton}</div> : null}
+        <div className="ml-auto md:self-end">{action}</div>
       </div>
 
-      {/* Row 2: the filters — hidden behind the toggle on mobile, always
-          inline from md up. Two columns on phones so selects share the width
-          evenly with no dead space. */}
-      <div
-        id="console-filters"
-        className={cn(
-          "mt-2 gap-2",
-          open ? "grid grid-cols-2" : "hidden",
-          "md:flex md:flex-wrap md:items-end",
-        )}
-      >
-        {children}
-        <div className={cn("col-span-2 md:hidden", !clearButton && "hidden")}>
-          {clearButton}
+      {/* ── Mobile: search line, then toggle + action, then the panel ────── */}
+      <div className="md:hidden">
+        {searchField}
+        <div className="mt-2 flex items-center justify-between gap-2">
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            aria-expanded={open}
+            aria-controls="console-filters"
+            className="inline-flex h-8 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-[6px] border border-slate-200 bg-white px-2.5 text-[12.5px] font-semibold text-slate-600 transition-colors hover:border-console hover:text-console"
+          >
+            <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" />
+            Filters
+            {activeCount > 0 ? (
+              <span className="font-adminmono flex h-4 min-w-4 items-center justify-center rounded-full bg-console px-1 text-[10px] font-bold text-white">
+                {activeCount}
+              </span>
+            ) : null}
+          </button>
+          {action}
+        </div>
+        <div
+          id="console-filters"
+          className={cn("mt-2 grid-cols-2 gap-2", open ? "grid" : "hidden")}
+        >
+          {children}
+          {clearButton ? <div className="col-span-2">{clearButton}</div> : null}
         </div>
       </div>
     </div>
