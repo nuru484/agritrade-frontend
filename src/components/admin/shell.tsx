@@ -24,7 +24,11 @@ import {
   PENDING_APPROVALS,
   screenTitle,
 } from "@/static-data/admin/nav";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { useLogoutMutation } from "@/redux/auth/auth-api";
+import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 const APPROVALS_HREF = `${ADMIN_HOME}/approvals`;
 
@@ -40,6 +44,73 @@ const SIDEBAR_VARS = {
   "--sidebar-primary-foreground": "#ffffff",
   "--sidebar-ring": "#1E3D2B",
 } as React.CSSProperties;
+
+const ROLE_LABEL: Record<string, string> = {
+  SUPER_ADMIN: "Super admin",
+  STAFF: "Office staff",
+  AGENT: "Field agent",
+};
+
+/** The signed-in user row in the sidebar footer: profile link + sign out. */
+function SidebarUser({ onNavigate }: { onNavigate: () => void }) {
+  const user = useCurrentUser();
+  const router = useRouter();
+  const [logout, { isLoading }] = useLogoutMutation();
+
+  const initials = user
+    ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
+    : "··";
+
+  const onLogout = async () => {
+    // logout's onQueryStarted clears the client session and cache even if the
+    // server call fails — the user intends to be signed out regardless.
+    await logout()
+      .unwrap()
+      .catch(() => {});
+    notify.success("Signed out");
+    router.replace("/login");
+  };
+
+  return (
+    <div className="flex items-center gap-1 pr-2">
+      <Link
+        href={`${ADMIN_HOME}/profile`}
+        onClick={onNavigate}
+        className="flex min-w-0 flex-1 items-center gap-2.5 px-5 py-3.5 hover:bg-slate-50"
+      >
+        <span className="flex h-[30px] w-[30px] flex-none items-center justify-center rounded-full bg-console text-[12px] font-bold text-white">
+          {initials}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate whitespace-nowrap text-[13px] font-semibold text-slate-800">
+            {user ? `${user.firstName} ${user.lastName}` : "Signed in"}
+          </span>
+          <span className="block truncate text-[11px] text-slate-500">
+            {(user && ROLE_LABEL[user.role]) ?? "Account"} · View profile
+          </span>
+        </span>
+      </Link>
+      <button
+        type="button"
+        onClick={onLogout}
+        disabled={isLoading}
+        aria-label="Sign out"
+        title="Sign out"
+        className="flex h-[30px] w-[30px] flex-none cursor-pointer items-center justify-center rounded-[6px] text-slate-400 hover:bg-slate-100 hover:text-console-red disabled:opacity-50"
+      >
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path
+            d="M6 2H3.5A1.5 1.5 0 0 0 2 3.5v9A1.5 1.5 0 0 0 3.5 14H6M10.5 11 14 8l-3.5-3M14 8H6"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+    </div>
+  );
+}
 
 /** Gold count pill used on nav rows. */
 function NavBadge({ count }: { count: number }) {
@@ -97,23 +168,7 @@ function ConsoleSidebar({ activeKey }: { activeKey: string }) {
         ))}
       </SidebarContent>
       <SidebarFooter className="border-t border-slate-100 p-0">
-        <Link
-          href={`${ADMIN_HOME}/profile`}
-          onClick={() => setOpenMobile(false)}
-          className="flex items-center gap-2.5 px-5 py-3.5 hover:bg-slate-50"
-        >
-          <span className="flex h-[30px] w-[30px] flex-none items-center justify-center rounded-full bg-console text-[12px] font-bold text-white">
-            AD
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block whitespace-nowrap text-[13px] font-semibold text-slate-800">
-              Abdul Danaa
-            </span>
-            <span className="block text-[11px] text-slate-500">
-              Owner · View profile
-            </span>
-          </span>
-        </Link>
+        <SidebarUser onNavigate={() => setOpenMobile(false)} />
       </SidebarFooter>
     </Sidebar>
   );

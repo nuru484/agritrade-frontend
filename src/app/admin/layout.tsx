@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Hanken_Grotesk, JetBrains_Mono } from "next/font/google";
 import { AdminShell } from "@/components/admin/shell";
+import { RequireAuth } from "@/components/auth/require-auth";
 
 const hanken = Hanken_Grotesk({
   variable: "--font-hanken",
@@ -25,8 +26,9 @@ export const metadata: Metadata = {
 
 /**
  * The Nasara Console — its own chrome (no public header/footer), Meridian
- * fonts, slate UI. Unauthenticated for now by agreement: every screen is
- * stub-data UI awaiting the backend hookup.
+ * fonts, slate UI. RequireAuth validates the session against GET /auth/me
+ * before the console renders; the proxy's cookie gate is only the first,
+ * cheap line of defence.
  */
 export default function AdminLayout({
   children,
@@ -35,7 +37,9 @@ export default function AdminLayout({
     <div
       className={`${hanken.variable} ${jetbrains.variable} font-admin min-h-screen bg-console-page text-[14px] leading-[1.5] text-slate-900 antialiased`}
     >
-      <AdminShell>{children}</AdminShell>
+      <RequireAuth>
+        <AdminShell>{children}</AdminShell>
+      </RequireAuth>
     </div>
   );
 }
