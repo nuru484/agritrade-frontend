@@ -1,7 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import {
+  CalendarDays,
+  Clock3,
+  Loader2,
+  Mail,
+  Phone,
+  ShieldCheck,
+  UserCog,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -98,19 +106,26 @@ export function PhotoViewDialog({
 /** One labelled fact in the identity grid. */
 function Fact({
   label,
+  icon: Icon,
   children,
 }: {
   label: string;
+  icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-w-0">
-      <dt className="text-[10.5px] font-bold uppercase tracking-[0.1em] text-slate-400">
-        {label}
-      </dt>
-      <dd className="mt-1 truncate text-[13.5px] font-medium text-slate-800">
-        {children}
-      </dd>
+    <div className="flex min-w-0 items-start gap-2.5">
+      <span className="mt-0.5 flex h-7 w-7 flex-none items-center justify-center rounded-[6px] bg-console/8 text-console">
+        <Icon className="h-3.5 w-3.5" aria-hidden />
+      </span>
+      <div className="min-w-0">
+        <dt className="text-[10.5px] font-bold uppercase tracking-[0.1em] text-slate-400">
+          {label}
+        </dt>
+        <dd className="mt-0.5 truncate text-[13.5px] font-medium text-slate-800">
+          {children}
+        </dd>
+      </div>
     </div>
   );
 }
@@ -134,24 +149,24 @@ export function IdentityFacts({
         className,
       )}
     >
-      <Fact label="Email">{user.email}</Fact>
-      <Fact label="Phone">{user.phone ?? "—"}</Fact>
-      <Fact label="Role">{ROLE_TITLE[user.role] ?? user.role}</Fact>
-      <Fact label="Two-factor">
+      <Fact label="Email" icon={Mail}>{user.email}</Fact>
+      <Fact label="Phone" icon={Phone}>{user.phone ?? "—"}</Fact>
+      <Fact label="Role" icon={UserCog}>{ROLE_TITLE[user.role] ?? user.role}</Fact>
+      <Fact label="Two-factor" icon={ShieldCheck}>
         {user.twoFactorEnabled ? (
           <span className="text-console">Enabled</span>
         ) : (
           "Off"
         )}
       </Fact>
-      <Fact label="Member since">
+      <Fact label="Member since" icon={CalendarDays}>
         {new Date(user.createdAt).toLocaleDateString("en-GB", {
           day: "2-digit",
           month: "long",
           year: "numeric",
         })}
       </Fact>
-      <Fact label="Last sign-in">
+      <Fact label="Last sign-in" icon={Clock3}>
         {user.lastLoginAt
           ? new Date(user.lastLoginAt).toLocaleString("en-GB", {
               day: "2-digit",

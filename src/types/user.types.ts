@@ -78,4 +78,6 @@ export interface IUpdateUserInput {
   phone?: string | null;
   canApprove?: boolean;
   financialVisibility?: boolean;
+  /** Clears the existing photo (the backend deletes the Cloudinary asset). */
+  removeProfilePicture?: boolean;
 }

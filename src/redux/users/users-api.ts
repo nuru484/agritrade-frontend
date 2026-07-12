@@ -39,15 +39,23 @@ export const usersApi = apiSlice.injectEndpoints({
       invalidatesTags: [{ type: "Users", id: "LIST" }],
     }),
 
+    /** Admin profile edit. A new photo travels WITH the save as multipart
+     * (payload JSON + file) — the backend uploads to Cloudinary inside the
+     * request; `removeProfilePicture: true` deletes the asset and clears the
+     * stored URL. */
     updateUser: builder.mutation<
       IUserResponse,
-      { id: string; body: IUpdateUserInput }
+      { id: string; body: IUpdateUserInput; photo?: File }
     >({
-      query: ({ id, body }) => ({
-        url: `admin/users/${id}`,
-        method: "PATCH",
-        body,
-      }),
+      query: ({ id, body, photo }) => {
+        if (photo) {
+          const form = new FormData();
+          form.append("payload", JSON.stringify(body));
+          form.append("profilePicture", photo);
+          return { url: `admin/users/${id}`, method: "PATCH", body: form };
+        }
+        return { url: `admin/users/${id}`, method: "PATCH", body };
+      },
       invalidatesTags: (_r, _e, { id }) => [
         { type: "Users", id },
         { type: "Users", id: "LIST" },

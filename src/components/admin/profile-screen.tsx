@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Camera, Pencil, Trash2 } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import {
@@ -15,11 +15,10 @@ import {
   adminInputClass,
 } from "@/components/admin/ui";
 import {
-  IdentityAvatar,
   IdentityFacts,
-  PhotoViewDialog,
   ROLE_TITLE,
 } from "@/components/admin/users/user-identity";
+import { PhotoManager } from "@/components/admin/users/photo-manager";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import {
@@ -51,118 +50,36 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 /* ── Profile photo (managed on its own — no Edit mode required) ──────────── */
 
-/**
- * The avatar with its own lifecycle: click the photo to view it full-size
- * (square), the camera button to pick a new one (uploads immediately with a
- * busy overlay — the file travels multipart and the backend owns Cloudinary),
- * and the trash to remove it (confirm-gated; the backend deletes the asset
- * and clears the stored URL).
- */
-function AvatarManager({ user }: { user: IUser }) {
+/** PhotoManager wired to the self-service PATCH /auth/me. */
+function ProfilePhoto({ user }: { user: IUser }) {
   const [updateMe, { isLoading }] = useUpdateMeMutation();
-  const { confirm, confirmationDialog } = useConfirm();
-  const fileInput = useRef<HTMLInputElement>(null);
-  const [viewing, setViewing] = useState(false);
-
-  const upload = async (file: File | undefined) => {
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      notify.error("Choose an image file (JPG or PNG).");
-      return;
-    }
-    try {
-      await updateMe({ body: {}, photo: file }).unwrap();
-      notify.success("Profile photo updated");
-    } catch (err) {
-      notify.error("Couldn't upload the photo", {
-        description: extractApiError(err).message,
-      });
-    } finally {
-      if (fileInput.current) fileInput.current.value = "";
-    }
-  };
-
-  const remove = async () => {
-    const ok = await confirm({
-      title: "Remove your profile photo?",
-      description: "The photo is deleted from storage as well.",
-      confirmText: "Remove photo",
-      isDestructive: true,
-    });
-    if (!ok) return;
-    try {
-      await updateMe({ body: { removeProfilePicture: true } }).unwrap();
-      notify.success("Profile photo removed");
-    } catch (err) {
-      notify.error("Couldn't remove the photo", {
-        description: extractApiError(err).message,
-      });
-    }
-  };
-
   return (
-    <div className="flex flex-none flex-col items-center gap-2">
-      {user.profilePicture ? (
-        <button
-          type="button"
-          onClick={() => setViewing(true)}
-          aria-label="View profile photo"
-          title="View photo"
-          className="cursor-zoom-in rounded-full outline-none focus-visible:ring-2 focus-visible:ring-console/40"
-        >
-          <IdentityAvatar
-            user={user}
-            src={user.profilePicture}
-            size={104}
-            busy={isLoading}
-          />
-        </button>
-      ) : (
-        <IdentityAvatar user={user} src={null} size={104} busy={isLoading} />
-      )}
-
-      <div className="flex items-center gap-1.5">
-        <button
-          type="button"
-          onClick={() => fileInput.current?.click()}
-          disabled={isLoading}
-          className="inline-flex cursor-pointer items-center gap-1.5 rounded-[6px] border border-slate-200 bg-white px-2.5 py-1.5 text-[12px] font-semibold text-slate-600 transition-colors hover:border-console hover:text-console disabled:opacity-50"
-        >
-          <Camera className="h-3.5 w-3.5" aria-hidden="true" />
-          {user.profilePicture ? "Change" : "Add photo"}
-        </button>
-        {user.profilePicture ? (
-          <button
-            type="button"
-            onClick={() => void remove()}
-            disabled={isLoading}
-            aria-label="Remove photo"
-            title="Remove photo"
-            className="flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-[6px] border border-slate-200 bg-white text-slate-400 transition-colors hover:border-console-red hover:text-console-red disabled:opacity-50"
-          >
-            <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-          </button>
-        ) : null}
-      </div>
-      <span className="text-[11px] text-slate-400">JPG or PNG</span>
-
-      <input
-        ref={fileInput}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={(e) => void upload(e.target.files?.[0])}
-      />
-      {user.profilePicture ? (
-        <PhotoViewDialog
-          src={user.profilePicture}
-          name={`${user.firstName} ${user.lastName}`}
-          open={viewing}
-          onOpenChange={setViewing}
-        />
-      ) : null}
-      {confirmationDialog}
-    </div>
+    <PhotoManager
+      user={user}
+      isSaving={isLoading}
+      onSave={async (file) => {
+        try {
+          await updateMe({ body: {}, photo: file }).unwrap();
+          notify.success("Profile photo updated");
+        } catch (err) {
+          notify.error("Couldn't upload the photo", {
+            description: extractApiError(err).message,
+          });
+          throw err;
+        }
+      }}
+      onRemove={async () => {
+        try {
+          await updateMe({ body: { removeProfilePicture: true } }).unwrap();
+          notify.success("Profile photo removed");
+        } catch (err) {
+          notify.error("Couldn't remove the photo", {
+            description: extractApiError(err).message,
+          });
+          throw err;
+        }
+      }}
+    />
   );
 }
 
@@ -174,46 +91,65 @@ function IdentityCard() {
   if (!user) return null;
 
   return (
-    <AdminCard className="px-6 py-6">
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-        <AvatarManager user={user} />
+    <AdminCard className="overflow-hidden p-0">
+      {/* Forest banner: the page's one moment of colour. The avatar overlaps
+          its lower edge, LinkedIn-style, framed white. */}
+      <div className="relative h-[88px] overflow-hidden bg-gradient-to-r from-console-deep via-console to-[#2C5B3E]">
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 opacity-[0.12]"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(-45deg, transparent 0 14px, #fff 14px 15px)",
+          }}
+        />
+        <span
+          aria-hidden="true"
+          className="absolute right-4 top-1/2 hidden -translate-y-1/2 text-[13px] font-extrabold uppercase tracking-[0.3em] text-white/25 sm:block"
+        >
+          DB Plus
+        </span>
+      </div>
 
-        <div className="min-w-0 flex-1">
+      <div className="px-4 pb-6 sm:px-6">
+        <div className="-mt-[52px] flex flex-col items-center gap-3 sm:flex-row sm:items-end sm:gap-5">
+          <ProfilePhoto user={user} />
+          <div className="min-w-0 flex-1 text-center sm:pb-2 sm:text-left">
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+              <h2 className="text-[20px] font-bold tracking-[-0.01em] text-slate-900">
+                {user.firstName} {user.lastName}
+              </h2>
+              <ToneBadge tone="forest">
+                {ROLE_TITLE[user.role] ?? user.role}
+              </ToneBadge>
+            </div>
+            <p className="mt-0.5 truncate text-[13px] text-slate-500">
+              {user.email}
+            </p>
+            {user.pendingEmail ? (
+              <p className="mt-1 text-[12px] font-medium text-console-gold">
+                Email change to {user.pendingEmail} awaiting confirmation —
+                check that inbox.
+              </p>
+            ) : null}
+          </div>
+          {!editing ? (
+            <AdminButton
+              variant="secondary"
+              className="h-[34px] flex-none px-3.5 text-[13px] whitespace-nowrap sm:mb-2"
+              onClick={() => setEditing(true)}
+            >
+              <Pencil className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+              Edit profile
+            </AdminButton>
+          ) : null}
+        </div>
+
+        <div className="mt-6 border-t border-slate-100 pt-5">
           {editing ? (
             <ProfileEditForm user={user} onClose={() => setEditing(false)} />
           ) : (
-            <>
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <h2 className="text-[19px] font-bold tracking-[-0.01em] text-slate-900">
-                      {user.firstName} {user.lastName}
-                    </h2>
-                    <ToneBadge tone="forest">
-                      {ROLE_TITLE[user.role] ?? user.role}
-                    </ToneBadge>
-                  </div>
-                  {user.pendingEmail ? (
-                    <p className="mt-1.5 text-[12px] font-medium text-console-gold">
-                      Email change to {user.pendingEmail} awaiting confirmation
-                      — check that inbox.
-                    </p>
-                  ) : null}
-                </div>
-                <AdminButton
-                  variant="secondary"
-                  className="h-[34px] flex-none px-3.5 text-[13px] whitespace-nowrap"
-                  onClick={() => setEditing(true)}
-                >
-                  <Pencil className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
-                  Edit profile
-                </AdminButton>
-              </div>
-
-              <div className="mt-5 border-t border-slate-100 pt-5">
-                <IdentityFacts user={user} />
-              </div>
-            </>
+            <IdentityFacts user={user} />
           )}
         </div>
       </div>

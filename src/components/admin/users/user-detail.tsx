@@ -9,20 +9,12 @@ import { Pencil } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   AdminButton,
   AdminCard,
   AdminField,
   AdminPageHeader,
   ToneBadge,
   adminInputClass,
-  adminSelectClass,
 } from "@/components/admin/ui";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 import { ErrorMessage } from "@/components/ui/ErrorMessage";
@@ -30,7 +22,6 @@ import { useConfirm } from "@/hooks/use-confirm";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import {
   useActivateUserMutation,
-  useChangeUserRoleMutation,
   useDeactivateUserMutation,
   useDeleteUserMutation,
   useGetUserQuery,
@@ -42,14 +33,12 @@ import {
 import { extractApiError } from "@/lib/extract-api-error";
 import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
-import { UserRole, type IUser } from "@/types/user.types";
+import type { IUser } from "@/types/user.types";
 import { editUserSchema, type EditUserValues } from "@/validations/user-schema";
-import { ROLE_LABEL, ROLE_OPTIONS, StatusBadge } from "./user-bits";
-import {
-  IdentityFacts,
-  ROLE_TITLE,
-  ViewablePhoto,
-} from "./user-identity";
+import { StatusBadge } from "./user-bits";
+import { IdentityFacts, ROLE_TITLE } from "./user-identity";
+import { PhotoManager } from "./photo-manager";
+import { RoleChangeDialog } from "./role-dialog";
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -65,15 +54,105 @@ const onApiError = (title: string) => (err: unknown) => {
 
 /* ── Identity + details (read-only until Edit) ───────────────────────────── */
 
+/** PhotoManager wired to the admin PATCH /admin/users/:id. */
+function UserPhoto({ user }: { user: IUser }) {
+  const [updateUser, { isLoading }] = useUpdateUserMutation();
+  return (
+    <PhotoManager
+      user={user}
+      isSaving={isLoading}
+      onSave={async (file) => {
+        try {
+          await updateUser({ id: user.id, body: {}, photo: file }).unwrap();
+          notify.success("Profile photo updated");
+        } catch (err) {
+          notify.error("Couldn't upload the photo", {
+            description: extractApiError(err).message,
+          });
+          throw err;
+        }
+      }}
+      onRemove={async () => {
+        try {
+          await updateUser({
+            id: user.id,
+            body: { removeProfilePicture: true },
+          }).unwrap();
+          notify.success("Profile photo removed");
+        } catch (err) {
+          notify.error("Couldn't remove the photo", {
+            description: extractApiError(err).message,
+          });
+          throw err;
+        }
+      }}
+    />
+  );
+}
+
 function IdentityCard({ user, isSelf }: { user: IUser; isSelf: boolean }) {
   const [editing, setEditing] = useState(false);
 
   return (
-    <AdminCard className="px-6 py-6">
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-        <ViewablePhoto user={user} size={96} />
+    <AdminCard className="overflow-hidden p-0">
+      {/* Forest banner mirroring the profile page — one identity language. */}
+      <div className="relative h-[88px] overflow-hidden bg-gradient-to-r from-console-deep via-console to-[#2C5B3E]">
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 opacity-[0.12]"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(-45deg, transparent 0 14px, #fff 14px 15px)",
+          }}
+        />
+        <span
+          aria-hidden="true"
+          className="absolute right-4 top-1/2 hidden -translate-y-1/2 text-[13px] font-extrabold uppercase tracking-[0.3em] text-white/25 sm:block"
+        >
+          DB Plus
+        </span>
+      </div>
 
-        <div className="min-w-0 flex-1">
+      <div className="px-4 pb-6 sm:px-6">
+        <div className="-mt-[52px] flex flex-col items-center gap-3 sm:flex-row sm:items-end sm:gap-5">
+          <UserPhoto user={user} />
+          <div className="min-w-0 flex-1 text-center sm:pb-2 sm:text-left">
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+              <h2 className="text-[20px] font-bold tracking-[-0.01em] text-slate-900">
+                {user.firstName} {user.lastName}
+              </h2>
+              <ToneBadge tone="forest">
+                {ROLE_TITLE[user.role] ?? user.role}
+              </ToneBadge>
+              <StatusBadge user={user} />
+              {isSelf ? (
+                <span className="text-[11px] font-semibold text-slate-400">
+                  (you)
+                </span>
+              ) : null}
+            </div>
+            <p className="mt-0.5 truncate text-[13px] text-slate-500">
+              {user.email}
+            </p>
+            {user.pendingEmail ? (
+              <p className="mt-1 text-[12px] font-medium text-console-gold">
+                Email change to {user.pendingEmail} awaiting confirmation.
+              </p>
+            ) : null}
+          </div>
+          {!editing ? (
+            <AdminButton
+              variant="secondary"
+              className="h-[34px] flex-none px-3.5 text-[13px] whitespace-nowrap sm:mb-2"
+              onClick={() => setEditing(true)}
+            >
+              <Pencil className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+              Edit details
+            </AdminButton>
+          ) : null}
+        </div>
+
+        <div className="mt-6 border-t border-slate-100 pt-5">
           {editing ? (
             <EditDetailsForm
               user={user}
@@ -82,41 +161,7 @@ function IdentityCard({ user, isSelf }: { user: IUser; isSelf: boolean }) {
             />
           ) : (
             <>
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <h2 className="text-[19px] font-bold tracking-[-0.01em] text-slate-900">
-                      {user.firstName} {user.lastName}
-                    </h2>
-                    <ToneBadge tone="forest">
-                      {ROLE_TITLE[user.role] ?? user.role}
-                    </ToneBadge>
-                    <StatusBadge user={user} />
-                    {isSelf ? (
-                      <span className="text-[11px] font-semibold text-slate-400">
-                        (you)
-                      </span>
-                    ) : null}
-                  </div>
-                  {user.pendingEmail ? (
-                    <p className="mt-1.5 text-[12px] font-medium text-console-gold">
-                      Email change to {user.pendingEmail} awaiting confirmation.
-                    </p>
-                  ) : null}
-                </div>
-                <AdminButton
-                  variant="secondary"
-                  className="h-[34px] flex-none px-3.5 text-[13px] whitespace-nowrap"
-                  onClick={() => setEditing(true)}
-                >
-                  <Pencil className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
-                  Edit details
-                </AdminButton>
-              </div>
-
-              <div className="mt-5 border-t border-slate-100 pt-5">
-                <IdentityFacts user={user} />
-              </div>
+              <IdentityFacts user={user} />
 
               <div className="mt-5 border-t border-slate-100 pt-4">
                 <dl className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
@@ -334,78 +379,17 @@ function EditDetailsForm({
   );
 }
 
-/* ── Role (read-only until "Change role") ────────────────────────────────── */
+/* ── Role (display; changes happen in the modal) ────────────────────────── */
 
 function RoleCard({ user, isSelf }: { user: IUser; isSelf: boolean }) {
-  const { confirm, confirmationDialog } = useConfirm();
-  const [changeRole, { isLoading }] = useChangeUserRoleMutation();
-  const [open, setOpen] = useState(false);
-  const [role, setRole] = useState<UserRole>(user.role);
-
-  const apply = async () => {
-    const ok = await confirm({
-      title: `Change role to ${ROLE_LABEL[role]}?`,
-      description:
-        "The user is signed out everywhere and their access changes the moment they sign back in.",
-      confirmText: "Change role",
-    });
-    if (!ok) return;
-    try {
-      await changeRole({ id: user.id, role }).unwrap();
-      setOpen(false);
-      notify.success(`Role changed to ${ROLE_LABEL[role]}`);
-    } catch (err) {
-      setRole(user.role);
-      onApiError("Couldn't change the role")(err);
-    }
-  };
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   return (
     // Plain-div anchor: the row-actions menu deep-links here as /users/:id#role.
     <div id="role" className="scroll-mt-20">
-      <AdminCard className="px-6 py-[18px]">
-      <SectionLabel>Role</SectionLabel>
-      {open ? (
-        <div className="flex max-w-[560px] items-end gap-2">
-          <div className="min-w-0 flex-1">
-            <AdminField
-              label="Access level"
-              hint="Role changes sign the user out everywhere."
-            >
-              <Select value={role} onValueChange={(v) => setRole(v as UserRole)}>
-                <SelectTrigger className={cn(adminSelectClass, "w-full")}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {ROLE_OPTIONS.map((r) => (
-                    <SelectItem key={r} value={r} className="cursor-pointer">
-                      {ROLE_LABEL[r]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </AdminField>
-          </div>
-          <AdminButton
-            className="h-[38px] flex-none px-4 text-[13px]"
-            disabled={isLoading || role === user.role}
-            onClick={() => void apply()}
-          >
-            {isLoading ? "Applying…" : "Apply"}
-          </AdminButton>
-          <AdminButton
-            variant="ghost"
-            className="h-[38px] flex-none px-3 text-[13px]"
-            onClick={() => {
-              setOpen(false);
-              setRole(user.role);
-            }}
-          >
-            Cancel
-          </AdminButton>
-        </div>
-      ) : (
-        <div className="flex items-center justify-between gap-3">
+      <AdminCard className="px-4 py-[18px] sm:px-6">
+        <SectionLabel>Role</SectionLabel>
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
             <div className="text-[13.5px] font-semibold text-slate-900">
               {ROLE_TITLE[user.role] ?? user.role}
@@ -420,14 +404,17 @@ function RoleCard({ user, isSelf }: { user: IUser; isSelf: boolean }) {
             <AdminButton
               variant="secondary"
               className="h-[34px] flex-none px-3.5 text-[13px] whitespace-nowrap"
-              onClick={() => setOpen(true)}
+              onClick={() => setDialogOpen(true)}
             >
               Change role
             </AdminButton>
           ) : null}
         </div>
-      )}
-      {confirmationDialog}
+        <RoleChangeDialog
+          user={user}
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+        />
       </AdminCard>
     </div>
   );

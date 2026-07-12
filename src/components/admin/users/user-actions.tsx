@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Eye,
@@ -30,6 +31,7 @@ import {
 import { extractApiError } from "@/lib/extract-api-error";
 import { notify } from "@/lib/notify";
 import type { IUser } from "@/types/user.types";
+import { RoleChangeDialog } from "./role-dialog";
 
 /**
  * Per-row actions menu (dms-frontend convention): view/edit, send reset link,
@@ -41,6 +43,7 @@ export function UserActionsDropdown({ user }: { user: IUser }) {
   const me = useCurrentUser();
   const isSelf = me?.id === user.id;
   const { confirm, confirmationDialog } = useConfirm();
+  const [roleDialogOpen, setRoleDialogOpen] = useState(false);
 
   const [sendReset] = useSendUserPasswordResetMutation();
   const [unblock] = useUnblockUserMutation();
@@ -150,13 +153,15 @@ export function UserActionsDropdown({ user }: { user: IUser }) {
             <Eye className="h-3.5 w-3.5" aria-hidden="true" />
             View & edit
           </DropdownMenuItem>
-          <DropdownMenuItem
-            className="cursor-pointer gap-2 text-[13px]"
-            onClick={() => router.push(`/admin/users/${user.id}#role`)}
-          >
-            <UserCog className="h-3.5 w-3.5" aria-hidden="true" />
-            Change role
-          </DropdownMenuItem>
+          {!isSelf ? (
+            <DropdownMenuItem
+              className="cursor-pointer gap-2 text-[13px]"
+              onClick={() => setRoleDialogOpen(true)}
+            >
+              <UserCog className="h-3.5 w-3.5" aria-hidden="true" />
+              Change role
+            </DropdownMenuItem>
+          ) : null}
           <DropdownMenuItem
             className="cursor-pointer gap-2 text-[13px]"
             onClick={() => void onSendReset().catch(fail("Couldn't send the link"))}
@@ -196,6 +201,11 @@ export function UserActionsDropdown({ user }: { user: IUser }) {
           ) : null}
         </DropdownMenuContent>
       </DropdownMenu>
+      <RoleChangeDialog
+        user={user}
+        open={roleDialogOpen}
+        onOpenChange={setRoleDialogOpen}
+      />
       {confirmationDialog}
     </>
   );
