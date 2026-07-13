@@ -29,7 +29,7 @@ const TOGGLE_LABELS = [
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mb-3.5 text-[10.5px] font-bold tracking-[0.1em] text-slate-400 uppercase">
+    <div className="mb-3.5 text-[10.5px] font-bold tracking-[0.1em] text-soil/70 uppercase">
       {children}
     </div>
   );
@@ -49,8 +49,8 @@ function UnitInput({
   const addon = (
     <span
       className={cn(
-        "flex h-full items-center bg-slate-50 px-2.5 text-[13px] text-slate-500",
-        side === "suffix" ? "border-l border-slate-200" : "border-r border-slate-200",
+        "flex h-full items-center bg-surface-alt px-2.5 text-[13px] text-soil",
+        side === "suffix" ? "border-l border-soil/25" : "border-r border-soil/25",
       )}
     >
       {unit}
@@ -59,14 +59,14 @@ function UnitInput({
   return (
     <div
       className={cn(
-        "flex h-[38px] items-center overflow-hidden rounded-[6px] border",
-        error ? "border-console-red" : "border-slate-300",
+        "flex h-[42px] items-center overflow-hidden rounded-[2px] border-[1.5px] bg-[#FBFCF7] transition-[border-color,box-shadow] focus-within:border-leaf focus-within:shadow-[0_0_0_3px_rgb(62_125_98/0.16)]",
+        error ? "border-error" : "border-soil/35",
       )}
     >
       {side === "prefix" ? addon : null}
       <Input
         inputMode="decimal"
-        className="font-adminmono h-full min-w-0 flex-1 rounded-none border-0 bg-transparent px-2.5 py-0 text-right text-[14px] tabular-nums text-slate-900 outline-none focus-visible:ring-0"
+        className="font-adminmono h-full min-w-0 flex-1 rounded-none border-0 bg-transparent px-2.5 py-0 text-right text-[14px] tabular-nums text-ink outline-none placeholder:text-soil/55 focus-visible:ring-0"
         {...props}
       />
       {side === "suffix" ? addon : null}
@@ -81,7 +81,7 @@ interface SettingsErrors {
 }
 
 export function SettingsScreen() {
-  const [name, setName] = useState("Nasara Agro Trading Ltd");
+  const [name, setName] = useState("DB Plus Trading Ltd");
   const [milestone, setMilestone] = useState("80");
   const [expense, setExpense] = useState("500");
   const [toggles, setToggles] = useState<boolean[]>([true, true, false]);
@@ -118,7 +118,7 @@ export function SettingsScreen() {
                   setName(e.target.value);
                   setErrors((er) => ({ ...er, name: undefined }));
                 }}
-                className={cn(adminInputClass, errors.name && "border-console-red")}
+                className={cn(adminInputClass, errors.name && "border-error")}
               />
             </AdminField>
             <div className="grid gap-[13px] sm:grid-cols-2">
@@ -183,7 +183,7 @@ export function SettingsScreen() {
             </div>
             {TOGGLE_LABELS.map((label, i) => (
               <div key={label} className="flex items-center justify-between gap-3 py-1">
-                <span className="text-[13.5px] text-slate-800">{label}</span>
+                <span className="text-[13.5px] text-ink">{label}</span>
                 <AdminToggle
                   checked={toggles[i]}
                   label={label}

@@ -118,12 +118,12 @@ export function RecordForm({
       >
         ← {register.title}
       </Link>
-      <h1 className="mb-1 text-[22px] font-bold tracking-[-0.01em] text-slate-900">
+      <h1 className="mb-1 text-[22px] font-bold tracking-[-0.01em] text-ink">
         {mode === "edit"
           ? `Edit ${register.single.toLowerCase()} — ${refText}`
           : `New ${register.single.toLowerCase()}`}
       </h1>
-      <p className="mb-4.5 text-[13px] text-slate-500">
+      <p className="mb-4.5 text-[13px] text-soil">
         {mode === "edit" ? "Changes are logged in the audit trail" : "Fill in the details below"}
       </p>
 
@@ -151,7 +151,7 @@ export function RecordForm({
               <div key={f.index}>
                 <label
                   htmlFor={`reg-field-${f.index}`}
-                  className="mb-[5px] block text-[13px] font-semibold text-slate-700"
+                  className="mb-[5px] block text-[13px] font-semibold text-soil"
                 >
                   {f.l}
                   {f.required ? <span className="text-console-red"> *</span> : null}
@@ -159,11 +159,11 @@ export function RecordForm({
                 {f.money ? (
                   <div
                     className={cn(
-                      "flex h-[38px] items-center overflow-hidden rounded-[6px] border bg-white focus-within:border-console focus-within:shadow-[0_0_0_3px_rgb(30_61_43/0.15)]",
-                      hasError ? "border-console-red" : "border-slate-300",
+                      "flex h-[38px] items-center overflow-hidden rounded-[6px] border bg-paper focus-within:border-console focus-within:shadow-[0_0_0_3px_rgb(30_61_43/0.15)]",
+                      hasError ? "border-console-red" : "border-soil/35",
                     )}
                   >
-                    <span className="flex h-full items-center border-r border-slate-200 bg-slate-50 px-2.5 text-[13px] text-slate-500">
+                    <span className="flex h-full items-center border-r border-soil/25 bg-surface-alt/70 px-2.5 text-[13px] text-soil">
                       GH₵
                     </span>
                     <Input
@@ -173,7 +173,7 @@ export function RecordForm({
                       placeholder="0.00"
                       inputMode="decimal"
                       aria-invalid={hasError || undefined}
-                      className="font-adminmono h-full min-w-0 flex-1 rounded-none border-0 bg-transparent px-2.5 py-0 text-right text-[14px] tabular-nums text-slate-900 outline-none placeholder:text-slate-400 focus-visible:ring-0 aria-invalid:ring-0"
+                      className="font-adminmono h-full min-w-0 flex-1 rounded-none border-0 bg-transparent px-2.5 py-0 text-right text-[14px] tabular-nums text-ink outline-none placeholder:text-soil/70 focus-visible:ring-0 aria-invalid:ring-0"
                     />
                   </div>
                 ) : (
@@ -212,7 +212,7 @@ export function RecordForm({
           </AdminButton>
           <Link
             href={backHref}
-            className="inline-flex h-10 items-center rounded-[6px] border border-slate-300 bg-white px-4.5 text-[14px] font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+            className="inline-flex h-10 items-center rounded-[6px] border border-soil/35 bg-paper px-4.5 text-[14px] font-semibold text-soil transition-colors hover:bg-surface-alt/70"
           >
             Cancel
           </Link>

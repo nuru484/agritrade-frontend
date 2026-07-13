@@ -21,10 +21,10 @@ export function VolumeBars() {
   return (
     <AdminCard className="min-w-0 px-[18px] py-3.5">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2.5">
-        <div className="text-[11px] font-bold uppercase tracking-[0.1em] text-slate-700">
+        <div className="text-[11px] font-bold uppercase tracking-[0.1em] text-soil">
           Weekly volume bought
         </div>
-        <div className="flex flex-wrap gap-3 text-[11.5px] text-slate-500">
+        <div className="flex flex-wrap gap-3 text-[11.5px] text-soil">
           <LegendSwatch color="#1E3D2B" label="Maize" />
           <LegendSwatch color="#3E6B8C" label="Soybeans" />
           <LegendSwatch color="#B8860B" label="Shea" />
@@ -47,7 +47,7 @@ export function VolumeBars() {
         {WEEKLY_VOLUME.map((w) => (
           <span
             key={w.label}
-            className="flex-1 whitespace-nowrap text-center text-[10.5px] tabular-nums text-slate-400"
+            className="flex-1 whitespace-nowrap text-center text-[10.5px] tabular-nums text-soil/70"
           >
             {w.label}
           </span>

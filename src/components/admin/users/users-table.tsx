@@ -5,13 +5,13 @@ import Link from "next/link";
 import type { ColumnDef } from "@tanstack/react-table";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { SearchX, UserPlus } from "lucide-react";
 import { ConsoleDataTable } from "@/components/admin/data-table";
 import {
   ConsoleFilterBar,
   ConsoleLabeledSelect,
 } from "@/components/admin/filter-bar";
 import { AdminCard } from "@/components/admin/ui";
+import { Button } from "@/components/ui/button";
 import { DataTableSkeleton } from "@/components/ui/DataTableSkeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorMessage } from "@/components/ui/ErrorMessage";
@@ -74,7 +74,7 @@ const columnMeta = (opts?: { wide?: boolean }) => ({
     opts?.wide ? "hidden xl:table-cell" : "table-cell",
   ),
   headerClassName:
-    "h-[38px] whitespace-nowrap bg-slate-50 py-0 text-[10.5px] font-bold uppercase tracking-[0.09em] text-slate-500",
+    "h-[38px] whitespace-nowrap bg-surface-alt/70 py-0 text-[10.5px] font-bold uppercase tracking-[0.09em] text-soil",
 });
 
 /**
@@ -199,10 +199,10 @@ export function UsersTable() {
                   </span>
                 )}
                 <span className="min-w-0">
-                  <span className="block truncate font-medium text-slate-900">
+                  <span className="block truncate font-medium text-ink">
                     {u.firstName} {u.lastName}
                   </span>
-                  <span className="block truncate text-[11.5px] text-slate-400">
+                  <span className="block truncate text-[11.5px] text-soil/70">
                     {u.email}
                   </span>
                 </span>
@@ -218,7 +218,7 @@ export function UsersTable() {
         enableSorting: false,
         meta: columnMeta(),
         cell: ({ row }) => (
-          <span className="whitespace-nowrap text-slate-700">
+          <span className="whitespace-nowrap text-soil">
             {ROLE_LABEL[row.original.role]}
           </span>
         ),
@@ -230,7 +230,7 @@ export function UsersTable() {
         enableSorting: false,
         meta: columnMeta({ wide: true }),
         cell: ({ row }) => (
-          <span className="whitespace-nowrap text-slate-700">
+          <span className="whitespace-nowrap text-soil">
             {row.original.phone ?? "—"}
           </span>
         ),
@@ -242,7 +242,7 @@ export function UsersTable() {
         enableSorting: false,
         meta: columnMeta(),
         cell: ({ row }) => (
-          <span className="whitespace-nowrap text-slate-700">
+          <span className="whitespace-nowrap text-soil">
             {visibilityLabel(row.original)}
           </span>
         ),
@@ -254,7 +254,7 @@ export function UsersTable() {
         enableSorting: false,
         meta: columnMeta({ wide: true }),
         cell: ({ row }) => (
-          <span className="whitespace-nowrap text-slate-700">
+          <span className="whitespace-nowrap text-soil">
             {lastActiveLabel(row.original)}
           </span>
         ),
@@ -286,10 +286,10 @@ export function UsersTable() {
   return (
     <div>
       <div className="mb-3.5">
-        <h1 className="text-[22px] font-bold tracking-[-0.01em] text-slate-900">
+        <h1 className="text-[22px] font-bold tracking-[-0.01em] text-ink">
           Users
         </h1>
-        <p className="mt-0.5 text-[13px] text-slate-500">
+        <p className="mt-0.5 text-[13px] text-soil">
           Staff accounts and permissions
         </p>
       </div>
@@ -305,12 +305,9 @@ export function UsersTable() {
         activeCount={activeFilterCount}
         onClear={resetFilters}
         action={
-          <Link
-            href="/admin/users/new"
-            className="inline-flex h-8 items-center whitespace-nowrap rounded-[6px] bg-console px-3.5 text-[13px] font-semibold text-white transition-colors hover:bg-console-deep"
-          >
-            + Add user
-          </Link>
+          <Button asChild variant="harvest" className="h-8 px-3.5 text-[13px]">
+            <Link href="/admin/users/new">+ Add user</Link>
+          </Button>
         }
       >
         <ConsoleLabeledSelect
@@ -345,7 +342,7 @@ export function UsersTable() {
         <AdminCard className="overflow-hidden">
           {search || activeFilterCount > 0 ? (
             <EmptyState
-              icon={SearchX}
+              variant="plain"
               title="No matching users"
               description="Nothing matches this search and filter combination. Adjust the criteria or clear them to see everyone."
               actionLabel="Clear search & filters"
@@ -356,7 +353,7 @@ export function UsersTable() {
             />
           ) : (
             <EmptyState
-              icon={UserPlus}
+              variant="plain"
               title="No users yet"
               description="Add your first staff account — assign a role, set the permission flags and hand over the first password."
               actionLabel="Add your first user"
@@ -389,7 +386,7 @@ export function UsersTable() {
               </button>
             )}
             rowHref={(u) => `/admin/users/${u.id}`}
-            rowClassName={() => "h-12 hover:bg-slate-50/70"}
+            rowClassName={() => "h-12 hover:bg-surface-alt/60"}
           />
         </AdminCard>
       )}

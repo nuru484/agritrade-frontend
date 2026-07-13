@@ -134,13 +134,13 @@ function NavbarUser() {
           <div className="flex items-center gap-2.5 border-b border-dotted border-soil/40 px-3.5 py-3">
             <UserAvatar size={38} />
             <div className="min-w-0 flex-1">
-              <div className="truncate text-[13px] font-semibold text-slate-800">
+              <div className="truncate text-[13px] font-semibold text-ink">
                 {user ? `${user.firstName} ${user.lastName}` : "Signed in"}
               </div>
-              <div className="truncate text-[11.5px] text-slate-500">
+              <div className="truncate text-[11.5px] text-soil">
                 {user?.email ?? ""}
               </div>
-              <div className="text-[11px] text-slate-400">
+              <div className="text-[11px] text-soil/70">
                 {(user && ROLE_LABEL[user.role]) ?? ""}
               </div>
             </div>
@@ -210,14 +210,14 @@ function NavbarSearch() {
   };
 
   return (
-    <div className="hidden h-8 w-[210px] items-center gap-2 rounded-[6px] border border-slate-200 bg-slate-50 px-2.5 text-[13px] focus-within:border-console focus-within:bg-white md:flex lg:w-[260px]">
+    <div className="hidden h-8 w-[210px] items-center gap-2 rounded-[6px] border border-soil/25 bg-surface-alt/70 px-2.5 text-[13px] focus-within:border-console focus-within:bg-paper md:flex lg:w-[260px]">
       <svg
         width="13"
         height="13"
         viewBox="0 0 16 16"
         fill="none"
         aria-hidden="true"
-        className="flex-none text-slate-400"
+        className="flex-none text-soil/70"
       >
         <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5" />
         <path
@@ -237,19 +237,19 @@ function NavbarSearch() {
         }}
         placeholder="Search purchases, agents, buyers…"
         aria-label="Search the console"
-        className="[&::-webkit-search-cancel-button]:hidden h-full w-full min-w-0 truncate bg-transparent text-slate-900 outline-none placeholder:truncate placeholder:whitespace-nowrap placeholder:text-slate-300"
+        className="[&::-webkit-search-cancel-button]:hidden h-full w-full min-w-0 truncate bg-transparent text-ink outline-none placeholder:truncate placeholder:whitespace-nowrap placeholder:text-soil/45"
       />
       {term ? (
         <button
           type="button"
           onClick={clear}
           aria-label="Clear search"
-          className="flex h-4 w-4 flex-none cursor-pointer items-center justify-center rounded-full text-slate-400 hover:bg-slate-200 hover:text-slate-600"
+          className="flex h-4 w-4 flex-none cursor-pointer items-center justify-center rounded-full text-soil/70 hover:bg-soil/20 hover:text-soil"
         >
           <X className="h-3 w-3" aria-hidden="true" />
         </button>
       ) : (
-        <span className="font-adminmono flex-none rounded-[4px] border border-slate-200 bg-white px-[5px] text-[11px] text-slate-400">
+        <span className="font-adminmono flex-none rounded-[4px] border border-soil/25 bg-paper px-[5px] text-[11px] text-soil/70">
           ⌘K
         </span>
       )}
@@ -275,7 +275,7 @@ function SidebarSignOut() {
         type="button"
         onClick={() => void signOut()}
         disabled={isLoading}
-        className="flex w-full cursor-pointer items-center gap-2.5 px-5 py-3.5 text-left text-[13px] font-semibold text-slate-600 hover:bg-slate-50 hover:text-console-red disabled:opacity-50"
+        className="flex w-full cursor-pointer items-center gap-2.5 px-5 py-3.5 text-left text-[13px] font-semibold text-soil hover:bg-surface-alt/70 hover:text-console-red disabled:opacity-50"
       >
         <LogOut className="h-[15px] w-[15px]" aria-hidden="true" />
         Sign out
@@ -291,18 +291,18 @@ function ConsoleSidebar({ activeKey }: { activeKey: string }) {
   const { setOpenMobile } = useSidebar();
   return (
     <Sidebar>
-      <SidebarHeader className="gap-0 border-b border-slate-100 px-5 pb-4 pt-5">
+      <SidebarHeader className="gap-0 border-b border-soil/15 px-5 pb-4 pt-5">
         <div className="text-[16px] font-extrabold tracking-[0.14em] text-console">
           DB PLUS
         </div>
-        <div className="mt-0.5 text-[11px] uppercase tracking-[0.06em] text-slate-500">
+        <div className="mt-0.5 text-[11px] uppercase tracking-[0.06em] text-soil">
           Agro Trading · Tamale
         </div>
       </SidebarHeader>
       <SidebarContent className="gap-0.5 px-1 pb-6 pt-2.5 [scrollbar-width:none]">
         {adminNavGroups.map((group) => (
           <SidebarGroup key={group.label} className="gap-px py-0">
-            <SidebarGroupLabel className="h-auto px-2.5 pb-[5px] pt-3.5 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-slate-400">
+            <SidebarGroupLabel className="h-auto px-2.5 pb-[5px] pt-3.5 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-soil/70">
               {group.label}
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -312,7 +312,7 @@ function ConsoleSidebar({ activeKey }: { activeKey: string }) {
                     <SidebarMenuButton
                       asChild
                       isActive={activeKey === item.key}
-                      className="h-auto justify-between gap-2 rounded-[6px] px-2.5 py-[7px] text-[13.5px] font-normal text-slate-700 hover:bg-slate-100 hover:text-slate-700 data-[active=true]:bg-console data-[active=true]:font-semibold data-[active=true]:text-white"
+                      className="h-auto justify-between gap-2 rounded-[6px] px-2.5 py-[7px] text-[13.5px] font-normal text-soil hover:bg-soil/10 hover:text-soil data-[active=true]:bg-console data-[active=true]:font-semibold data-[active=true]:text-white"
                     >
                       <Link
                         href={item.href}
@@ -331,7 +331,7 @@ function ConsoleSidebar({ activeKey }: { activeKey: string }) {
           </SidebarGroup>
         ))}
       </SidebarContent>
-      <SidebarFooter className="border-t border-slate-100 p-0">
+      <SidebarFooter className="border-t border-soil/15 p-0">
         <SidebarSignOut />
       </SidebarFooter>
     </Sidebar>
@@ -350,7 +350,7 @@ function MobileTabs({ activeKey }: { activeKey: string }) {
   return (
     <nav
       aria-label="Console quick navigation"
-      className="fixed inset-x-0 bottom-0 z-[60] grid h-[62px] grid-cols-4 border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-[60] grid h-[62px] grid-cols-4 border-t border-soil/25 bg-paper pb-[env(safe-area-inset-bottom)] md:hidden"
     >
       {MOBILE_TABS.map((tab) => {
         const active = activeKey === tab.key && !openMobile;
@@ -362,7 +362,7 @@ function MobileTabs({ activeKey }: { activeKey: string }) {
             aria-current={active ? "page" : undefined}
             className={cn(
               "relative flex flex-col items-center justify-center gap-[3px]",
-              active ? "text-console" : "text-slate-400",
+              active ? "text-console" : "text-soil/70",
             )}
           >
             <span aria-hidden="true" className="text-[18px] leading-none">
@@ -382,7 +382,7 @@ function MobileTabs({ activeKey }: { activeKey: string }) {
         onClick={() => setOpenMobile(true)}
         className={cn(
           "flex cursor-pointer flex-col items-center justify-center gap-[3px]",
-          openMobile ? "text-console" : "text-slate-400",
+          openMobile ? "text-console" : "text-soil/70",
         )}
       >
         <span aria-hidden="true" className="text-[18px] leading-none">
@@ -418,22 +418,22 @@ function Crumbs() {
   return (
     <nav
       aria-label="Breadcrumb"
-      className="flex min-w-0 items-center gap-1.5 overflow-hidden whitespace-nowrap text-[13px] text-slate-500"
+      className="flex min-w-0 items-center gap-1.5 overflow-hidden whitespace-nowrap text-[13px] text-soil"
     >
-      <span className="text-slate-400 max-sm:hidden">DB Plus</span>
-      <span className="text-slate-300 max-sm:hidden">/</span>
+      <span className="text-soil/70 max-sm:hidden">DB Plus</span>
+      <span className="text-soil/45 max-sm:hidden">/</span>
       {sub && section ? (
         <>
           <Link
             href={`${ADMIN_HOME}/${section}`}
-            className="text-slate-500 transition-colors hover:text-console"
+            className="text-soil transition-colors hover:text-console"
           >
             {title}
           </Link>
-          <span className="text-slate-300">/</span>
+          <span className="text-soil/45">/</span>
           <span
             aria-current="page"
-            className="overflow-hidden text-ellipsis font-semibold text-slate-800"
+            className="overflow-hidden text-ellipsis font-semibold text-ink"
           >
             {sub}
           </span>
@@ -441,7 +441,7 @@ function Crumbs() {
       ) : (
         <span
           aria-current="page"
-          className="overflow-hidden text-ellipsis font-semibold text-slate-800"
+          className="overflow-hidden text-ellipsis font-semibold text-ink"
         >
           {title}
         </span>
@@ -459,10 +459,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <ConsoleSidebar activeKey={activeKey} />
 
       <SidebarInset className="min-w-0 bg-transparent pb-[62px] md:pb-0">
-        <header className="sticky top-0 z-40 flex h-[54px] flex-none items-center gap-3 border-b border-slate-200 bg-white px-4 lg:px-[26px]">
+        <header className="sticky top-0 z-40 flex h-[54px] flex-none items-center gap-3 border-b border-soil/25 bg-paper px-4 lg:px-[26px]">
           {/* Collapse/expand the rail (sheet on mobile) — dms behaviour in the
               console skin, living on the topbar's left edge. */}
-          <SidebarTrigger className="h-[30px] w-[30px] flex-none cursor-pointer rounded-[6px] border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-console max-md:hidden" />
+          <SidebarTrigger className="h-[30px] w-[30px] flex-none cursor-pointer rounded-[6px] border border-soil/25 bg-paper text-soil hover:bg-surface-alt/70 hover:text-console max-md:hidden" />
           <Crumbs />
           <div className="flex-1" />
           <NavbarSearch />
@@ -471,7 +471,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <button
             type="button"
             aria-label={`Notifications — ${String(PENDING_APPROVALS)} pending`}
-            className="relative flex h-[34px] w-[34px] flex-none cursor-pointer items-center justify-center rounded-[6px] border border-slate-200 bg-white hover:bg-slate-50"
+            className="relative flex h-[34px] w-[34px] flex-none cursor-pointer items-center justify-center rounded-[6px] border border-soil/25 bg-paper hover:bg-surface-alt/70"
           >
             <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
               <path

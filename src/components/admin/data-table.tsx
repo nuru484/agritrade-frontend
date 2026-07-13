@@ -125,7 +125,7 @@ export function ConsoleDataTable<TData>({
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all rows on this page"
-          className="cursor-pointer border-slate-300"
+          className="cursor-pointer border-soil/35"
         />
       ),
       cell: ({ row }) => (
@@ -134,7 +134,7 @@ export function ConsoleDataTable<TData>({
           onCheckedChange={(value) => row.toggleSelected(!!value)}
           onClick={(e) => e.stopPropagation()}
           aria-label="Select row"
-          className="cursor-pointer border-slate-300"
+          className="cursor-pointer border-soil/35"
         />
       ),
       enableSorting: false,
@@ -181,8 +181,8 @@ export function ConsoleDataTable<TData>({
   return (
     <div className={className}>
       {enableSelection && selectedRows.length > 0 && renderBulkActions ? (
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-console/5 px-4 py-2">
-          <span className="text-[12.5px] font-semibold text-slate-700">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-soil/25 bg-console/5 px-4 py-2">
+          <span className="text-[12.5px] font-semibold text-soil">
             {selectedRows.length} selected
           </span>
           <div className="flex items-center gap-2">
@@ -203,7 +203,7 @@ export function ConsoleDataTable<TData>({
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow
               key={headerGroup.id}
-              className="border-slate-200 hover:bg-transparent"
+              className="border-soil/25 hover:bg-transparent"
             >
               {headerGroup.headers.map((header) => {
                 const meta = header.column.columnDef.meta;
@@ -213,7 +213,7 @@ export function ConsoleDataTable<TData>({
                   <TableHead
                     key={header.id}
                     className={cn(
-                      "h-auto px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-400",
+                      "h-auto px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-soil/70",
                       sortable && "cursor-pointer select-none",
                       meta?.className,
                       meta?.headerClassName,
@@ -240,7 +240,7 @@ export function ConsoleDataTable<TData>({
             <TableRow className="hover:bg-transparent">
               <TableCell colSpan={allColumns.length} className="p-0">
                 {emptyState ?? (
-                  <div className="px-4 py-12 text-center text-[13px] text-slate-500">
+                  <div className="px-4 py-12 text-center text-[13px] text-soil">
                     Nothing here yet.
                   </div>
                 )}
@@ -255,8 +255,8 @@ export function ConsoleDataTable<TData>({
                   data-state={row.getIsSelected() ? "selected" : undefined}
                   onClick={href ? () => router.push(href) : undefined}
                   className={cn(
-                    "border-slate-100 data-[state=selected]:bg-console/5",
-                    href && "cursor-pointer hover:bg-slate-50",
+                    "border-soil/15 data-[state=selected]:bg-console/5",
+                    href && "cursor-pointer hover:bg-surface-alt/70",
                     rowClassName?.(row.original),
                   )}
                 >
@@ -264,7 +264,7 @@ export function ConsoleDataTable<TData>({
                     <TableCell
                       key={cell.id}
                       className={cn(
-                        "px-3 py-3 text-[13.5px] text-slate-800",
+                        "px-3 py-3 text-[13.5px] text-ink",
                         cell.column.columnDef.meta?.className,
                       )}
                     >
@@ -301,7 +301,7 @@ export function ConsoleDataTable<TData>({
           }
         />
       ) : total > 0 ? (
-        <div className="border-t border-slate-200 px-4 py-2.5 text-[12.5px] text-slate-500">
+        <div className="border-t border-soil/25 px-4 py-2.5 text-[12.5px] text-soil">
           {total} {itemNoun}
         </div>
       ) : null}

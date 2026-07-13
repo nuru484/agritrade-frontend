@@ -94,9 +94,9 @@ function CodeStep({
 
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
-      <p className="text-[13.5px] leading-[1.6] text-slate-600">
+      <p className="text-[13.5px] leading-[1.6] text-soil">
         We sent a 6-digit code to{" "}
-        <span className="font-semibold text-slate-900">{email}</span>. Enter it
+        <span className="font-semibold text-ink">{email}</span>. Enter it
         below to finish signing in.
       </p>
       <AuthField
@@ -115,7 +115,7 @@ function CodeStep({
         <button
           type="button"
           onClick={onBack}
-          className="cursor-pointer font-semibold text-slate-500 transition-colors hover:text-slate-800"
+          className="cursor-pointer font-semibold text-soil transition-colors hover:text-ink"
         >
           ← Different account
         </button>
@@ -131,7 +131,7 @@ function CodeStep({
       <button
         type="button"
         onClick={onUseRecovery}
-        className="cursor-pointer justify-self-center text-[12.5px] font-semibold text-slate-500 transition-colors hover:text-console"
+        className="cursor-pointer justify-self-center text-[12.5px] font-semibold text-soil transition-colors hover:text-console"
       >
         Can&apos;t get the email? Use a recovery code
       </button>
@@ -178,7 +178,7 @@ function RecoveryStep({
 
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
-      <p className="text-[13.5px] leading-[1.6] text-slate-600">
+      <p className="text-[13.5px] leading-[1.6] text-soil">
         Enter one of the single-use recovery codes you saved when you turned on
         two-factor authentication.
       </p>
@@ -195,7 +195,7 @@ function RecoveryStep({
       <button
         type="button"
         onClick={onUseCode}
-        className="cursor-pointer justify-self-center text-[12.5px] font-semibold text-slate-500 transition-colors hover:text-console"
+        className="cursor-pointer justify-self-center text-[12.5px] font-semibold text-soil transition-colors hover:text-console"
       >
         ← Back to the emailed code
       </button>

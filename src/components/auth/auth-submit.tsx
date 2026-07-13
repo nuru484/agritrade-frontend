@@ -2,7 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 
-/** Full-width console-green submit button with a busy state. */
+/** Full-width submit in the client primary shape (harvest, ink text) with a
+ * busy state. */
 export function AuthSubmit({
   isLoading,
   loadingText,
@@ -15,8 +16,9 @@ export function AuthSubmit({
   return (
     <Button
       type="submit"
+      variant="harvest"
       disabled={isLoading}
-      className="mt-1 h-9 w-full bg-console text-[13.5px] font-semibold text-white hover:bg-console-deep"
+      className="mt-1 h-10 w-full text-[13.5px]"
     >
       {isLoading ? loadingText : children}
     </Button>

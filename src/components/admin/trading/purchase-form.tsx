@@ -34,15 +34,15 @@ interface FieldErrors {
   price?: string;
 }
 
-const groupLabelClass = "mb-3.5 text-[10.5px] font-bold uppercase tracking-[0.1em] text-slate-400";
-const fieldLabelClass = "mb-[5px] block text-[13px] font-semibold text-slate-700";
+const groupLabelClass = "mb-3.5 text-[10.5px] font-bold uppercase tracking-[0.1em] text-soil/70";
+const fieldLabelClass = "mb-[5px] block text-[13px] font-semibold text-soil";
 
 /** Console 38px select skin on the shadcn SelectTrigger (data-size beats plain h-*). */
 const formSelectTriggerClass = cn(adminSelectClass, "justify-between data-[size=default]:h-[38px]");
 
 /** Bare mono amount input used inside the bordered unit-affix groups. */
 const affixInputClass =
-  "h-full min-w-0 flex-1 rounded-none border-0 bg-transparent px-2.5 py-0 text-right font-adminmono text-[14px] tabular-nums text-slate-900 shadow-none outline-none placeholder:text-slate-400 focus-visible:ring-0 aria-invalid:ring-0 dark:bg-transparent";
+  "h-full min-w-0 flex-1 rounded-none border-0 bg-transparent px-2.5 py-0 text-right font-adminmono text-[14px] tabular-nums text-ink shadow-none outline-none placeholder:text-soil/70 focus-visible:ring-0 aria-invalid:ring-0 dark:bg-transparent";
 
 export function PurchaseForm({ editRef, prefill }: PurchaseFormProps) {
   const router = useRouter();
@@ -83,10 +83,10 @@ export function PurchaseForm({ editRef, prefill }: PurchaseFormProps) {
   return (
     <div className="max-w-[620px]">
       <BackLink href="/admin/purchases">Purchases</BackLink>
-      <h1 className="mb-1 text-[22px] font-bold tracking-[-0.01em] text-slate-900">
+      <h1 className="mb-1 text-[22px] font-bold tracking-[-0.01em] text-ink">
         {editing ? `Edit purchase ${editRef}` : "Record purchase"}
       </h1>
-      <div className="mb-[18px] text-[13px] text-slate-500">
+      <div className="mb-[18px] text-[13px] text-soil">
         {editing ? "Changes are logged in the audit trail" : "Buy goods from a supplier or farmer"}
       </div>
 
@@ -112,7 +112,7 @@ export function PurchaseForm({ editRef, prefill }: PurchaseFormProps) {
         </div>
       ) : null}
 
-      <div className="rounded-[8px] border border-slate-200 bg-white p-5">
+      <div className="rounded-[8px] border border-soil/25 bg-paper p-5">
         <div className={groupLabelClass}>Who &amp; where</div>
         <div className="mb-[22px] flex flex-col gap-3.5">
           <label className="block">
@@ -136,7 +136,7 @@ export function PurchaseForm({ editRef, prefill }: PurchaseFormProps) {
               value={supplier}
               onChange={(e) => setSupplier(e.target.value)}
               placeholder="Search or add supplier…"
-              className="h-[38px] w-full rounded-[6px] border-slate-300 bg-white px-2.5 text-[14px] text-slate-900 shadow-none outline-none placeholder:text-slate-400 focus:border-console focus:shadow-[0_0_0_2px_rgb(30_61_43/0.15)] focus-visible:border-console focus-visible:ring-0 dark:bg-white"
+              className="h-[38px] w-full rounded-[6px] border-soil/35 bg-paper px-2.5 text-[14px] text-ink shadow-none outline-none placeholder:text-soil/70 focus:border-console focus:shadow-[0_0_0_2px_rgb(30_61_43/0.15)] focus-visible:border-console focus-visible:ring-0 dark:bg-paper"
             />
           </label>
           <label className="block">
@@ -180,8 +180,8 @@ export function PurchaseForm({ editRef, prefill }: PurchaseFormProps) {
               </label>
               <div
                 className={cn(
-                  "flex h-[38px] items-center overflow-hidden rounded-[6px] border bg-white",
-                  errors.weight ? "border-console-red" : "border-slate-300 focus-within:border-console",
+                  "flex h-[38px] items-center overflow-hidden rounded-[6px] border bg-paper",
+                  errors.weight ? "border-console-red" : "border-soil/35 focus-within:border-console",
                 )}
               >
                 <Input
@@ -196,7 +196,7 @@ export function PurchaseForm({ editRef, prefill }: PurchaseFormProps) {
                   aria-invalid={Boolean(errors.weight)}
                   className={affixInputClass}
                 />
-                <span className="flex h-full items-center border-l border-slate-200 bg-slate-50 px-2.5 text-[13px] text-slate-500">
+                <span className="flex h-full items-center border-l border-soil/25 bg-surface-alt/70 px-2.5 text-[13px] text-soil">
                   kg
                 </span>
               </div>
@@ -208,11 +208,11 @@ export function PurchaseForm({ editRef, prefill }: PurchaseFormProps) {
               </label>
               <div
                 className={cn(
-                  "flex h-[38px] items-center overflow-hidden rounded-[6px] border bg-white",
-                  errors.price ? "border-console-red" : "border-slate-300 focus-within:border-console",
+                  "flex h-[38px] items-center overflow-hidden rounded-[6px] border bg-paper",
+                  errors.price ? "border-console-red" : "border-soil/35 focus-within:border-console",
                 )}
               >
-                <span className="flex h-full items-center border-r border-slate-200 bg-slate-50 px-2.5 text-[13px] text-slate-500">
+                <span className="flex h-full items-center border-r border-soil/25 bg-surface-alt/70 px-2.5 text-[13px] text-soil">
                   GH₵
                 </span>
                 <Input
@@ -231,22 +231,22 @@ export function PurchaseForm({ editRef, prefill }: PurchaseFormProps) {
               {errors.price ? <div className="mt-1 text-[12px] text-console-red">{errors.price}</div> : null}
             </div>
           </div>
-          <div className="flex items-center justify-between rounded-[6px] border border-slate-200 bg-slate-50 px-3.5 py-[11px]">
-            <Mono className="text-[13px] text-slate-500">
+          <div className="flex items-center justify-between rounded-[6px] border border-soil/25 bg-surface-alt/70 px-3.5 py-[11px]">
+            <Mono className="text-[13px] text-soil">
               {calcWeight ? calcWeight.toLocaleString("en-GH") : "0"} kg × GH₵ {calcPrice ? calcPrice.toFixed(2) : "0.00"} =
             </Mono>
             <Mono className="text-[16px] font-bold">{formatCedis(calcWeight * calcPrice)}</Mono>
           </div>
           <label className="block">
             <span className={fieldLabelClass}>
-              Notes <span className="font-normal text-slate-400">(optional)</span>
+              Notes <span className="font-normal text-soil/70">(optional)</span>
             </span>
             <Textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
               placeholder="Moisture, bags, quality notes…"
-              className="field-sizing-fixed min-h-0 w-full resize-y rounded-[6px] border-slate-300 bg-white px-2.5 py-2 text-[14px] text-slate-900 shadow-none outline-none placeholder:text-slate-400 focus:border-console focus-visible:border-console focus-visible:ring-0 dark:bg-white"
+              className="field-sizing-fixed min-h-0 w-full resize-y rounded-[6px] border-soil/35 bg-paper px-2.5 py-2 text-[14px] text-ink shadow-none outline-none placeholder:text-soil/70 focus:border-console focus-visible:border-console focus-visible:ring-0 dark:bg-paper"
             />
           </label>
         </div>

@@ -13,7 +13,7 @@ import { saleRows, type SaleRow } from "@/static-data/admin/trading";
 import { RowIconButton, StatusChip } from "./bits";
 
 /** Console register header cell — pinned over the data table's defaults. */
-const headClass = "h-[38px] bg-slate-50 py-0 text-[10.5px] font-bold tracking-[0.09em] text-slate-500";
+const headClass = "h-[38px] bg-surface-alt/70 py-0 text-[10.5px] font-bold tracking-[0.09em] text-soil";
 
 export function SalesRegister() {
   const router = useRouter();
@@ -33,7 +33,7 @@ export function SalesRegister() {
         accessorKey: "buyer",
         header: "Buyer",
         enableSorting: false,
-        meta: { className: "px-1.5 py-0 text-[13px] text-slate-800", headerClassName: headClass },
+        meta: { className: "px-1.5 py-0 text-[13px] text-ink", headerClassName: headClass },
         cell: ({ row }) => <span className="block truncate">{row.original.buyer}</span>,
       },
       {
@@ -41,7 +41,7 @@ export function SalesRegister() {
         header: "Goods",
         enableSorting: false,
         meta: {
-          className: "hidden px-1.5 py-0 text-[13px] text-slate-600 xl:table-cell",
+          className: "hidden px-1.5 py-0 text-[13px] text-soil xl:table-cell",
           headerClassName: headClass,
         },
         cell: ({ row }) => <span className="block truncate">{row.original.goods}</span>,
@@ -55,7 +55,7 @@ export function SalesRegister() {
           headerClassName: headClass,
         },
         cell: ({ row }) => (
-          <Mono className="whitespace-nowrap text-slate-800">{formatCedis(row.original.agreedCedis)}</Mono>
+          <Mono className="whitespace-nowrap text-ink">{formatCedis(row.original.agreedCedis)}</Mono>
         ),
       },
       {
@@ -67,7 +67,7 @@ export function SalesRegister() {
           headerClassName: headClass,
         },
         cell: ({ row }) => (
-          <Mono className="whitespace-nowrap text-slate-600">{formatCedis(row.original.paidCedis)}</Mono>
+          <Mono className="whitespace-nowrap text-soil">{formatCedis(row.original.paidCedis)}</Mono>
         ),
       },
       {
@@ -169,8 +169,8 @@ export function SalesRegister() {
     <div>
       <div className="mb-3.5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-[22px] font-bold tracking-[-0.01em] text-slate-900">Sales</h1>
-          <div className="mt-0.5 text-[13px] text-slate-500">Agreements with buyers, payments and fulfilment</div>
+          <h1 className="text-[22px] font-bold tracking-[-0.01em] text-ink">Sales</h1>
+          <div className="mt-0.5 text-[13px] text-soil">Agreements with buyers, payments and fulfilment</div>
         </div>
         <AdminButton className="h-[34px] whitespace-nowrap">+ New sale</AdminButton>
       </div>
@@ -181,8 +181,8 @@ export function SalesRegister() {
         data={saleRows}
         itemNoun="sales"
         rowHref={(s) => `/admin/sales/${s.ref}`}
-        rowClassName={() => "h-11 text-[13px] hover:bg-slate-50/60"}
-        className="hidden overflow-hidden rounded-[8px] border border-slate-200 bg-white md:block"
+        rowClassName={() => "h-11 text-[13px] hover:bg-surface-alt/50"}
+        className="hidden overflow-hidden rounded-[8px] border border-soil/25 bg-paper md:block"
       />
 
       {/* Mobile cards */}
@@ -190,15 +190,15 @@ export function SalesRegister() {
         {saleRows.map((s) => {
           const balance = s.agreedCedis - s.paidCedis;
           return (
-            <Link key={s.ref} href={`/admin/sales/${s.ref}`} className="rounded-[8px] border border-slate-200 bg-white px-3.5 py-[13px]">
+            <Link key={s.ref} href={`/admin/sales/${s.ref}`} className="rounded-[8px] border border-soil/25 bg-paper px-3.5 py-[13px]">
               <div className="mb-1.5 flex items-center justify-between gap-2">
                 <Mono className="text-[12.5px] font-semibold text-console">{s.ref}</Mono>
                 <StatusChip tone={s.tone}>{s.status}</StatusChip>
               </div>
-              <div className="text-[14px] font-semibold text-slate-900">{s.buyer}</div>
-              <div className="mt-0.5 text-[12.5px] text-slate-500">{s.goods}</div>
+              <div className="text-[14px] font-semibold text-ink">{s.buyer}</div>
+              <div className="mt-0.5 text-[12.5px] text-soil">{s.goods}</div>
               <div className="mt-1.5 flex justify-between">
-                <span className="text-[12px] text-slate-500">Balance</span>
+                <span className="text-[12px] text-soil">Balance</span>
                 <Mono
                   className={cn("text-[14px] font-bold", balance === 0 ? "text-[#2F5E3D]" : "text-console-red")}
                 >

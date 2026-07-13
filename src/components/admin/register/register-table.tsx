@@ -5,6 +5,8 @@ import Link from "next/link";
 import type { ColumnDef } from "@tanstack/react-table";
 import { cn } from "@/lib/utils";
 import { ConsoleDataTable } from "@/components/admin/data-table";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -52,7 +54,7 @@ function BodyCell({
         >
           {av.init}
         </span>
-        <span className="truncate font-medium text-slate-900">{text}</span>
+        <span className="truncate font-medium text-ink">{text}</span>
       </span>
     );
   }
@@ -105,7 +107,7 @@ export function RegisterTable({
           h.wide ? "hidden xl:table-cell" : "table-cell",
         ),
         headerClassName:
-          "h-[38px] whitespace-nowrap bg-slate-50 py-0 text-[10.5px] font-bold uppercase tracking-[0.09em] text-slate-500",
+          "h-[38px] whitespace-nowrap bg-surface-alt/70 py-0 text-[10.5px] font-bold uppercase tracking-[0.09em] text-soil",
       },
       cell: ({ row }) =>
         i === 0 ? (
@@ -127,26 +129,23 @@ export function RegisterTable({
     <div>
       <div className="mb-3.5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-[22px] font-bold tracking-[-0.01em] text-slate-900">
+          <h1 className="text-[22px] font-bold tracking-[-0.01em] text-ink">
             {register.title}
           </h1>
-          <p className="mt-0.5 text-[13px] text-slate-500">{register.sub}</p>
+          <p className="mt-0.5 text-[13px] text-soil">{register.sub}</p>
         </div>
         {register.add ? (
-          <Link
-            href={`/admin/${slug}/new`}
-            className="inline-flex h-[34px] items-center whitespace-nowrap rounded-[6px] bg-console px-4 text-[13.5px] font-semibold text-white transition-colors hover:bg-console-deep"
-          >
-            {register.add}
-          </Link>
+          <Button asChild variant="harvest" className="h-[34px] px-4 text-[13.5px]">
+            <Link href={`/admin/${slug}/new`}>{register.add}</Link>
+          </Button>
         ) : null}
       </div>
 
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        <label className="flex h-8 w-full max-w-[250px] items-center gap-1.5 rounded-[6px] border border-slate-200 bg-white px-2.5 focus-within:border-console">
+        <label className="flex h-8 w-full max-w-[250px] items-center gap-1.5 rounded-[2px] border-[1.5px] border-soil/30 bg-paper px-2.5 transition-colors focus-within:border-console">
           <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <circle cx="7" cy="7" r="5" stroke="#9ba6b3" strokeWidth="1.5" />
-            <path d="M11 11l3.2 3.2" stroke="#9ba6b3" strokeWidth="1.5" strokeLinecap="round" />
+            <circle cx="7" cy="7" r="5" stroke="#a49b7e" strokeWidth="1.5" />
+            <path d="M11 11l3.2 3.2" stroke="#a49b7e" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
           <Input
             type="search"
@@ -154,7 +153,7 @@ export function RegisterTable({
             onChange={(e) => setQuery(e.target.value)}
             placeholder={register.search}
             aria-label={register.search}
-            className="h-full w-full min-w-0 rounded-none border-0 bg-transparent p-0 text-[13px] text-slate-900 outline-none placeholder:text-slate-300 focus-visible:ring-0 md:text-[13px]"
+            className="h-full w-full min-w-0 rounded-none border-0 bg-transparent p-0 text-[13px] text-ink outline-none placeholder:text-soil/45 focus-visible:ring-0 md:text-[13px]"
           />
         </label>
         {register.filters.map((filter) => (
@@ -162,7 +161,7 @@ export function RegisterTable({
           <Select key={filter} defaultValue={filter}>
             <SelectTrigger
               aria-label={`Filter by ${filter.toLowerCase()}`}
-              className={cn(adminSelectClass, "h-8 w-auto text-[13px] text-slate-700")}
+              className={cn(adminSelectClass, "h-8 w-auto text-[13px] text-soil")}
             >
               {/* Static children keep the label server-rendered (Radix only
                   mirrors item text after hydration). */}
@@ -182,23 +181,17 @@ export function RegisterTable({
           itemNoun="records"
           globalFilter={query}
           rowHref={(row) => `/admin/${slug}/${encodeURIComponent(cellText(row[0]))}`}
-          rowClassName={() => "h-11 hover:bg-slate-50/70"}
+          rowClassName={() => "h-11 hover:bg-surface-alt/60"}
           emptyState={
-            <div className="px-6 py-14 text-center">
-              <svg width="60" height="52" viewBox="0 0 72 60" fill="none" aria-hidden="true" className="mx-auto mb-3.5">
-                <path d="M22 14 L50 14 L54 22 L54 50 Q54 54 50 54 L22 54 Q18 54 18 50 L18 22 Z" stroke="#D6DBE2" strokeWidth="1.6" fill="none" />
-                <path d="M18 22 L54 22" stroke="#D6DBE2" strokeWidth="1.6" />
-                <path d="M28 33 Q36 40 44 33" stroke="#B9C1CB" strokeWidth="1.6" strokeLinecap="round" fill="none" />
-              </svg>
-              <div className="mb-1 text-[15px] font-bold text-slate-800">
-                {query ? "No matches" : "Nothing here yet"}
-              </div>
-              <p className="text-[13.5px] text-slate-500">
-                {query
+            <EmptyState
+              variant="plain"
+              title={query ? "No matches" : "Nothing here yet"}
+              description={
+                query
                   ? "Try a different search."
-                  : `${register.add ? register.add.replace("+ ", "") : "Records"} will appear here once created.`}
-              </p>
-            </div>
+                  : `${register.add ? register.add.replace("+ ", "") : "Records"} will appear here once created.`
+              }
+            />
           }
         />
       </AdminCard>

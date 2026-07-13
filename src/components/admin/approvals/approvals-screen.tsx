@@ -37,7 +37,7 @@ function KindChip({
 
 /** shadcn TabsTrigger restyled as the console's underline tab. */
 const tabTriggerClass =
-  "-mb-px h-auto flex-none cursor-pointer rounded-none border-0 border-b-2 border-transparent px-3.5 py-2 text-[13.5px] font-semibold whitespace-nowrap text-slate-500 after:hidden hover:text-slate-500 data-active:border-console data-active:text-console data-active:hover:text-console";
+  "-mb-px h-auto flex-none cursor-pointer rounded-none border-0 border-b-2 border-transparent px-3.5 py-2 text-[13.5px] font-semibold whitespace-nowrap text-soil after:hidden hover:text-soil data-active:border-console data-active:text-console data-active:hover:text-console";
 
 export function ApprovalsScreen() {
   const [tab, setTab] = useState<InboxTab>("pending");
@@ -69,7 +69,7 @@ export function ApprovalsScreen() {
       <Tabs value={tab} onValueChange={(v) => setTab(v as InboxTab)} className="gap-0">
         <TabsList
           variant="line"
-          className="group-data-horizontal/tabs:h-auto mb-4 flex h-auto w-full items-center justify-start rounded-none border-b border-slate-200 p-0"
+          className="group-data-horizontal/tabs:h-auto mb-4 flex h-auto w-full items-center justify-start rounded-none border-b border-soil/25 p-0"
         >
           <TabsTrigger value="pending" className={tabTriggerClass}>
             Pending ({pending.length})
@@ -81,7 +81,7 @@ export function ApprovalsScreen() {
 
         <TabsContent value="pending" className="flex flex-col gap-3">
           {pending.length === 0 ? (
-            <AdminCard className="px-5 py-10 text-center text-[14px] text-slate-500">
+            <AdminCard className="px-5 py-10 text-center text-[14px] text-soil">
               All caught up — nothing waiting for approval.
             </AdminCard>
           ) : null}
@@ -94,17 +94,17 @@ export function ApprovalsScreen() {
                   <KindChip fg={tone.fg} bg={tone.bg} dot={tone.dot}>
                     {req.kind}
                   </KindChip>
-                  <span className="text-[12px] text-slate-500">
+                  <span className="text-[12px] text-soil">
                     {req.who} · {req.when}
                   </span>
                 </div>
                 <div className="flex flex-wrap items-baseline justify-between gap-3">
-                  <div className="min-w-[200px] flex-1 text-[14px] text-slate-800">{req.summary}</div>
-                  <Mono className="whitespace-nowrap text-[20px] font-bold text-slate-900">
+                  <div className="min-w-[200px] flex-1 text-[14px] text-ink">{req.summary}</div>
+                  <Mono className="whitespace-nowrap text-[20px] font-bold text-ink">
                     {req.amount}
                   </Mono>
                 </div>
-                <div className="mt-1 text-[13px] text-slate-500">{req.context}</div>
+                <div className="mt-1 text-[13px] text-soil">{req.context}</div>
 
                 {isRejecting ? (
                   <div className="mt-3">
@@ -113,7 +113,7 @@ export function ApprovalsScreen() {
                       value={rejectNote}
                       onChange={(e) => setRejectNote(e.target.value)}
                       placeholder="Reason for rejection (required)"
-                      className="h-9 w-full rounded-[6px] border-console-red bg-white px-2.5 text-[13.5px] text-slate-900 outline-none placeholder:text-slate-400 focus-visible:border-console-red focus-visible:ring-0 md:text-[13.5px]"
+                      className="h-9 w-full rounded-[6px] border-console-red bg-paper px-2.5 text-[13.5px] text-ink outline-none placeholder:text-soil/70 focus-visible:border-console-red focus-visible:ring-0 md:text-[13.5px]"
                     />
                     <div className="mt-2 flex gap-2">
                       <AdminButton
@@ -161,9 +161,9 @@ export function ApprovalsScreen() {
         </TabsContent>
 
         <TabsContent value="history">
-          <AdminCard className="overflow-hidden rounded-lg">
+          <AdminCard className="overflow-hidden">
             {history.length === 0 ? (
-              <div className="px-5 py-10 text-center text-[14px] text-slate-500">
+              <div className="px-5 py-10 text-center text-[14px] text-soil">
                 No decisions yet today.
               </div>
             ) : null}
@@ -172,7 +172,7 @@ export function ApprovalsScreen() {
               return (
                 <div
                   key={req.id}
-                  className="flex items-center gap-3 border-b border-slate-100 px-4 py-3 last:border-b-0"
+                  className="flex items-center gap-3 border-b border-soil/15 px-4 py-3 last:border-b-0"
                 >
                   <KindChip
                     fg={approved ? TONES.leaf.fg : TONES.alert.fg}
@@ -181,13 +181,13 @@ export function ApprovalsScreen() {
                     {approved ? "Approved" : "Rejected"}
                   </KindChip>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-[13px] text-slate-800">{req.summary}</div>
-                    <div className="text-[11.5px] text-slate-500">
+                    <div className="truncate text-[13px] text-ink">{req.summary}</div>
+                    <div className="text-[11.5px] text-soil">
                       {req.who}
                       {req.note ? ` · “${req.note}”` : ""}
                     </div>
                   </div>
-                  <Mono className="text-[13px] font-semibold text-slate-700">{req.amount}</Mono>
+                  <Mono className="text-[13px] font-semibold text-soil">{req.amount}</Mono>
                 </div>
               );
             })}

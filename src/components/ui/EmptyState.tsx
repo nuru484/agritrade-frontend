@@ -1,27 +1,77 @@
-import { FileText, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+/** The empty folder illustration the registers share, in warm palette inks. */
+function EmptyFolder({ className }: { className?: string }) {
+  return (
+    <svg
+      width="60"
+      height="52"
+      viewBox="0 0 72 60"
+      fill="none"
+      aria-hidden="true"
+      className={className}
+    >
+      <path
+        d="M22 14 L50 14 L54 22 L54 50 Q54 54 50 54 L22 54 Q18 54 18 50 L18 22 Z"
+        stroke="#CFC9B6"
+        strokeWidth="1.6"
+        fill="none"
+      />
+      <path d="M18 22 L54 22" stroke="#CFC9B6" strokeWidth="1.6" />
+      <path
+        d="M28 33 Q36 40 44 33"
+        stroke="#B3AB92"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        fill="none"
+      />
+    </svg>
+  );
+}
+
 /**
- * "Nothing on file" — the empty document tray. A dashed file card with a
- * stencil header and an optional primary action, so empty never reads as
- * broken.
+ * "Nothing on file" — the empty document tray.
+ *
+ * `card` (default): the style guide's dashed file card with a stencil header,
+ * for page-level empties. `plain`: the registers' inline folder — no
+ * container — for use INSIDE a data-table card (the purchases-register
+ * shape).
  */
 export function EmptyState({
-  icon: Icon = FileText,
+  variant = "card",
   title = "Nothing on file yet",
   description = "When something is recorded it will be filed here.",
   actionLabel,
   onAction,
   className,
 }: {
-  icon?: LucideIcon;
+  variant?: "card" | "plain";
   title?: string;
   description?: string;
   actionLabel?: string;
   onAction?: () => void;
   className?: string;
 }) {
+  if (variant === "plain") {
+    return (
+      <div className={cn("w-full min-w-0 px-6 py-14 text-center", className)}>
+        <EmptyFolder className="mx-auto mb-3.5" />
+        <div className="mb-1 break-words text-[15px] font-bold text-ink">
+          {title}
+        </div>
+        <p className="mx-auto mb-0 max-w-[42ch] break-words text-[13.5px] leading-[1.6] text-soil">
+          {description}
+        </p>
+        {actionLabel && onAction ? (
+          <Button onClick={onAction} variant="outline" className="mt-5 h-9 px-4 text-[13px]">
+            {actionLabel}
+          </Button>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(
@@ -33,9 +83,7 @@ export function EmptyState({
         <span className="stencil mb-6 inline-block border-b border-dotted border-soil/40 pb-2 text-[10px] tracking-[0.28em] text-harvest-deep">
           File empty
         </span>
-        <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-[3px] border-2 border-soil/40 text-soil">
-          <Icon aria-hidden="true" className="h-6 w-6" />
-        </div>
+        <EmptyFolder className="mx-auto mb-4" />
         <h3 className="mb-2 break-words font-display text-[17px] font-semibold text-forest sm:text-[19px]">
           {title}
         </h3>

@@ -40,7 +40,7 @@ export function ListPagination({
   if (totalPages <= 1) return null;
 
   const chevron =
-    "flex h-8 w-8 flex-none cursor-pointer items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-console/10 hover:text-console disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-500";
+    "flex h-8 w-8 flex-none cursor-pointer items-center justify-center rounded-full text-soil transition-colors hover:bg-console/10 hover:text-console disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-soil";
 
   return (
     <nav
@@ -60,7 +60,7 @@ export function ListPagination({
         p === "…" ? (
           <span
             key={`gap-${String(i)}`}
-            className="font-adminmono px-0.5 text-[12px] text-slate-300"
+            className="font-adminmono px-0.5 text-[12px] text-soil/45"
           >
             …
           </span>
@@ -74,7 +74,7 @@ export function ListPagination({
               "font-adminmono flex h-8 min-w-7 cursor-pointer items-center justify-center border-b-2 px-1 text-[12.5px] font-bold transition-colors",
               p === page
                 ? "border-console text-console"
-                : "border-transparent text-slate-500 hover:text-console",
+                : "border-transparent text-soil hover:text-console",
             )}
           >
             {p}

@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 export const PAGE_SIZE_OPTIONS = [5, 10, 20, 30, 50, 100] as const;
 
 const microLabel =
-  "text-[10.5px] font-bold uppercase tracking-[0.1em] text-slate-500";
+  "stencil text-[10.5px] uppercase tracking-[0.14em] text-harvest-deep";
 
 /** Zero-pads a page number to the ledger width ("02 ∕ 12"). */
 const pad = (n: number, width: number) => String(n).padStart(width, "0");
@@ -58,12 +58,12 @@ export function DataTablePagination({
   const padWidth = Math.max(2, String(totalPages).length);
 
   const navButton =
-    "flex h-7 w-7 flex-none cursor-pointer items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-console/10 hover:text-console disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-500";
+    "flex h-7 w-7 flex-none cursor-pointer items-center justify-center rounded-full text-soil transition-colors hover:bg-console/10 hover:text-console disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-soil";
 
   return (
     <div
       className={cn(
-        "flex flex-wrap items-center justify-center gap-x-6 gap-y-2.5 border-t border-slate-200 bg-slate-50/70 px-4 py-2.5 text-slate-500 lg:justify-between",
+        "flex flex-wrap items-center justify-center gap-x-6 gap-y-2.5 border-t border-soil/25 bg-surface-alt/60 px-4 py-2.5 text-soil lg:justify-between",
         className,
       )}
     >
@@ -82,15 +82,15 @@ export function DataTablePagination({
                 {selectedCount.toLocaleString()}
               </span>
               <span className={microLabel}>selected</span>
-              <span aria-hidden="true" className="h-3 w-px bg-slate-200" />
-              <span className="font-adminmono text-[13px] font-semibold text-slate-700">
+              <span aria-hidden="true" className="h-3 w-px bg-soil/20" />
+              <span className="font-adminmono text-[13px] font-semibold text-soil">
                 {totalCount.toLocaleString()}
               </span>
               <span className={microLabel}>total</span>
             </>
           ) : (
             <>
-              <span className="font-adminmono text-[13px] font-bold text-slate-800">
+              <span className="font-adminmono text-[13px] font-bold text-ink">
                 {totalCount.toLocaleString()}
               </span>
               <span className={microLabel}>{itemNoun}</span>
@@ -106,7 +106,7 @@ export function DataTablePagination({
           >
             <SelectTrigger
               aria-label="Rows per page"
-              className="font-adminmono h-7 w-auto min-w-0 cursor-pointer gap-1 rounded-none border-0 border-b border-dashed border-slate-300 bg-transparent px-0.5 text-[12.5px] font-bold text-slate-700 shadow-none transition-colors hover:border-console hover:text-console focus:ring-0 focus-visible:ring-0"
+              className="font-adminmono h-7 w-auto min-w-0 cursor-pointer gap-1 rounded-none border-0 border-b border-dashed border-soil/35 bg-transparent px-0.5 text-[12.5px] font-bold text-soil shadow-none transition-colors hover:border-console hover:text-console focus:ring-0 focus-visible:ring-0"
             >
               <SelectValue />
             </SelectTrigger>
@@ -128,11 +128,11 @@ export function DataTablePagination({
       <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
         <span className="flex items-baseline gap-1.5 whitespace-nowrap">
           <span className={microLabel}>Showing</span>
-          <span className="font-adminmono text-[12.5px] font-semibold text-slate-700">
+          <span className="font-adminmono text-[12.5px] font-semibold text-soil">
             {startItem.toLocaleString()}–{endItem.toLocaleString()}
           </span>
           <span className={microLabel}>of</span>
-          <span className="font-adminmono text-[12.5px] font-semibold text-slate-700">
+          <span className="font-adminmono text-[12.5px] font-semibold text-soil">
             {totalCount.toLocaleString()}
           </span>
         </span>
@@ -159,12 +159,12 @@ export function DataTablePagination({
           <span className="mx-1.5 flex flex-col items-center gap-[5px]">
             <span className="font-adminmono whitespace-nowrap text-[11.5px] font-bold leading-none tracking-[0.08em]">
               <span className="text-console">{pad(page, padWidth)}</span>
-              <span className="text-slate-300"> ∕ </span>
-              <span className="text-slate-500">{pad(totalPages, padWidth)}</span>
+              <span className="text-soil/45"> ∕ </span>
+              <span className="text-soil">{pad(totalPages, padWidth)}</span>
             </span>
             <span
               aria-hidden="true"
-              className="h-[3px] w-16 overflow-hidden rounded-full bg-slate-200"
+              className="h-[3px] w-16 overflow-hidden rounded-full bg-soil/20"
             >
               <span
                 className="block h-full rounded-full bg-console transition-all duration-300"

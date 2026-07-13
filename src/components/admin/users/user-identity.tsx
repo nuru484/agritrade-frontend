@@ -66,7 +66,7 @@ export function IdentityAvatar({
         </div>
       )}
       {busy ? (
-        <div className="absolute inset-0 flex items-center justify-center rounded-full bg-slate-900/45">
+        <div className="absolute inset-0 flex items-center justify-center rounded-full bg-ink/45">
           <Loader2 className="h-5 w-5 animate-spin text-white" aria-hidden="true" />
         </div>
       ) : null}
@@ -88,13 +88,13 @@ export function PhotoViewDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[420px] gap-3 border-slate-200 p-4">
+      <DialogContent className="max-w-[420px] gap-3 border-soil/25 p-4">
         <DialogHeader>
-          <DialogTitle className="text-[14px] font-semibold text-slate-800">
+          <DialogTitle className="text-[14px] font-semibold text-ink">
             {name}
           </DialogTitle>
         </DialogHeader>
-        <div className="aspect-square w-full overflow-hidden rounded-[8px] bg-slate-100">
+        <div className="aspect-square w-full overflow-hidden rounded-[8px] bg-soil/10">
           {/* eslint-disable-next-line @next/next/no-img-element -- full-view photo */}
           <img src={src} alt={name} className="h-full w-full object-cover" />
         </div>
@@ -119,10 +119,10 @@ function Fact({
         <Icon className="h-3.5 w-3.5" aria-hidden />
       </span>
       <div className="min-w-0">
-        <dt className="text-[10.5px] font-bold uppercase tracking-[0.1em] text-slate-400">
+        <dt className="text-[10.5px] font-bold uppercase tracking-[0.1em] text-soil/70">
           {label}
         </dt>
-        <dd className="mt-0.5 truncate text-[13.5px] font-medium text-slate-800">
+        <dd className="mt-0.5 truncate text-[13.5px] font-medium text-ink">
           {children}
         </dd>
       </div>

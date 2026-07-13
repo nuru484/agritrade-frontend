@@ -25,7 +25,7 @@ import { ConsoleDialog, ConsoleDialogFooter, ConsoleDialogTitle } from "./consol
 const PAY_METHODS = ["Bank transfer", "Mobile money", "Cash", "Cheque"];
 
 /** Console 38px select skin on the shadcn SelectTrigger (data-size beats plain h-*). */
-const paySelectTriggerClass = cn(adminSelectClass, "justify-between data-[size=default]:h-[38px]");
+const paySelectTriggerClass = cn(adminSelectClass, "justify-between data-[size=default]:h-[42px]");
 
 export function SaleDetail({
   detail,
@@ -75,12 +75,12 @@ export function SaleDetail({
         <div className="flex flex-wrap items-start justify-between gap-3.5">
           <div>
             <div className="flex flex-wrap items-center gap-2.5">
-              <h1 className="text-[20px] font-bold tracking-[-0.01em] text-slate-900">
+              <h1 className="text-[20px] font-bold tracking-[-0.01em] text-ink">
                 Sale <Mono>{row.ref}</Mono> — {row.buyer}
               </h1>
               <StatusChip tone={row.tone}>{row.status}</StatusChip>
             </div>
-            <div className="mt-1 text-[12.5px] text-slate-500">{detail.subline}</div>
+            <div className="mt-1 text-[12.5px] text-soil">{detail.subline}</div>
           </div>
           <div className="flex flex-wrap gap-2">
             <AdminButton
@@ -94,7 +94,7 @@ export function SaleDetail({
             </AdminButton>
           </div>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-3 border-t border-slate-100 pt-4 md:grid-cols-[repeat(auto-fit,minmax(140px,1fr))] xl:grid-cols-[repeat(4,max-content)]">
+        <div className="mt-4 grid grid-cols-2 gap-3 border-t border-soil/15 pt-4 md:grid-cols-[repeat(auto-fit,minmax(140px,1fr))] xl:grid-cols-[repeat(4,max-content)]">
           <HeaderFigure label="Agreed">{formatCedis(row.agreedCedis)}</HeaderFigure>
           <HeaderFigure label="Paid" className="text-[#2F5E3D]">
             {formatCedis(paid)}
@@ -113,7 +113,7 @@ export function SaleDetail({
           {/* Milestones */}
           <AdminCard className="rounded-[8px] px-5 py-4">
             <SectionLabel className="mb-3">Payment milestones</SectionLabel>
-            <div className="relative mx-0 mb-2 mt-[18px] h-2.5 rounded-full bg-slate-100">
+            <div className="relative mx-0 mb-2 mt-[18px] h-2.5 rounded-full bg-soil/10">
               <div
                 className="absolute inset-y-0 left-0 rounded-full bg-[#3E7A50]"
                 style={{ width: `${progressPct}%` }}
@@ -142,7 +142,7 @@ export function SaleDetail({
                     >
                       {m.label}
                     </div>
-                    <Mono className="whitespace-nowrap text-[11.5px] text-slate-500">
+                    <Mono className="whitespace-nowrap text-[11.5px] text-soil">
                       {formatCedisWhole(m.amountCedis)}
                     </Mono>
                   </div>
@@ -163,7 +163,7 @@ export function SaleDetail({
 
           {/* Payments ledger */}
           <AdminCard className="overflow-hidden rounded-[8px]">
-            <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
+            <div className="flex items-center justify-between border-b border-soil/15 px-5 py-3">
               <SectionLabel>Payments</SectionLabel>
               <AdminButton
                 variant="ghost"
@@ -179,18 +179,18 @@ export function SaleDetail({
           {/* Shipments on this sale */}
           {detail.shipments.length > 0 ? (
             <AdminCard className="overflow-hidden rounded-[8px]">
-              <div className="border-b border-slate-100 px-5 py-3">
+              <div className="border-b border-soil/15 px-5 py-3">
                 <SectionLabel>Shipments</SectionLabel>
               </div>
               {detail.shipments.map((sh) => (
                 <Link
                   key={sh.ref}
                   href={`/admin/shipments/${sh.ref}`}
-                  className="flex items-center justify-between gap-3 px-5 py-[13px] hover:bg-slate-50/60"
+                  className="flex items-center justify-between gap-3 px-5 py-[13px] hover:bg-surface-alt/50"
                 >
                   <div>
                     <Mono className="text-[13px] font-semibold text-console">{sh.ref}</Mono>
-                    <span className="ml-2.5 text-[13px] text-slate-600">{sh.desc}</span>
+                    <span className="ml-2.5 text-[13px] text-soil">{sh.desc}</span>
                   </div>
                   <StatusChip tone={sh.tone}>{sh.status}</StatusChip>
                 </Link>
@@ -215,16 +215,16 @@ export function SaleDetail({
       {/* Record payment modal */}
       <ConsoleDialog open={payOpen} onOpenChange={setPayOpen}>
         <div className="px-5 pt-4">
-          <ConsoleDialogTitle className="text-[16px] font-bold text-slate-900">Record payment</ConsoleDialogTitle>
-          <div className="mt-0.5 text-[12.5px] text-slate-500">
+          <ConsoleDialogTitle className="text-[16px] font-bold text-ink">Record payment</ConsoleDialogTitle>
+          <div className="mt-0.5 text-[12.5px] text-soil">
             Sale {row.ref} · {row.buyer} · balance {formatCedis(balance)}
           </div>
         </div>
         <div className="flex flex-col gap-[13px] px-5 py-4">
           <label className="block">
-            <span className="mb-[5px] block text-[13px] font-semibold text-slate-700">Amount</span>
-            <div className="flex h-[38px] items-center overflow-hidden rounded-[6px] border border-slate-300 bg-white focus-within:border-console">
-              <span className="flex h-full items-center border-r border-slate-200 bg-slate-50 px-2.5 text-[13px] text-slate-500">
+            <span className="mb-[5px] block text-[13px] font-semibold text-soil">Amount</span>
+            <div className="flex h-[38px] items-center overflow-hidden rounded-[6px] border border-soil/35 bg-paper focus-within:border-console">
+              <span className="flex h-full items-center border-r border-soil/25 bg-surface-alt/70 px-2.5 text-[13px] text-soil">
                 GH₵
               </span>
               <Input
@@ -232,12 +232,12 @@ export function SaleDetail({
                 onChange={(e) => setPayAmount(e.target.value)}
                 placeholder="0.00"
                 inputMode="decimal"
-                className="h-full min-w-0 flex-1 rounded-none border-0 bg-transparent px-2.5 py-0 text-right font-adminmono text-[14px] tabular-nums text-slate-900 shadow-none outline-none placeholder:text-slate-400 focus-visible:ring-0 dark:bg-transparent"
+                className="h-full min-w-0 flex-1 rounded-none border-0 bg-transparent px-2.5 py-0 text-right font-adminmono text-[14px] tabular-nums text-ink shadow-none outline-none placeholder:text-soil/70 focus-visible:ring-0 dark:bg-transparent"
               />
             </div>
           </label>
           <label className="block">
-            <span className="mb-[5px] block text-[13px] font-semibold text-slate-700">Method</span>
+            <span className="mb-[5px] block text-[13px] font-semibold text-soil">Method</span>
             <Select value={payMethod} onValueChange={setPayMethod}>
               <SelectTrigger className={paySelectTriggerClass}>
                 <SelectValue />
@@ -252,12 +252,12 @@ export function SaleDetail({
             </Select>
           </label>
           <label className="block">
-            <span className="mb-[5px] block text-[13px] font-semibold text-slate-700">
-              Reference <span className="font-normal text-slate-400">(optional)</span>
+            <span className="mb-[5px] block text-[13px] font-semibold text-soil">
+              Reference <span className="font-normal text-soil/70">(optional)</span>
             </span>
             <Input
               placeholder="e.g. GCB-88214"
-              className="h-[38px] w-full rounded-[6px] border-slate-300 bg-white px-2.5 text-[14px] text-slate-900 shadow-none outline-none placeholder:text-slate-400 focus:border-console focus-visible:border-console focus-visible:ring-0 dark:bg-white"
+              className="h-[38px] w-full rounded-[6px] border-soil/35 bg-paper px-2.5 text-[14px] text-ink shadow-none outline-none placeholder:text-soil/70 focus:border-console focus-visible:border-console focus-visible:ring-0 dark:bg-paper"
             />
           </label>
         </div>

@@ -13,21 +13,19 @@ import {
 import { cn } from "@/lib/utils";
 
 /**
- * The DB Plus toolbar field idiom: a micro uppercase label over a hairline
- * bottom rule — no boxes. The rule turns console-green while focused and
- * stays half-lit while the field holds a non-default value, so active
- * criteria read at a glance.
+ * The console toolbar field: the stock register's compact boxed control —
+ * square corners, paper fill, soil border. The border turns console-green
+ * while focused/open and stays half-lit while the field holds a non-default
+ * value, so active criteria read at a glance.
  */
-const fieldLabel =
-  "grid min-w-0 gap-1 text-[10.5px] font-bold uppercase tracking-[0.1em] text-slate-500";
-
-const fieldRule = (active: boolean) =>
+const boxField = (active: boolean) =>
   cn(
-    "flex h-8 w-full min-w-0 items-center gap-1.5 border-b bg-transparent px-0.5 transition-colors focus-within:border-console",
-    active ? "border-console/60" : "border-slate-300",
+    "flex h-8 w-full min-w-0 items-center rounded-[2px] border-[1.5px] bg-paper transition-colors focus-within:border-console",
+    active ? "border-console/60" : "border-soil/30",
   );
 
-/** Labelled dropdown filter in the console skin. */
+/** Dropdown filter in the console skin (aria-labelled; the value text —
+ * "All roles", "Authentication" — carries the meaning, stock-register style). */
 export function ConsoleLabeledSelect({
   label,
   value,
@@ -40,37 +38,36 @@ export function ConsoleLabeledSelect({
   value: string;
   onChange: (value: string) => void;
   options: readonly { value: string; label: string }[];
-  /** True when the value is non-default — keeps the rule half-lit. */
+  /** True when the value is non-default — keeps the border half-lit. */
   active?: boolean;
   className?: string;
 }) {
   return (
-    <label className={cn(fieldLabel, className)}>
-      {label}
-      <Select value={value} onValueChange={onChange}>
-        <SelectTrigger
-          aria-label={`Filter by ${label.toLowerCase()}`}
-          className={cn(
-            "h-8 w-full cursor-pointer rounded-none border-0 border-b bg-transparent px-0.5 text-[13px] font-normal normal-case tracking-normal text-slate-700 shadow-none transition-colors focus:ring-0 focus-visible:ring-0 data-[state=open]:border-console",
-            active ? "border-console/60" : "border-slate-300",
-          )}
-        >
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {options.map((o) => (
-            <SelectItem key={o.value} value={o.value} className="cursor-pointer">
-              {o.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </label>
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger
+        aria-label={`Filter by ${label.toLowerCase()}`}
+        className={cn(
+          "h-8 w-full min-w-0 cursor-pointer rounded-[2px] border-[1.5px] bg-paper px-2.5 text-[13px] font-normal text-soil shadow-none transition-colors focus:ring-0 focus-visible:ring-0 data-[state=open]:border-console",
+          active ? "border-console/60" : "border-soil/30",
+          className,
+        )}
+      >
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {options.map((o) => (
+          <SelectItem key={o.value} value={o.value} className="cursor-pointer">
+            {o.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
 
 /**
- * Labelled native date input for From/To windows in the toolbar.
+ * Native date input for From/To windows, in the boxed toolbar shape with a
+ * stencil prefix naming the bound.
  *
  * Date inputs ignore the `placeholder` attribute, and mobile browsers render
  * an empty one as a blank box (desktop Chrome at least shows mm/dd/yyyy).
@@ -97,9 +94,11 @@ export function ConsoleDateField({
   className?: string;
 }) {
   return (
-    <label className={cn(fieldLabel, className)}>
-      {label}
-      <span className="relative block min-w-0">
+    <label className={cn(boxField(Boolean(value)), "cursor-pointer", className)}>
+      <span className="stencil pointer-events-none flex-none pl-2.5 pr-1.5 text-[9.5px] uppercase tracking-[0.14em] text-harvest-deep">
+        {label}
+      </span>
+      <span className="relative h-full min-w-0 flex-1">
         <input
           type="date"
           value={value}
@@ -107,16 +106,14 @@ export function ConsoleDateField({
           max={max || undefined}
           onChange={(e) => onChange(e.target.value)}
           className={cn(
-            "peer h-8 w-full cursor-pointer appearance-none border-b bg-transparent px-0.5 text-[13px] font-normal normal-case tracking-normal outline-none transition-colors focus:border-console",
-            value
-              ? "border-console/60 text-slate-700"
-              : "border-slate-300 text-transparent focus:text-slate-700",
+            "peer h-full w-full cursor-pointer appearance-none bg-transparent pr-2 text-[13px] font-normal outline-none",
+            value ? "text-soil" : "text-transparent focus:text-soil",
           )}
         />
         {!value && (
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 left-0.5 flex items-center text-[13px] font-normal normal-case tracking-normal text-slate-300 peer-focus:hidden"
+            className="pointer-events-none absolute inset-y-0 left-0 flex items-center text-[13px] text-soil/45 peer-focus:hidden"
           >
             {placeholder}
           </span>
@@ -127,12 +124,11 @@ export function ConsoleDateField({
 }
 
 /**
- * The console list toolbar in the DB Plus field idiom — labelled underline
- * fields on the page ground, no boxed inputs.
+ * The console list toolbar in the stock-register shape: one row of compact
+ * boxed controls on the page ground.
  *
- * Desktop (lg+): ONE ordered row — the search field standing wide, then as
- * many labelled filters as the register defines aligned to its baseline,
- * Clear, and the persistent action pushed to the right edge.
+ * Desktop (lg+): the search box, then as many filters as the register
+ * defines, Clear, and the persistent action pushed to the right edge.
  *
  * Tablet (md–lg): the search takes the full width on its own line; the
  * filters come down into an even grid capped at four columns, with the
@@ -166,34 +162,34 @@ export function ConsoleFilterBar({
   const [open, setOpen] = useState(false);
 
   const searchField = (
-    <label className={cn(fieldLabel, "w-full lg:w-[300px] xl:w-[340px]")}>
-      Search
-      <span className={fieldRule(search.length > 0)}>
-        <span
-          aria-hidden="true"
-          className="font-adminmono flex-none text-[13px] font-bold leading-none text-console/70"
+    <label
+      className={cn(
+        boxField(search.length > 0),
+        "gap-1.5 px-2.5 lg:w-[280px] lg:flex-none xl:w-[320px]",
+      )}
+    >
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true" className="flex-none">
+        <circle cx="7" cy="7" r="5" stroke="#a49b7e" strokeWidth="1.5" />
+        <path d="M11 11l3.2 3.2" stroke="#a49b7e" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+      <Input
+        type="search"
+        value={search}
+        onChange={(e) => onSearch(e.target.value)}
+        placeholder={searchPlaceholder}
+        aria-label={searchPlaceholder}
+        className="[&::-webkit-search-cancel-button]:hidden h-full w-full min-w-0 rounded-none border-0 bg-transparent p-0 text-[13px] text-ink shadow-none outline-none placeholder:text-soil/45 focus-visible:ring-0 md:text-[13px]"
+      />
+      {search ? (
+        <button
+          type="button"
+          onClick={() => onSearch("")}
+          aria-label="Clear search"
+          className="flex h-4 w-4 flex-none cursor-pointer items-center justify-center rounded-full text-soil/70 hover:bg-soil/20 hover:text-soil"
         >
-          »
-        </span>
-        <Input
-          type="search"
-          value={search}
-          onChange={(e) => onSearch(e.target.value)}
-          placeholder={searchPlaceholder}
-          aria-label={searchPlaceholder}
-          className="[&::-webkit-search-cancel-button]:hidden h-full w-full min-w-0 rounded-none border-0 bg-transparent p-0 text-[13px] font-normal normal-case tracking-normal text-slate-900 shadow-none outline-none placeholder:text-slate-300 focus-visible:ring-0 md:text-[13px]"
-        />
-        {search ? (
-          <button
-            type="button"
-            onClick={() => onSearch("")}
-            aria-label="Clear search"
-            className="flex h-4 w-4 flex-none cursor-pointer items-center justify-center rounded-full text-slate-400 hover:bg-slate-200 hover:text-slate-600"
-          >
-            <X className="h-3 w-3" aria-hidden="true" />
-          </button>
-        ) : null}
-      </span>
+          <X className="h-3 w-3" aria-hidden="true" />
+        </button>
+      ) : null}
     </label>
   );
 
@@ -210,25 +206,21 @@ export function ConsoleFilterBar({
 
   return (
     <div className="mb-3">
-      {/* ── Desktop: one ordered toolbar row, search standing wide ───────── */}
-      <div className="hidden lg:flex lg:flex-wrap lg:items-end lg:gap-x-5 lg:gap-y-2.5">
+      {/* ── Desktop: one row of boxed controls, action at the right edge ─── */}
+      <div className="hidden lg:flex lg:flex-wrap lg:items-center lg:gap-2">
         {searchField}
         {children}
-        {clearButton ? (
-          <div className="flex h-8 items-center self-end">{clearButton}</div>
-        ) : null}
-        <div className="ml-auto self-end">{action}</div>
+        {clearButton}
+        <div className="ml-auto">{action}</div>
       </div>
 
       {/* ── Tablet: full-width search, filters down in a ≤4-col grid ─────── */}
       <div className="hidden md:block lg:hidden">
         {searchField}
-        <div className="mt-3 flex items-end gap-4">
-          <div className="grid flex-1 grid-cols-4 items-end gap-x-4 gap-y-3">
+        <div className="mt-2 flex items-center gap-2">
+          <div className="grid flex-1 grid-cols-4 items-center gap-2">
             {children}
-            {clearButton ? (
-              <div className="flex h-8 items-center self-end">{clearButton}</div>
-            ) : null}
+            {clearButton}
           </div>
           <div className="flex-none">{action}</div>
         </div>
@@ -237,17 +229,17 @@ export function ConsoleFilterBar({
       {/* ── Mobile: search line, then toggle + action, then the panel ────── */}
       <div className="md:hidden">
         {searchField}
-        <div className="mt-3 flex items-center justify-between gap-2">
+        <div className="mt-2 flex items-center justify-between gap-2">
           <button
             type="button"
             onClick={() => setOpen((o) => !o)}
             aria-expanded={open}
             aria-controls="console-filters"
             className={cn(
-              "inline-flex h-8 cursor-pointer items-center gap-2 whitespace-nowrap border-b px-0.5 text-[10.5px] font-bold uppercase tracking-[0.1em] transition-colors",
+              "stencil inline-flex h-8 cursor-pointer items-center gap-2 whitespace-nowrap rounded-[2px] border-[1.5px] bg-paper px-2.5 text-[10.5px] uppercase tracking-[0.14em] transition-colors",
               open
                 ? "border-console text-console"
-                : "border-slate-300 text-slate-600 hover:text-console",
+                : "border-soil/30 text-soil hover:text-console",
             )}
           >
             <span
@@ -268,7 +260,7 @@ export function ConsoleFilterBar({
         </div>
         <div
           id="console-filters"
-          className={cn("mt-3 grid-cols-2 gap-x-4 gap-y-3", open ? "grid" : "hidden")}
+          className={cn("mt-2 grid-cols-2 gap-2", open ? "grid" : "hidden")}
         >
           {children}
           {clearButton ? <div className="col-span-2">{clearButton}</div> : null}

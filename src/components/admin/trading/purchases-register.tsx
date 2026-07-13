@@ -43,10 +43,10 @@ const TABLE_STATES: { key: TableState; label: string }[] = [
 const ANY = "__any__";
 
 const filterSelectClass =
-  "h-8 cursor-pointer rounded-[6px] border border-slate-200 bg-white px-2.5 text-[13px] text-slate-700 shadow-none outline-none hover:border-slate-300 focus:border-console focus-visible:border-console focus-visible:ring-0";
+  "h-8 cursor-pointer rounded-[6px] border border-soil/25 bg-paper px-2.5 text-[13px] text-soil shadow-none outline-none hover:border-soil/35 focus:border-console focus-visible:border-console focus-visible:ring-0";
 
 /** Console register header cell — pinned over the data table's defaults. */
-const headClass = "h-[38px] bg-slate-50 py-0 text-[10.5px] font-bold tracking-[0.09em] text-slate-500";
+const headClass = "h-[38px] bg-surface-alt/70 py-0 text-[10.5px] font-bold tracking-[0.09em] text-soil";
 
 function EditIcon() {
   return (
@@ -84,7 +84,7 @@ function VoidIcon() {
 }
 
 function Shimmer({ className }: { className?: string }) {
-  return <Skeleton className={cn("rounded-[4px] bg-slate-200/80", className)} />;
+  return <Skeleton className={cn("rounded-[4px] bg-soil/20", className)} />;
 }
 
 export function PurchasesRegister() {
@@ -139,7 +139,7 @@ export function PurchasesRegister() {
         header: "Date ↓",
         enableSorting: false,
         meta: {
-          className: "w-[90px] whitespace-nowrap px-1.5 py-0 text-[13px] text-slate-600 xl:w-[92px]",
+          className: "w-[90px] whitespace-nowrap px-1.5 py-0 text-[13px] text-soil xl:w-[92px]",
           headerClassName: headClass,
         },
       },
@@ -148,7 +148,7 @@ export function PurchasesRegister() {
         header: "Agent",
         enableSorting: false,
         meta: {
-          className: "hidden px-1.5 py-0 text-[13px] text-slate-800 xl:table-cell",
+          className: "hidden px-1.5 py-0 text-[13px] text-ink xl:table-cell",
           headerClassName: headClass,
         },
         cell: ({ row }) => <span className="block truncate">{row.original.agent}</span>,
@@ -157,7 +157,7 @@ export function PurchasesRegister() {
         accessorKey: "supplier",
         header: "Supplier",
         enableSorting: false,
-        meta: { className: "px-1.5 py-0 text-[13px] text-slate-800", headerClassName: headClass },
+        meta: { className: "px-1.5 py-0 text-[13px] text-ink", headerClassName: headClass },
         cell: ({ row }) => <span className="block truncate">{row.original.supplier}</span>,
       },
       {
@@ -165,7 +165,7 @@ export function PurchasesRegister() {
         header: "Commodity",
         enableSorting: false,
         meta: {
-          className: "hidden px-1.5 py-0 text-[13px] text-slate-600 xl:table-cell",
+          className: "hidden px-1.5 py-0 text-[13px] text-soil xl:table-cell",
           headerClassName: headClass,
         },
         cell: ({ row }) => <span className="block truncate">{row.original.commodity}</span>,
@@ -176,7 +176,7 @@ export function PurchasesRegister() {
         enableSorting: false,
         meta: { className: "w-[90px] px-1.5 py-0 text-right text-[13px]", headerClassName: headClass },
         cell: ({ row }) => (
-          <Mono className="whitespace-nowrap text-slate-800">{formatKg(row.original.weightKg)}</Mono>
+          <Mono className="whitespace-nowrap text-ink">{formatKg(row.original.weightKg)}</Mono>
         ),
       },
       {
@@ -188,7 +188,7 @@ export function PurchasesRegister() {
           headerClassName: headClass,
         },
         cell: ({ row }) => (
-          <Mono className="whitespace-nowrap text-slate-600">{formatCedis(row.original.pricePerKg)}</Mono>
+          <Mono className="whitespace-nowrap text-soil">{formatCedis(row.original.pricePerKg)}</Mono>
         ),
       },
       {
@@ -204,7 +204,7 @@ export function PurchasesRegister() {
           <Mono
             className={cn(
               "whitespace-nowrap font-semibold",
-              row.original.status === "Voided" ? "text-slate-400 line-through" : "text-slate-900",
+              row.original.status === "Voided" ? "text-soil/70 line-through" : "text-ink",
             )}
           >
             {formatCedis(purchaseTotal(row.original))}
@@ -286,8 +286,8 @@ export function PurchasesRegister() {
     <div>
       <div className="mb-3.5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-[22px] font-bold tracking-[-0.01em] text-slate-900">Purchases</h1>
-          <div className="mt-0.5 text-[13px] text-slate-500">Goods bought from suppliers and farmers</div>
+          <h1 className="text-[22px] font-bold tracking-[-0.01em] text-ink">Purchases</h1>
+          <div className="mt-0.5 text-[13px] text-soil">Goods bought from suppliers and farmers</div>
         </div>
         <AdminButton className="h-[34px] whitespace-nowrap" onClick={() => router.push("/admin/purchases/new")}>
           + Record purchase
@@ -299,12 +299,12 @@ export function PurchasesRegister() {
         onValueChange={(v) => setTableState(v as TableState)}
         className="mb-3.5 w-fit gap-0"
       >
-        <TabsList className="inline-flex w-fit flex-wrap justify-start gap-0.5 rounded-[6px] bg-slate-100 p-[3px] group-data-horizontal/tabs:h-auto">
+        <TabsList className="inline-flex w-fit flex-wrap justify-start gap-0.5 rounded-[6px] bg-soil/10 p-[3px] group-data-horizontal/tabs:h-auto">
           {TABLE_STATES.map((s) => (
             <TabsTrigger
               key={s.key}
               value={s.key}
-              className="h-auto flex-none cursor-pointer whitespace-nowrap rounded-[5px] border-0 px-[11px] py-1 text-[12px] font-semibold leading-[1.5] text-slate-500 shadow-none transition-none hover:text-slate-500 data-active:bg-white data-active:text-console data-active:shadow-none group-data-[variant=default]/tabs-list:data-active:shadow-none"
+              className="h-auto flex-none cursor-pointer whitespace-nowrap rounded-[5px] border-0 px-[11px] py-1 text-[12px] font-semibold leading-[1.5] text-soil shadow-none transition-none hover:text-soil data-active:bg-paper data-active:text-console data-active:shadow-none group-data-[variant=default]/tabs-list:data-active:shadow-none"
             >
               {s.label}
             </TabsTrigger>
@@ -314,7 +314,7 @@ export function PurchasesRegister() {
 
       {showFilterBar ? (
         <div className="mb-3 flex flex-wrap items-center gap-2">
-          <div className="flex h-8 w-full items-center gap-[7px] rounded-[6px] border border-slate-200 bg-white px-2.5 sm:w-60">
+          <div className="flex h-8 w-full items-center gap-[7px] rounded-[6px] border border-soil/25 bg-paper px-2.5 sm:w-60">
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true" className="flex-none">
               <circle cx="7" cy="7" r="5" stroke="#9ba6b3" strokeWidth="1.5" />
               <path d="M11 11l3.2 3.2" stroke="#9ba6b3" strokeWidth="1.5" strokeLinecap="round" />
@@ -324,7 +324,7 @@ export function PurchasesRegister() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search reference or supplier…"
               aria-label="Search reference or supplier"
-              className="h-auto w-full min-w-0 rounded-none border-0 bg-transparent p-0 text-[13px] text-slate-700 shadow-none outline-none placeholder:text-slate-400 focus-visible:ring-0 md:text-[13px] dark:bg-transparent"
+              className="h-auto w-full min-w-0 rounded-none border-0 bg-transparent p-0 text-[13px] text-soil shadow-none outline-none placeholder:text-soil/70 focus-visible:ring-0 md:text-[13px] dark:bg-transparent"
             />
           </div>
           <Select value={status} onValueChange={setStatus}>
@@ -403,8 +403,8 @@ export function PurchasesRegister() {
             itemNoun="purchases"
             globalFilter={search}
             rowHref={(p) => `/admin/purchases/${p.ref}`}
-            rowClassName={() => "h-11 text-[13px] hover:bg-slate-50/60"}
-            className="hidden overflow-hidden rounded-[8px] border border-slate-200 bg-white md:block"
+            rowClassName={() => "h-11 text-[13px] hover:bg-surface-alt/50"}
+            className="hidden overflow-hidden rounded-[8px] border border-soil/25 bg-paper md:block"
           />
 
           {/* Mobile cards */}
@@ -415,24 +415,24 @@ export function PurchasesRegister() {
                 <Link
                   key={p.ref}
                   href={`/admin/purchases/${p.ref}`}
-                  className="rounded-[8px] border border-slate-200 bg-white px-3.5 py-[13px]"
+                  className="rounded-[8px] border border-soil/25 bg-paper px-3.5 py-[13px]"
                 >
                   <div className="mb-1.5 flex items-center justify-between gap-2">
                     <Mono className="text-[12.5px] font-semibold text-console">{p.ref}</Mono>
                     <StatusChip tone={p.tone}>{p.status}</StatusChip>
                   </div>
                   <div className="flex items-baseline justify-between gap-2">
-                    <div className="text-[14px] font-semibold text-slate-900">{p.supplier}</div>
+                    <div className="text-[14px] font-semibold text-ink">{p.supplier}</div>
                     <Mono
-                      className={cn("text-[15px] font-bold", voided ? "text-slate-400 line-through" : "text-slate-900")}
+                      className={cn("text-[15px] font-bold", voided ? "text-soil/70 line-through" : "text-ink")}
                     >
                       {formatCedis(purchaseTotal(p))}
                     </Mono>
                   </div>
-                  <div className="mt-[3px] text-[12.5px] text-slate-500">
+                  <div className="mt-[3px] text-[12.5px] text-soil">
                     {p.commodity} · {formatKg(p.weightKg)}
                   </div>
-                  <div className="mt-0.5 text-[12px] text-slate-400">
+                  <div className="mt-0.5 text-[12px] text-soil/70">
                     {p.agent} · {p.date}
                   </div>
                 </Link>
@@ -443,14 +443,14 @@ export function PurchasesRegister() {
       ) : null}
 
       {tableState === "loading" ? (
-        <div className="overflow-hidden rounded-[8px] border border-slate-200 bg-white">
-          <div className="flex h-[38px] items-center gap-6 border-b border-slate-200 bg-slate-50 px-4">
+        <div className="overflow-hidden rounded-[8px] border border-soil/25 bg-paper">
+          <div className="flex h-[38px] items-center gap-6 border-b border-soil/25 bg-surface-alt/70 px-4">
             {["w-12", "w-[70px]", "w-[130px]", "w-[90px]", "w-16"].map((w) => (
               <Shimmer key={w} className={cn("h-[9px]", w)} />
             ))}
           </div>
           {Array.from({ length: 8 }, (_, i) => (
-            <div key={i} className="flex h-11 items-center gap-6 border-b border-slate-100 px-4">
+            <div key={i} className="flex h-11 items-center gap-6 border-b border-soil/15 px-4">
               <Shimmer className="h-2.5 w-14" />
               <Shimmer className="h-2.5 w-[78px]" />
               <Shimmer className="h-2.5 max-w-[220px] flex-1" />
@@ -462,7 +462,7 @@ export function PurchasesRegister() {
       ) : null}
 
       {tableState === "empty" ? (
-        <div className="rounded-[8px] border border-slate-200 bg-white px-6 py-16 text-center">
+        <div className="rounded-[8px] border border-soil/25 bg-paper px-6 py-16 text-center">
           <svg width="72" height="60" viewBox="0 0 72 60" fill="none" aria-hidden="true" className="mx-auto mb-[18px]">
             <path
               d="M22 14 L50 14 L54 22 L54 50 Q54 54 50 54 L22 54 Q18 54 18 50 L18 22 Z"
@@ -473,8 +473,8 @@ export function PurchasesRegister() {
             <path d="M28 14 Q28 8 36 8 Q44 8 44 14" stroke="#D6DBE2" strokeWidth="1.6" />
             <path d="M28 33 Q36 40 44 33" stroke="#B9C1CB" strokeWidth="1.6" strokeLinecap="round" />
           </svg>
-          <div className="mb-[5px] text-[15.5px] font-bold text-slate-800">No purchases yet</div>
-          <div className="mx-auto mb-[18px] max-w-[340px] text-[13.5px] text-slate-500">
+          <div className="mb-[5px] text-[15.5px] font-bold text-ink">No purchases yet</div>
+          <div className="mx-auto mb-[18px] max-w-[340px] text-[13.5px] text-soil">
             Record your first purchase to see stock and agent floats come alive here.
           </div>
           <AdminButton onClick={() => router.push("/admin/purchases/new")}>+ Record purchase</AdminButton>
@@ -482,14 +482,14 @@ export function PurchasesRegister() {
       ) : null}
 
       {tableState !== "empty" && tableState !== "loading" && tableState !== "error" && filteredEmpty ? (
-        <div className="rounded-[8px] border border-slate-200 bg-white px-6 py-[52px] text-center">
+        <div className="rounded-[8px] border border-soil/25 bg-paper px-6 py-[52px] text-center">
           <svg width="56" height="56" viewBox="0 0 56 56" fill="none" aria-hidden="true" className="mx-auto mb-3.5">
             <circle cx="25" cy="25" r="13" stroke="#D6DBE2" strokeWidth="1.6" />
             <path d="M35 35 L46 46" stroke="#D6DBE2" strokeWidth="1.6" strokeLinecap="round" />
             <path d="M20 25 L30 25" stroke="#B9C1CB" strokeWidth="1.6" strokeLinecap="round" />
           </svg>
-          <div className="mb-[5px] text-[15px] font-bold text-slate-800">No purchases match these filters</div>
-          <div className="mb-4 text-[13.5px] text-slate-500">Try widening the date range or clearing a filter.</div>
+          <div className="mb-[5px] text-[15px] font-bold text-ink">No purchases match these filters</div>
+          <div className="mb-4 text-[13.5px] text-soil">Try widening the date range or clearing a filter.</div>
           <AdminButton variant="secondary" className="text-console" onClick={clearFilters}>
             Clear all filters
           </AdminButton>
@@ -497,13 +497,13 @@ export function PurchasesRegister() {
       ) : null}
 
       {tableState === "error" ? (
-        <div className="rounded-[8px] border border-slate-200 bg-white px-6 py-[52px] text-center">
+        <div className="rounded-[8px] border border-soil/25 bg-paper px-6 py-[52px] text-center">
           <div className="mx-auto mb-3.5 flex h-11 w-11 items-center justify-center rounded-full bg-[#F8E9E7] text-[20px] font-bold text-console-red">
             !
           </div>
-          <div className="mb-[5px] text-[15px] font-bold text-slate-800">Couldn&apos;t load purchases</div>
-          <div className="mb-1 text-[13.5px] text-slate-500">Check your connection and retry — nothing was lost.</div>
-          <Mono className="mb-4 block text-[11.5px] text-slate-400">Ref: ERR-2481-P</Mono>
+          <div className="mb-[5px] text-[15px] font-bold text-ink">Couldn&apos;t load purchases</div>
+          <div className="mb-1 text-[13.5px] text-soil">Check your connection and retry — nothing was lost.</div>
+          <Mono className="mb-4 block text-[11.5px] text-soil/70">Ref: ERR-2481-P</Mono>
           <AdminButton onClick={() => setTableState("loaded")}>Retry</AdminButton>
         </div>
       ) : null}

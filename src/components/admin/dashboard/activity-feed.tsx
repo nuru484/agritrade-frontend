@@ -5,7 +5,7 @@ import { RECENT_ACTIVITY } from "@/static-data/admin/dashboard";
 export function ActivityFeed() {
   return (
     <AdminCard className="px-[18px] py-3.5">
-      <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-700">
+      <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.1em] text-soil">
         Recent activity
       </div>
       <div className="flex flex-col">
@@ -26,8 +26,8 @@ export function ActivityFeed() {
               />
             </div>
             <div className="min-w-0 pb-3">
-              <div className="text-[12.5px] text-slate-800">{item.what}</div>
-              <div className="mt-px text-[11px] text-slate-500">{item.meta}</div>
+              <div className="text-[12.5px] text-ink">{item.what}</div>
+              <div className="mt-px text-[11px] text-soil">{item.meta}</div>
             </div>
           </div>
         ))}

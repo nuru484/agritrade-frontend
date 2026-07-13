@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /**
- * Nasara Agro — "Pale Husk" palette v2.1 (from the Claude Design project).
+ * DB Plus — "Pale Husk" palette v2.1 (from the Claude Design project).
  * A trading-house paper aesthetic: husk surfaces, viridian bands, ochre-gold
  * tags, ledger rules and hard offset shadows. Light theme only by design.
  */
@@ -34,16 +34,16 @@
   --font-mono: ui-monospace, monospace;
   --font-heading: var(--font-archivo);
 
-  /* Console (admin) — Meridian-based: cool slate UI, deep-forest brand accent,
-     gold for pending/warning actions, brick red for danger. Hanken Grotesk
-     carries the UI, JetBrains Mono carries every number. */
-  --color-console: #1e3d2b;
-  --color-console-deep: #16301f;
-  --color-console-gold: #b8860b;
-  --color-console-gold-deep: #9a7009;
-  --color-console-red: #b03a2e;
-  --color-console-red-deep: #8e2e24;
-  --color-console-page: #fafaf8;
+  /* Console (admin) — one design system with the public site: the console
+     tokens alias the brand palette so both sides read as the same product.
+     Hanken Grotesk carries the UI, JetBrains Mono carries every number. */
+  --color-console: var(--color-forest);
+  --color-console-deep: var(--color-board);
+  --color-console-gold: var(--color-harvest-deep);
+  --color-console-gold-deep: #5f4a12;
+  --color-console-red: var(--color-error);
+  --color-console-red-deep: #7c2e1b;
+  --color-console-page: var(--color-surface);
   /* Explicit family fallbacks so portaled overlays (Radix dialogs render on
      <body>, outside the admin layout's next/font variable scope) keep the
      console fonts — the @font-face family names are global and stable. */

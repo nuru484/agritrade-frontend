@@ -16,12 +16,12 @@ export default function AdminDashboardPage() {
     <div>
       <div className="mb-[18px] flex flex-wrap items-baseline justify-between gap-3">
         <div>
-          <h1 className="text-[22px] font-bold tracking-[-0.01em] text-slate-900">
+          <h1 className="text-[22px] font-bold tracking-[-0.01em] text-ink">
             Good morning, Abdul
           </h1>
-          <div className="mt-0.5 text-[13px] text-slate-500">Friday, 11 July 2026 · Tamale</div>
+          <div className="mt-0.5 text-[13px] text-soil">Friday, 11 July 2026 · Tamale</div>
         </div>
-        <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-soil/70">
           Updated 07:42
         </div>
       </div>

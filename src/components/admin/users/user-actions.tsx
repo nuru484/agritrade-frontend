@@ -139,7 +139,7 @@ export function UserActionsDropdown({ user }: { user: IUser }) {
         <DropdownMenuTrigger
           aria-label={`Actions for ${name}`}
           onClick={(e) => e.stopPropagation()}
-          className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-[6px] text-slate-400 outline-none hover:bg-slate-100 hover:text-slate-700 focus-visible:ring-2 focus-visible:ring-console/40"
+          className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-[6px] text-soil/70 outline-none hover:bg-soil/10 hover:text-soil focus-visible:ring-2 focus-visible:ring-console/40"
         >
           <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
         </DropdownMenuTrigger>
@@ -150,7 +150,7 @@ export function UserActionsDropdown({ user }: { user: IUser }) {
         >
           <DropdownMenuLabel
             title={name}
-            className="max-w-full truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400"
+            className="max-w-full truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-soil/70"
           >
             {name}
           </DropdownMenuLabel>

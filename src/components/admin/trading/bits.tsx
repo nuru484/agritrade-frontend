@@ -42,7 +42,7 @@ export function BackLink({ href, children }: { href: string; children: React.Rea
 /** Small-caps section label inside detail cards. */
 export function SectionLabel({ className, children }: { className?: string; children: React.ReactNode }) {
   return (
-    <div className={cn("text-[11px] font-bold uppercase tracking-[0.1em] text-slate-700", className)}>{children}</div>
+    <div className={cn("text-[11px] font-bold uppercase tracking-[0.1em] text-soil", className)}>{children}</div>
   );
 }
 
@@ -60,7 +60,7 @@ export function HeaderFigure({
 }) {
   return (
     <div>
-      <div className="mb-1 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-slate-500">{label}</div>
+      <div className="mb-1 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-soil">{label}</div>
       {mono ? (
         <Mono className={cn("text-[19px] font-bold", className)}>{children}</Mono>
       ) : (
@@ -76,8 +76,8 @@ export function MetaList({ items }: { items: MetaItem[] }) {
     <div>
       {items.map((row) => (
         <div key={row.k} className="flex justify-between gap-3 py-[5px] text-[13px]">
-          <span className="text-slate-500">{row.k}</span>
-          <span className="text-right font-medium text-slate-800">{row.v}</span>
+          <span className="text-soil">{row.k}</span>
+          <span className="text-right font-medium text-ink">{row.v}</span>
         </div>
       ))}
     </div>
@@ -98,8 +98,8 @@ export function ActivityTimeline({ items }: { items: TimelineItem[] }) {
             {i < items.length - 1 ? <span className="min-h-3.5 w-[1.5px] flex-1 bg-[#E2E5EA]" /> : null}
           </div>
           <div className="min-w-0 pb-3.5">
-            <div className="text-[13px] text-slate-800">{item.what}</div>
-            <div className="mt-px text-[11.5px] text-slate-500">{item.meta}</div>
+            <div className="text-[13px] text-ink">{item.what}</div>
+            <div className="mt-px text-[11.5px] text-soil">{item.meta}</div>
           </div>
         </div>
       ))}
@@ -114,7 +114,7 @@ const LEDGER_AMOUNT_COLOR: Record<LedgerRow["direction"], string> = {
 };
 
 /** Shared th/td skins for the console statement tables (exact grid sizes). */
-const ledgerHeadClass = "h-8 py-0 text-[10px] font-bold uppercase tracking-[0.09em] text-slate-500";
+const ledgerHeadClass = "h-8 py-0 text-[10px] font-bold uppercase tracking-[0.09em] text-soil";
 
 /** Date / Description / Amount / running-figure ledger used by purchase float
  * movement and sale payments. */
@@ -122,7 +122,7 @@ export function LedgerTable({ rows, afterLabel }: { rows: LedgerRow[]; afterLabe
   return (
     <Table className="text-[13px]">
       <TableHeader>
-        <TableRow className="border-slate-200 bg-slate-50 hover:bg-slate-50">
+        <TableRow className="border-soil/25 bg-surface-alt/70 hover:bg-surface-alt/70">
           <TableHead className={cn(ledgerHeadClass, "w-[118px] pl-5 pr-1.5 lg:w-[122px]")}>Date</TableHead>
           <TableHead className={cn(ledgerHeadClass, "px-1.5")}>Description</TableHead>
           <TableHead className={cn(ledgerHeadClass, "w-[146px] pl-1.5 pr-5 text-right lg:w-[142px] lg:pr-1.5")}>
@@ -135,10 +135,10 @@ export function LedgerTable({ rows, afterLabel }: { rows: LedgerRow[]; afterLabe
       </TableHeader>
       <TableBody className="[&_tr:last-child]:border-b">
         {rows.map((row, i) => (
-          <TableRow key={`${row.date}-${i}`} className="h-[42px] border-slate-100 hover:bg-transparent">
-            <TableCell className="whitespace-nowrap py-0 pl-5 pr-1.5 text-slate-600">{row.date}</TableCell>
+          <TableRow key={`${row.date}-${i}`} className="h-[42px] border-soil/15 hover:bg-transparent">
+            <TableCell className="whitespace-nowrap py-0 pl-5 pr-1.5 text-soil">{row.date}</TableCell>
             <TableCell className="w-full max-w-0 px-1.5 py-0">
-              <span className="flex min-w-0 items-center gap-2 overflow-hidden text-slate-800">
+              <span className="flex min-w-0 items-center gap-2 overflow-hidden text-ink">
                 <span className="truncate">{row.desc}</span>
                 {row.pending ? (
                   <span className="inline-flex flex-none items-center rounded-full bg-[#F7EED8] px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.08em] text-[#7A5407]">
@@ -153,7 +153,7 @@ export function LedgerTable({ rows, afterLabel }: { rows: LedgerRow[]; afterLabe
               </Mono>
             </TableCell>
             <TableCell className="hidden whitespace-nowrap py-0 pl-1.5 pr-5 text-right lg:table-cell">
-              <Mono className="text-slate-500">{row.after}</Mono>
+              <Mono className="text-soil">{row.after}</Mono>
             </TableCell>
           </TableRow>
         ))}
@@ -182,7 +182,7 @@ export function RowIconButton({
       onClick={onClick}
       className={cn(
         "inline-flex h-[26px] w-[26px] cursor-pointer items-center justify-center rounded-[5px]",
-        danger ? "text-console-red hover:bg-[#F8E9E7]" : "text-slate-500 hover:bg-slate-100 hover:text-console",
+        danger ? "text-console-red hover:bg-[#F8E9E7]" : "text-soil hover:bg-soil/10 hover:text-console",
       )}
     >
       {children}

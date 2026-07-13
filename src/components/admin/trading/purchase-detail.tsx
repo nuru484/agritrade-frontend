@@ -39,12 +39,12 @@ export function PurchaseDetail({ detail }: { detail: PurchaseDetailPayload }) {
         <div className="flex flex-wrap items-start justify-between gap-3.5">
           <div>
             <div className="flex flex-wrap items-center gap-2.5">
-              <h1 className="text-[20px] font-bold tracking-[-0.01em] text-slate-900">
+              <h1 className="text-[20px] font-bold tracking-[-0.01em] text-ink">
                 Purchase <Mono>{row.ref}</Mono> — {row.supplier}
               </h1>
               <StatusChip tone={row.tone}>{row.status}</StatusChip>
             </div>
-            <div className="mt-1 text-[12.5px] text-slate-500">
+            <div className="mt-1 text-[12.5px] text-soil">
               {row.commodity} · bought by {row.agent} · {row.date}
             </div>
           </div>
@@ -79,7 +79,7 @@ export function PurchaseDetail({ detail }: { detail: PurchaseDetailPayload }) {
             ) : null}
           </div>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-3 border-t border-slate-100 pt-4 md:grid-cols-[repeat(auto-fit,minmax(140px,1fr))] xl:grid-cols-[repeat(4,max-content)]">
+        <div className="mt-4 grid grid-cols-2 gap-3 border-t border-soil/15 pt-4 md:grid-cols-[repeat(auto-fit,minmax(140px,1fr))] xl:grid-cols-[repeat(4,max-content)]">
           <HeaderFigure label="Weight">{formatKg(row.weightKg)}</HeaderFigure>
           <HeaderFigure label="Price/kg">{formatCedis(row.pricePerKg)}</HeaderFigure>
           <HeaderFigure label="Total paid" className={voided ? "line-through" : undefined}>
@@ -94,14 +94,14 @@ export function PurchaseDetail({ detail }: { detail: PurchaseDetailPayload }) {
       <div className="grid items-start gap-4 lg:grid-cols-[2fr_1fr]">
         <div className="flex min-w-0 flex-col gap-4">
           <AdminCard className="overflow-hidden rounded-[8px]">
-            <div className="border-b border-slate-100 px-5 py-3">
+            <div className="border-b border-soil/15 px-5 py-3">
               <SectionLabel>Float movement</SectionLabel>
             </div>
             <LedgerTable rows={detail.ledger} afterLabel="Float after" />
           </AdminCard>
           <AdminCard className="rounded-[8px] px-5 py-3.5">
             <SectionLabel className="mb-2">Notes</SectionLabel>
-            <div className="text-[13.5px] text-slate-600">{detail.notes}</div>
+            <div className="text-[13.5px] text-soil">{detail.notes}</div>
           </AdminCard>
         </div>
         <div className="flex flex-col gap-4">

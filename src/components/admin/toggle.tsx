@@ -23,7 +23,7 @@ export function AdminToggle({
       onCheckedChange={onChange}
       aria-label={label}
       className={cn(
-        "h-[21px] w-9 data-[state=checked]:bg-console data-[state=unchecked]:bg-[#C9CFD8]",
+        "h-[21px] w-9 data-[state=checked]:bg-console data-[state=unchecked]:bg-husk",
         className,
       )}
     />

@@ -131,7 +131,7 @@ export function UserForm() {
                 placeholder="e.g. Amina"
                 className={cn(
                   adminInputClass,
-                  errors.firstName && "border-console-red",
+                  errors.firstName && "border-error",
                 )}
                 {...register("firstName")}
               />
@@ -141,7 +141,7 @@ export function UserForm() {
                 placeholder="e.g. Abdulai"
                 className={cn(
                   adminInputClass,
-                  errors.lastName && "border-console-red",
+                  errors.lastName && "border-error",
                 )}
                 {...register("lastName")}
               />
@@ -151,7 +151,7 @@ export function UserForm() {
             <Input
               type="email"
               placeholder="them@dbplus.com"
-              className={cn(adminInputClass, errors.email && "border-console-red")}
+              className={cn(adminInputClass, errors.email && "border-error")}
               {...register("email")}
             />
           </AdminField>
@@ -163,7 +163,7 @@ export function UserForm() {
             <Input
               type="tel"
               placeholder="024 000 0000"
-              className={cn(adminInputClass, errors.phone && "border-console-red")}
+              className={cn(adminInputClass, errors.phone && "border-error")}
               {...register("phone")}
             />
           </AdminField>
@@ -202,7 +202,7 @@ export function UserForm() {
                   placeholder="Set their first password"
                   className={cn(
                     adminInputClass,
-                    errors.password && "border-console-red",
+                    errors.password && "border-error",
                   )}
                   {...register("password")}
                 />
@@ -222,17 +222,17 @@ export function UserForm() {
             </div>
           </AdminField>
 
-          <div className="mt-1 grid gap-3 rounded-[6px] border border-slate-200 bg-slate-50/60 p-3.5">
+          <div className="mt-1 grid gap-3 rounded-[6px] border border-soil/25 bg-surface-alt/50 p-3.5">
             <Controller
               control={control}
               name="canApprove"
               render={({ field }) => (
                 <label className="flex cursor-pointer items-center justify-between gap-3">
                   <span>
-                    <span className="block text-[13px] font-semibold text-slate-800">
+                    <span className="block text-[13px] font-semibold text-ink">
                       Can approve
                     </span>
-                    <span className="block text-[12px] text-slate-500">
+                    <span className="block text-[12px] text-soil">
                       May decide pending approval requests (delegated authority).
                     </span>
                   </span>
@@ -246,10 +246,10 @@ export function UserForm() {
               render={({ field }) => (
                 <label className="flex cursor-pointer items-center justify-between gap-3">
                   <span>
-                    <span className="block text-[13px] font-semibold text-slate-800">
+                    <span className="block text-[13px] font-semibold text-ink">
                       Financial visibility
                     </span>
-                    <span className="block text-[12px] text-slate-500">
+                    <span className="block text-[12px] text-soil">
                       May see prices, totals and profit across the console.
                     </span>
                   </span>

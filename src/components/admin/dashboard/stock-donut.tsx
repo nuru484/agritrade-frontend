@@ -18,7 +18,7 @@ export function StockDonut() {
 
   return (
     <AdminCard className="min-w-0 px-[18px] py-3.5">
-      <div className="mb-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-700">
+      <div className="mb-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-soil">
         Stock mix
       </div>
       <div className="flex flex-wrap items-center gap-4">
@@ -69,8 +69,8 @@ export function StockDonut() {
                 className="h-[9px] w-[9px] flex-none rounded-[2px]"
                 style={{ background: s.color }}
               />
-              <span className="flex-1 text-slate-700">{s.name}</span>
-              <Mono className="font-semibold text-slate-900">{s.pct}</Mono>
+              <span className="flex-1 text-soil">{s.name}</span>
+              <Mono className="font-semibold text-ink">{s.pct}</Mono>
             </div>
           ))}
         </div>

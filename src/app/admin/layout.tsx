@@ -17,15 +17,15 @@ const jetbrains = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Console · Nasara Agro",
-    template: "%s · Nasara Console",
+    default: "Console · DB Plus",
+    template: "%s · DB Plus Console",
   },
   // The console is private tooling — never indexed (robots.ts blocks /admin too).
   robots: { index: false, follow: false },
 };
 
 /**
- * The Nasara Console — its own chrome (no public header/footer), Meridian
+ * The DB Plus Console — its own chrome (no public header/footer), Meridian
  * fonts, slate UI. RequireAuth validates the session against GET /auth/me
  * before the console renders; the proxy's cookie gate is only the first,
  * cheap line of defence.
@@ -35,7 +35,7 @@ export default function AdminLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <div
-      className={`${hanken.variable} ${jetbrains.variable} font-admin min-h-screen bg-console-page text-[14px] leading-[1.5] text-slate-900 antialiased`}
+      className={`${hanken.variable} ${jetbrains.variable} font-admin min-h-screen bg-console-page text-[14px] leading-[1.5] text-ink antialiased`}
     >
       <RequireAuth>
         <AdminShell>{children}</AdminShell>

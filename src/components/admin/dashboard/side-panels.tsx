@@ -21,16 +21,16 @@ function avatarOf(name: string): { init: string; bg: string; fg: string } {
 export function StockByCommodity() {
   return (
     <AdminCard className="overflow-hidden">
-      <div className="border-b border-slate-100 px-4 py-3 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-700">
+      <div className="border-b border-soil/15 px-4 py-3 text-[11px] font-bold uppercase tracking-[0.1em] text-soil">
         Stock by commodity
       </div>
       {STOCK_BY_COMMODITY.map((s) => (
         <div
           key={s.name}
-          className="flex items-center justify-between gap-2.5 border-b border-slate-100 px-4 py-2.5 last:border-b-0"
+          className="flex items-center justify-between gap-2.5 border-b border-soil/15 px-4 py-2.5 last:border-b-0"
         >
-          <span className="text-[13px] text-slate-800">{s.name}</span>
-          <Mono className="text-[13px] font-semibold text-slate-900">{s.kg}</Mono>
+          <span className="text-[13px] text-ink">{s.name}</span>
+          <Mono className="text-[13px] font-semibold text-ink">{s.kg}</Mono>
         </div>
       ))}
     </AdminCard>
@@ -41,7 +41,7 @@ export function StockByCommodity() {
 export function AgentFloats() {
   return (
     <AdminCard className="overflow-hidden">
-      <div className="border-b border-slate-100 px-4 py-3 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-700">
+      <div className="border-b border-soil/15 px-4 py-3 text-[11px] font-bold uppercase tracking-[0.1em] text-soil">
         Agent floats
       </div>
       {AGENT_FLOATS.map((f) => {
@@ -49,7 +49,7 @@ export function AgentFloats() {
         return (
           <div
             key={f.name}
-            className="flex items-center justify-between gap-2.5 border-b border-slate-100 px-4 py-2.5 last:border-b-0"
+            className="flex items-center justify-between gap-2.5 border-b border-soil/15 px-4 py-2.5 last:border-b-0"
           >
             <div className="flex min-w-0 items-center gap-2">
               <span
@@ -60,7 +60,7 @@ export function AgentFloats() {
                 {av.init}
               </span>
               <div className="min-w-0">
-                <div className="overflow-hidden text-ellipsis whitespace-nowrap text-[13px] text-slate-800">
+                <div className="overflow-hidden text-ellipsis whitespace-nowrap text-[13px] text-ink">
                   {f.name}
                 </div>
                 {f.fronted ? (

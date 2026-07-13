@@ -44,10 +44,10 @@ export function ForgotPasswordForm() {
 
   if (sentTo) {
     return (
-      <div className="grid gap-3 text-[13.5px] leading-[1.65] text-slate-600">
+      <div className="grid gap-3 text-[13.5px] leading-[1.65] text-soil">
         <p>
           If an account exists for{" "}
-          <span className="font-semibold text-slate-900">{sentTo}</span>, a
+          <span className="font-semibold text-ink">{sentTo}</span>, a
           password-reset link is on its way. It expires in 30 minutes and can
           be used once.
         </p>
@@ -69,7 +69,7 @@ export function ForgotPasswordForm() {
         label="Email"
         type="email"
         autoComplete="email"
-        placeholder="you@nasara.com"
+        placeholder="you@dbplus.com"
         error={errors.email?.message}
         {...register("email")}
       />

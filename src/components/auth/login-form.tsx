@@ -61,7 +61,7 @@ export function LoginForm({ redirectTo, onChallenge }: LoginFormProps) {
         label="Email"
         type="email"
         autoComplete="email"
-        placeholder="you@nasara.com"
+        placeholder="you@dbplus.com"
         error={errors.email?.message}
         {...register("email")}
       />

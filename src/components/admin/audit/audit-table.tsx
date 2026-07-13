@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ScrollText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConsoleDataTable } from "@/components/admin/data-table";
 import {
@@ -50,7 +49,7 @@ const columnMeta = (opts?: { wide?: boolean }) => ({
     opts?.wide ? "hidden xl:table-cell" : "table-cell",
   ),
   headerClassName:
-    "h-[38px] whitespace-nowrap bg-slate-50 py-0 text-[10.5px] font-bold uppercase tracking-[0.09em] text-slate-500",
+    "h-[38px] whitespace-nowrap bg-surface-alt/70 py-0 text-[10.5px] font-bold uppercase tracking-[0.09em] text-soil",
 });
 
 /**
@@ -107,10 +106,10 @@ export function AuditTable() {
           const d = new Date(row.original.createdAt);
           return (
             <div className="whitespace-nowrap">
-              <div className="text-slate-800">
+              <div className="text-ink">
                 {d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}
               </div>
-              <Mono className="text-[11.5px] text-slate-400">
+              <Mono className="text-[11.5px] text-soil/70">
                 {d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
               </Mono>
             </div>
@@ -125,14 +124,14 @@ export function AuditTable() {
         cell: ({ row }) => {
           const actor = row.original.actor;
           if (!actor) {
-            return <span className="text-slate-400">System</span>;
+            return <span className="text-soil/70">System</span>;
           }
           return (
             <div className="min-w-0 max-w-[220px]">
-              <div className="truncate font-medium text-slate-900">
+              <div className="truncate font-medium text-ink">
                 {actor.name}
               </div>
-              <div className="truncate text-[11.5px] text-slate-400">
+              <div className="truncate text-[11.5px] text-soil/70">
                 {actor.email}
               </div>
             </div>
@@ -157,10 +156,10 @@ export function AuditTable() {
         meta: columnMeta({ wide: true }),
         cell: ({ row }) => (
           <div className="whitespace-nowrap">
-            <span className="text-slate-700">{row.original.entity}</span>
+            <span className="text-soil">{row.original.entity}</span>
             {row.original.entityId ? (
               <Mono
-                className="ml-1.5 text-[11px] text-slate-400"
+                className="ml-1.5 text-[11px] text-soil/70"
                 // Full id on hover; the cell shows a short handle.
               >
                 <span title={row.original.entityId}>
@@ -177,7 +176,7 @@ export function AuditTable() {
         enableSorting: false,
         meta: columnMeta({ wide: true }),
         cell: ({ row }) => (
-          <Mono className="whitespace-nowrap text-[12px] text-slate-500">
+          <Mono className="whitespace-nowrap text-[12px] text-soil">
             {row.original.ip ?? "—"}
           </Mono>
         ),
@@ -189,10 +188,10 @@ export function AuditTable() {
   return (
     <div>
       <div className="mb-3.5">
-        <h1 className="text-[22px] font-bold tracking-[-0.01em] text-slate-900">
+        <h1 className="text-[22px] font-bold tracking-[-0.01em] text-ink">
           Audit Log
         </h1>
-        <p className="mt-0.5 text-[13px] text-slate-500">
+        <p className="mt-0.5 text-[13px] text-soil">
           Every change, by whom, from where
         </p>
       </div>
@@ -240,7 +239,7 @@ export function AuditTable() {
       ) : logs.length === 0 ? (
         <AdminCard className="overflow-hidden">
           <EmptyState
-            icon={ScrollText}
+            variant="plain"
             title={
               search || activeFilterCount > 0
                 ? "No matching entries"

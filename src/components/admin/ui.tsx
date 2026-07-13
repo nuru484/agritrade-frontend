@@ -11,14 +11,15 @@ import { cn } from "@/lib/utils";
  * console look — screens compose these, never restyle shadcn directly.
  */
 
-/** The design's six status tones — used by chips, dots and timeline marks. */
+/** The design's six status tones — used by chips, dots and timeline marks.
+ * Drawn from the brand palette so chips read in-system on paper grounds. */
 export const TONES = {
-  sky: { fg: "#33587A", bg: "#E8EFF4", dot: "#3E6B8C" },
-  leaf: { fg: "#2F5E3D", bg: "#E6F0E9", dot: "#3E7A50" },
-  harvest: { fg: "#7A5407", bg: "#F7EED8", dot: "#B8860B" },
-  alert: { fg: "#8E2E24", bg: "#F8E9E7", dot: "#B03A2E" },
-  slate: { fg: "#4c5765", bg: "#eceff3", dot: "#9ba6b3" },
-  forest: { fg: "#1E3D2B", bg: "#E7EEE9", dot: "#1E3D2B" },
+  sky: { fg: "#33587A", bg: "#E7EDEA", dot: "#3E6B8C" },
+  leaf: { fg: "#2F5E3D", bg: "#E3EBDD", dot: "#3E7D62" },
+  harvest: { fg: "#7A611C", bg: "#F5ECD6", dot: "#D89C2E" },
+  alert: { fg: "#9B3A22", bg: "#F6E7E0", dot: "#9B3A22" },
+  slate: { fg: "#59523B", bg: "#E6EAE0", dot: "#A49B7E" },
+  forest: { fg: "#155744", bg: "#E1E9E0", dot: "#155744" },
 } as const;
 
 export type Tone = keyof typeof TONES;
@@ -52,7 +53,8 @@ export function ToneBadge({
   );
 }
 
-/** White console card — shadcn Card as a bare container (screens own padding). */
+/** Console card — shadcn Card worn as the site's filed document: paper
+ * sheet, soil border, hard offset shadow (screens own padding). */
 export function AdminCard({
   className,
   children,
@@ -63,7 +65,7 @@ export function AdminCard({
   return (
     <Card
       className={cn(
-        "block gap-0 rounded-[10px] border-slate-200 bg-white py-0 shadow-none",
+        "shadow-doc-sm block gap-0 rounded-none border-[1.5px] border-soil/30 bg-paper py-0",
         className,
       )}
     >
@@ -94,12 +96,12 @@ export function AdminPageHeader({
       <div className="min-w-0 max-w-full">
         <h1
           title={title}
-          className="truncate text-[19px] font-bold text-slate-900"
+          className="truncate text-[19px] font-bold text-forest"
         >
           {title}
         </h1>
         {sub ? (
-          <p className="mt-0.5 truncate text-[13px] text-slate-500" title={sub}>
+          <p className="mt-0.5 truncate text-[13px] text-soil" title={sub}>
             {sub}
           </p>
         ) : null}
@@ -137,24 +139,25 @@ export function AdminButton({
   return (
     <Button
       type="button"
+      // The base Button carries the site's button grammar; here we only map
+      // the console's semantic names onto it and pin the console density.
       variant={
-        variant === "secondary" || variant === "outline"
-          ? "outline"
-          : variant === "ghost"
-            ? "ghost"
-            : "default"
+        variant === "primary"
+          ? "harvest"
+          : variant === "secondary" || variant === "outline"
+            ? "outline"
+            : variant === "ghost"
+              ? "ghost"
+              : "default"
       }
       className={cn(
-        "h-9 gap-1.5 rounded-[6px] px-4 text-[13.5px] font-semibold shadow-none",
-        variant === "primary" && "bg-console text-white hover:bg-console-deep",
-        variant === "secondary" &&
-          "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-700",
+        "h-9 gap-1.5 px-4 text-[13.5px]",
         // Bordered but quiet: transparent until hovered — the Cancel shape.
         variant === "outline" &&
-          "border-slate-300 bg-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-700",
-        variant === "danger" && "bg-console-red text-white hover:bg-console-red-deep",
-        variant === "gold" && "bg-console-gold text-white hover:bg-console-gold-deep",
-        variant === "ghost" && "text-slate-600 hover:bg-slate-100 hover:text-slate-700",
+          "border-[1.5px] border-soil/35 text-soil shadow-none hover:translate-x-0 hover:translate-y-0 hover:bg-soil/5 hover:text-ink hover:shadow-none",
+        variant === "danger" &&
+          "bg-console-red text-white shadow-[2.5px_2.5px_0_rgb(31_33_28/0.3)] hover:translate-x-px hover:translate-y-px hover:bg-console-red-deep hover:shadow-[1px_1px_0_rgb(31_33_28/0.3)]",
+        variant === "gold" && "bg-console text-white hover:bg-console-deep",
         className,
       )}
       {...props}
@@ -162,7 +165,9 @@ export function AdminButton({
   );
 }
 
-/** Field label + control wrapper for console forms (shadcn Label inside). */
+/** Field label + control wrapper for console forms (shadcn Label inside),
+ * in the document idiom of the site's enquiry form: a stencil micro-cap
+ * label over the paper field, error/hint filed beneath. */
 export function AdminField({
   label,
   hint,
@@ -178,27 +183,26 @@ export function AdminField({
 }) {
   return (
     <Label className="block font-normal leading-normal">
-      <span className="mb-[5px] block text-[13px] font-semibold text-slate-700">
+      <span className="stencil mb-[7px] block text-[11px] uppercase tracking-[0.14em] text-harvest-deep">
         {label}
-        {optional ? (
-          <span className="font-normal text-slate-400"> (optional)</span>
-        ) : null}
+        {optional ? <span className="text-harvest-deep/70"> — optional</span> : null}
       </span>
       {children}
       {error ? (
-        <span role="alert" className="mt-1 block text-[12.5px] font-medium text-console-red">
+        <span role="alert" className="mt-1 block text-[12px] font-medium text-error">
           {error}
         </span>
       ) : hint ? (
-        <span className="mt-1 block text-[12.5px] font-normal text-slate-500">{hint}</span>
+        <span className="mt-1 block text-[12.5px] font-normal text-soil">{hint}</span>
       ) : null}
     </Label>
   );
 }
 
-/** Console control skin — layer onto shadcn Input/native selects so every
- * field matches the 38px slate box with the forest focus ring. */
+/** The one form-control skin (the enquiry form's document field): paper
+ * fill, 2px corners, 1.5px soil border, leaf focus glow, error border when
+ * invalid. Layer onto shadcn Input/native selects so every field matches. */
 export const adminInputClass =
-  "h-[38px] w-full rounded-[6px] border border-slate-300 bg-white px-2.5 text-[14px] font-normal text-slate-900 shadow-none outline-none placeholder:text-slate-300 focus:border-console focus:shadow-[0_0_0_3px_rgb(30_61_43/0.15)] focus-visible:border-console focus-visible:ring-0";
+  "h-[42px] w-full rounded-[2px] border-[1.5px] border-soil/35 bg-[#FBFCF7] px-3.5 text-[14px] font-normal text-ink shadow-none outline-none transition-[border-color,box-shadow] placeholder:text-soil/55 focus:border-leaf focus:shadow-[0_0_0_3px_rgb(62_125_98/0.16)] focus-visible:border-leaf focus-visible:ring-0 aria-invalid:border-error";
 
 export const adminSelectClass = cn(adminInputClass, "cursor-pointer");

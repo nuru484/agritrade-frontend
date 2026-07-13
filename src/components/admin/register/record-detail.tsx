@@ -45,7 +45,7 @@ function DeleteDialog({
       <DialogContent
         showCloseButton={false}
         overlayClassName="z-80 bg-[rgb(11_15_20/0.45)] supports-backdrop-filter:backdrop-blur-none"
-        className="font-admin z-81 block w-[min(420px,calc(100vw-32px))] max-w-none overflow-hidden rounded-[10px] bg-white p-0 text-slate-900 shadow-[0_12px_40px_rgb(11_15_20/0.18)] ring-0 sm:max-w-none"
+        className="font-admin z-81 block w-[min(420px,calc(100vw-32px))] max-w-none overflow-hidden rounded-none bg-paper p-0 text-ink shadow-[0_12px_40px_rgb(11_15_20/0.18)] ring-0 sm:max-w-none"
       >
         <div className="flex items-center gap-2.5 border-b border-[#E5C4BF] bg-[#F8E9E7] px-5 py-3.5">
           <span
@@ -59,11 +59,11 @@ function DeleteDialog({
           </DialogTitle>
         </div>
         <div className="px-5 py-4.5">
-          <DialogDescription className="text-[14px] leading-[1.55] text-slate-800">
+          <DialogDescription className="text-[14px] leading-[1.55] text-ink">
             This permanently removes <strong>{refText}</strong> from {registerTitle}. Linked
             records keep their history in the audit log.
           </DialogDescription>
-          <label className="mt-3.5 flex cursor-pointer items-start gap-2 text-[13px] text-slate-700">
+          <label className="mt-3.5 flex cursor-pointer items-start gap-2 text-[13px] text-soil">
             <Checkbox
               checked={checked}
               onCheckedChange={(next) => setChecked(next === true)}
@@ -72,7 +72,7 @@ function DeleteDialog({
             <span>I understand this cannot be undone.</span>
           </label>
         </div>
-        <DialogFooter className="mx-0 mb-0 flex-row justify-end gap-2 rounded-none border-t border-slate-100 bg-slate-50/60 px-5 py-3.5">
+        <DialogFooter className="mx-0 mb-0 flex-row justify-end gap-2 rounded-none border-t border-soil/15 bg-surface-alt/50 px-5 py-3.5">
           <AdminButton variant="secondary" onClick={onCancel}>
             Cancel
           </AdminButton>
@@ -148,12 +148,12 @@ export function RecordDetail({
             ) : null}
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2.5">
-                <h1 className="text-[20px] font-bold tracking-[-0.01em] text-slate-900">
+                <h1 className="text-[20px] font-bold tracking-[-0.01em] text-ink">
                   {register.single} — {refText}
                 </h1>
                 {tag ? <ToneBadge tone={tag.tone}>{tag.t}</ToneBadge> : null}
               </div>
-              <p className="mt-1 text-[12.5px] text-slate-500">{register.sub}</p>
+              <p className="mt-1 text-[12.5px] text-soil">{register.sub}</p>
             </div>
           </div>
           {!register.readOnly ? (
@@ -176,12 +176,12 @@ export function RecordDetail({
         </div>
         {figs.length > 0 ? (
           <div
-            className="mt-4 grid gap-3 border-t border-slate-100 pt-4"
+            className="mt-4 grid gap-3 border-t border-soil/15 pt-4"
             style={{ gridTemplateColumns: `repeat(${figs.length}, minmax(0, 1fr))` }}
           >
             {figs.map((fig) => (
               <div key={fig.label}>
-                <div className="mb-1 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-slate-500">
+                <div className="mb-1 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-soil">
                   {fig.label}
                 </div>
                 <Mono className="text-[19px] font-bold whitespace-nowrap">
@@ -195,16 +195,16 @@ export function RecordDetail({
 
       <div className="flex max-w-[720px] flex-col gap-4">
         <AdminCard className="px-5 py-3.5">
-          <div className="mb-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-700">
+          <div className="mb-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-soil">
             Record
           </div>
           {fields.map((field) => (
             <div
               key={field.label}
-              className="flex justify-between gap-3 border-b border-slate-50 py-1.5 text-[13px] last:border-0"
+              className="flex justify-between gap-3 border-b border-soil/10 py-1.5 text-[13px] last:border-0"
             >
-              <span className="text-slate-500">{field.label}</span>
-              <span className="text-right font-medium tabular-nums text-slate-800">
+              <span className="text-soil">{field.label}</span>
+              <span className="text-right font-medium tabular-nums text-ink">
                 {field.value}
               </span>
             </div>
@@ -213,10 +213,10 @@ export function RecordDetail({
 
         {register.ledger ? (
           <AdminCard className="overflow-hidden">
-            <div className="border-b border-slate-100 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-700">
+            <div className="border-b border-soil/15 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.1em] text-soil">
               {register.ledger.title}
             </div>
-            <div className="grid h-8 grid-cols-[96px_1fr_auto] items-center gap-3 border-b border-slate-200 bg-slate-50 px-5 text-[10px] font-bold uppercase tracking-[0.09em] text-slate-500 md:grid-cols-[96px_1fr_auto_auto]">
+            <div className="grid h-8 grid-cols-[96px_1fr_auto] items-center gap-3 border-b border-soil/25 bg-surface-alt/70 px-5 text-[10px] font-bold uppercase tracking-[0.09em] text-soil md:grid-cols-[96px_1fr_auto_auto]">
               <span>Date</span>
               <span>Description</span>
               <span className="text-right">Amount</span>
@@ -225,14 +225,14 @@ export function RecordDetail({
             {register.ledger.rows.map((entry) => (
               <div
                 key={`${entry.date}-${entry.desc}`}
-                className="grid h-[42px] grid-cols-[96px_1fr_auto] items-center gap-3 border-b border-slate-100 px-5 text-[13px] last:border-0 md:grid-cols-[96px_1fr_auto_auto]"
+                className="grid h-[42px] grid-cols-[96px_1fr_auto] items-center gap-3 border-b border-soil/15 px-5 text-[13px] last:border-0 md:grid-cols-[96px_1fr_auto_auto]"
               >
-                <span className="whitespace-nowrap text-slate-600">{entry.date}</span>
-                <span className="truncate text-slate-800">{entry.desc}</span>
+                <span className="whitespace-nowrap text-soil">{entry.date}</span>
+                <span className="truncate text-ink">{entry.desc}</span>
                 <Mono className="text-right font-semibold whitespace-nowrap">
                   <span style={{ color: entry.amtColor }}>{entry.amount}</span>
                 </Mono>
-                <Mono className="hidden text-right whitespace-nowrap text-slate-500 md:block">
+                <Mono className="hidden text-right whitespace-nowrap text-soil md:block">
                   {entry.after}
                 </Mono>
               </div>

@@ -60,19 +60,19 @@ export function RoleChangeDialog({
 
   return (
     <Dialog open={open} onOpenChange={close}>
-      <DialogContent className="max-w-[400px] border-slate-200 p-5">
+      <DialogContent className="max-w-[400px] border-soil/25 p-5">
         <DialogHeader>
-          <DialogTitle className="text-[15px] font-bold text-slate-900">
+          <DialogTitle className="text-[15px] font-bold text-ink">
             Change role — {user.firstName} {user.lastName}
           </DialogTitle>
-          <DialogDescription className="text-[12.5px] leading-[1.55] text-slate-500">
+          <DialogDescription className="text-[12.5px] leading-[1.55] text-soil">
             The user is signed out everywhere and their access changes the
             moment they sign back in.
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-1 py-1">
-          <span className="text-[10.5px] font-bold uppercase tracking-[0.08em] text-slate-400">
+          <span className="text-[10.5px] font-bold uppercase tracking-[0.08em] text-soil/70">
             Access level
           </span>
           <Select value={role} onValueChange={(v) => setRole(v as UserRole)}>

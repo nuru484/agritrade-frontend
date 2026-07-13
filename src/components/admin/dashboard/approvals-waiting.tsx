@@ -9,8 +9,8 @@ const APPROVALS_HREF = `${ADMIN_HOME}/approvals`;
 export function ApprovalsWaiting() {
   return (
     <AdminCard className="overflow-hidden">
-      <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-        <div className="text-[11px] font-bold uppercase tracking-[0.1em] text-slate-700">
+      <div className="flex items-center justify-between border-b border-soil/15 px-4 py-3">
+        <div className="text-[11px] font-bold uppercase tracking-[0.1em] text-soil">
           Approvals waiting
         </div>
         <Link
@@ -24,7 +24,7 @@ export function ApprovalsWaiting() {
         <Link
           key={a.summary}
           href={APPROVALS_HREF}
-          className="block border-b border-slate-100 px-4 py-[11px] last:border-b-0 hover:bg-slate-50"
+          className="block border-b border-soil/15 px-4 py-[11px] last:border-b-0 hover:bg-surface-alt/70"
         >
           <div className="mb-[5px] flex items-center justify-between gap-2.5">
             <ToneBadge
@@ -33,14 +33,14 @@ export function ApprovalsWaiting() {
             >
               {a.kind}
             </ToneBadge>
-            <Mono className="whitespace-nowrap text-[13px] font-semibold text-slate-900">
+            <Mono className="whitespace-nowrap text-[13px] font-semibold text-ink">
               {a.amount}
             </Mono>
           </div>
-          <div className="overflow-hidden text-ellipsis whitespace-nowrap text-[13px] text-slate-800">
+          <div className="overflow-hidden text-ellipsis whitespace-nowrap text-[13px] text-ink">
             {a.summary}
           </div>
-          <div className="text-[11.5px] text-slate-500">{a.who}</div>
+          <div className="text-[11.5px] text-soil">{a.who}</div>
         </Link>
       ))}
     </AdminCard>

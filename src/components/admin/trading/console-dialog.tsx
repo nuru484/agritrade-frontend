@@ -27,7 +27,7 @@ export function ConsoleDialog({
         showCloseButton={false}
         overlayClassName="z-[80] bg-[rgba(11,15,20,0.45)] supports-backdrop-filter:backdrop-blur-none"
         className={cn(
-          "z-[81] block w-[calc(100vw-32px)] gap-0 overflow-hidden rounded-[10px] bg-white p-0 font-admin leading-[1.5] text-slate-900 shadow-[0_12px_40px_rgba(11,15,20,0.18)] ring-0 outline-none",
+          "z-[81] block w-[calc(100vw-32px)] gap-0 overflow-hidden rounded-none bg-paper p-0 font-admin leading-[1.5] text-ink shadow-[0_12px_40px_rgba(11,15,20,0.18)] ring-0 outline-none",
           widthClass,
         )}
       >
@@ -82,7 +82,7 @@ export function ConsoleDialogBanner({
 /** Right-aligned footer on the gray-25 strip. */
 export function ConsoleDialogFooter({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-wrap justify-end gap-2 border-t border-slate-100 bg-slate-50/60 px-5 py-3.5">
+    <div className="flex flex-wrap justify-end gap-2 border-t border-soil/15 bg-surface-alt/50 px-5 py-3.5">
       {children}
     </div>
   );

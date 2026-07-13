@@ -49,25 +49,25 @@ function VoidDialogBody({
         Void purchase {purchase.ref}
       </ConsoleDialogBanner>
       <div className="px-5 py-[18px]">
-        <p className="text-[14px] leading-[1.55] text-slate-800">
+        <p className="text-[14px] leading-[1.55] text-ink">
           This reverses <Mono className="font-bold">{formatCedis(purchaseTotal(purchase))}</Mono> back to{" "}
           {purchase.agent.split(" ")[0]}&apos;s float and removes the stock from Main Warehouse. The record stays in
           the register, struck through.
         </p>
         <label className="mt-3.5 block">
-          <span className="mb-[5px] block text-[13px] font-semibold text-slate-700">Reason</span>
+          <span className="mb-[5px] block text-[13px] font-semibold text-soil">Reason</span>
           <Input
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder="e.g. duplicate entry"
-            className={cn(adminInputClass, "dark:bg-white")}
+            className={cn(adminInputClass, "dark:bg-paper")}
           />
         </label>
-        <label className="mt-3.5 flex cursor-pointer items-start gap-[9px] text-[13px] text-slate-700">
+        <label className="mt-3.5 flex cursor-pointer items-start gap-[9px] text-[13px] text-soil">
           <Checkbox
             checked={checked}
             onCheckedChange={(v) => setChecked(v === true)}
-            className="mt-0.5 size-[15px] rounded-[3px] border-slate-400 bg-white data-checked:border-console-red data-checked:bg-console-red data-checked:text-white dark:bg-white dark:data-checked:bg-console-red"
+            className="mt-0.5 size-[15px] rounded-[3px] border-soil/50 bg-paper data-checked:border-console-red data-checked:bg-console-red data-checked:text-white dark:bg-paper dark:data-checked:bg-console-red"
           />
           <span>I understand this cannot be undone from this screen.</span>
         </label>

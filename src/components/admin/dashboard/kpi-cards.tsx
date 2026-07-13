@@ -25,20 +25,20 @@ export function KpiCards() {
         <Link
           key={k.label}
           href={k.href}
-          className="rounded-lg border border-slate-200 bg-white px-4 py-3.5 hover:border-slate-300"
+          className="rounded-none border-[1.5px] border border-soil/25 bg-paper px-4 py-3.5 hover:border-soil/35"
         >
-          <div className="mb-2 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-slate-500">
+          <div className="mb-2 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-soil">
             {k.label}
           </div>
           <Mono
             className={cn(
               "block whitespace-nowrap text-[22px] font-bold tracking-[-0.02em]",
-              k.alert ? "text-console-red" : "text-slate-900",
+              k.alert ? "text-console-red" : "text-ink",
             )}
           >
             {k.value}
           </Mono>
-          <div className="mt-1 text-[12px] text-slate-500">{k.sub}</div>
+          <div className="mt-1 text-[12px] text-soil">{k.sub}</div>
           <svg
             viewBox="0 0 120 26"
             preserveAspectRatio="none"

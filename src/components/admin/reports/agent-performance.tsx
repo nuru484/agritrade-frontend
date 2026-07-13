@@ -8,12 +8,12 @@ const gridCols =
 /** Agent performance — Jun 2026: buys, volume, avg price and spend. */
 export function AgentPerformance() {
   return (
-    <AdminCard className="overflow-hidden rounded-lg">
-      <div className="border-b border-slate-100 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-700">
+    <AdminCard className="overflow-hidden">
+      <div className="border-b border-soil/15 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.1em] text-soil">
         Agent performance — Jun 2026
       </div>
       <div
-        className={`${gridCols} h-8 border-b border-slate-200 bg-slate-50 text-[10px] font-bold uppercase tracking-[0.09em] text-slate-500`}
+        className={`${gridCols} h-8 border-b border-soil/25 bg-surface-alt/70 text-[10px] font-bold uppercase tracking-[0.09em] text-soil`}
       >
         <span>Agent</span>
         <span className="text-right">Buys</span>
@@ -24,17 +24,17 @@ export function AgentPerformance() {
       {AGENT_PERFORMANCE.map((a) => (
         <div
           key={a.name}
-          className={`${gridCols} h-[42px] border-b border-slate-100 text-[13px] last:border-b-0`}
+          className={`${gridCols} h-[42px] border-b border-soil/15 text-[13px] last:border-b-0`}
         >
-          <span className="overflow-hidden text-ellipsis whitespace-nowrap text-slate-800">
+          <span className="overflow-hidden text-ellipsis whitespace-nowrap text-ink">
             {a.name}
           </span>
-          <Mono className="text-right text-slate-600">{a.buys}</Mono>
-          <Mono className="whitespace-nowrap text-right text-slate-800">{a.kg}</Mono>
-          <Mono className="hidden whitespace-nowrap text-right text-slate-600 sm:block">
+          <Mono className="text-right text-soil">{a.buys}</Mono>
+          <Mono className="whitespace-nowrap text-right text-ink">{a.kg}</Mono>
+          <Mono className="hidden whitespace-nowrap text-right text-soil sm:block">
             {a.avg}
           </Mono>
-          <Mono className="whitespace-nowrap text-right font-semibold text-slate-900">
+          <Mono className="whitespace-nowrap text-right font-semibold text-ink">
             {a.spent}
           </Mono>
         </div>

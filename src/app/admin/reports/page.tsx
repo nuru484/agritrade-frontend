@@ -18,9 +18,9 @@ function FilterChip({ k, v }: { k: string; v: string }) {
   return (
     <AdminButton
       variant="secondary"
-      className="h-8 cursor-pointer gap-1.5 border-slate-200 px-2.5 text-[13px] font-normal whitespace-nowrap text-slate-700 hover:border-slate-300 hover:bg-white hover:text-slate-700"
+      className="h-8 cursor-pointer gap-1.5 border-soil/25 px-2.5 text-[13px] font-normal whitespace-nowrap text-soil hover:border-soil/35 hover:bg-paper hover:text-soil"
     >
-      <span className="text-slate-400">{k}:</span>
+      <span className="text-soil/70">{k}:</span>
       <span className="font-semibold">{v}</span>
       <svg className="size-[9px]" width="9" height="9" viewBox="0 0 10 10" fill="none" aria-hidden="true">
         <path
@@ -66,7 +66,7 @@ export default function AdminReportsPage() {
         <CommodityBars />
       </div>
 
-      <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-[#EAD9AE] bg-[#F7EED8] px-3.5 py-3 text-[13px] text-[#7A5407]">
+      <div className="mb-4 flex items-start gap-2.5 rounded-none border border-[#EAD9AE] bg-[#F7EED8] px-3.5 py-3 text-[13px] text-[#7A5407]">
         <span className="font-bold" aria-hidden="true">
           ⚠
         </span>

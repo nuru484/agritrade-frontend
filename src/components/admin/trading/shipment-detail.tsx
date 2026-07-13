@@ -22,11 +22,11 @@ import { ActivityTimeline, BackLink, MetaList, SectionLabel, StatusChip } from "
 import { ConsoleDialog, ConsoleDialogBanner, ConsoleDialogFooter } from "./console-dialog";
 
 /** Lot statement header cell — pinned to the console's exact grid sizes. */
-const lotHeadClass = "h-8 py-0 text-[10px] font-bold uppercase tracking-[0.09em] text-slate-500";
+const lotHeadClass = "h-8 py-0 text-[10px] font-bold uppercase tracking-[0.09em] text-soil";
 
 function Stepper({ currentStep }: { currentStep: number }) {
   return (
-    <div className="mt-5 flex items-start overflow-x-auto border-t border-slate-100 pt-4">
+    <div className="mt-5 flex items-start overflow-x-auto border-t border-soil/15 pt-4">
       {SHIPMENT_STEPS.map((label, i) => {
         const done = i < currentStep;
         const current = i === currentStep;
@@ -91,13 +91,13 @@ export function ShipmentDetail({ detail }: { detail: ShipmentDetailPayload }) {
         <div className="flex flex-wrap items-start justify-between gap-3.5">
           <div>
             <div className="flex flex-wrap items-center gap-2.5">
-              <h1 className="text-[20px] font-bold tracking-[-0.01em] text-slate-900">
+              <h1 className="text-[20px] font-bold tracking-[-0.01em] text-ink">
                 Shipment <Mono>{row.ref}</Mono> — {row.route}
               </h1>
               <StatusChip tone={row.tone}>{row.status}</StatusChip>
               {awaiting ? <StatusChip tone="harvest">Awaiting approval</StatusChip> : null}
             </div>
-            <div className="mt-1 text-[12.5px] text-slate-500">
+            <div className="mt-1 text-[12.5px] text-soil">
               {detail.saleRef ? (
                 <>
                   For Sale{" "}
@@ -145,12 +145,12 @@ export function ShipmentDetail({ detail }: { detail: ShipmentDetailPayload }) {
 
           {/* Lot allocation */}
           <AdminCard className="overflow-hidden rounded-[8px]">
-            <div className="border-b border-slate-100 px-5 py-3">
+            <div className="border-b border-soil/15 px-5 py-3">
               <SectionLabel>Lot allocation</SectionLabel>
             </div>
             <Table className="table-fixed text-[13px]">
               <TableHeader>
-                <TableRow className="border-slate-200 bg-slate-50 hover:bg-slate-50">
+                <TableRow className="border-soil/25 bg-surface-alt/70 hover:bg-surface-alt/70">
                   <TableHead className={cn(lotHeadClass, "w-[112px] pl-5 pr-1.5 xl:w-[118px]")}>Lot</TableHead>
                   <TableHead className={cn(lotHeadClass, "hidden px-1.5 xl:table-cell xl:w-[102px]")}>
                     Origin purchase
@@ -165,18 +165,18 @@ export function ShipmentDetail({ detail }: { detail: ShipmentDetailPayload }) {
               </TableHeader>
               <TableBody className="[&_tr:last-child]:border-b">
                 {detail.lots.map((lot) => (
-                  <TableRow key={lot.ref} className="h-[42px] border-slate-100 hover:bg-transparent">
+                  <TableRow key={lot.ref} className="h-[42px] border-soil/15 hover:bg-transparent">
                     <TableCell className="py-0 pl-5 pr-1.5">
-                      <Mono className="text-[12.5px] font-semibold text-slate-800">{lot.ref}</Mono>
+                      <Mono className="text-[12.5px] font-semibold text-ink">{lot.ref}</Mono>
                     </TableCell>
                     <TableCell className="hidden px-1.5 py-0 xl:table-cell">
-                      <Mono className="text-[12.5px] text-slate-600">{lot.origin}</Mono>
+                      <Mono className="text-[12.5px] text-soil">{lot.origin}</Mono>
                     </TableCell>
                     <TableCell className="whitespace-nowrap px-1.5 py-0 text-right">
-                      <Mono className="text-slate-800">{lot.loaded}</Mono>
+                      <Mono className="text-ink">{lot.loaded}</Mono>
                     </TableCell>
                     <TableCell className="whitespace-nowrap px-1.5 py-0 text-right">
-                      <Mono className={cn("font-semibold", lot.estimated ? "text-[#7A5407]" : "text-slate-900")}>
+                      <Mono className={cn("font-semibold", lot.estimated ? "text-[#7A5407]" : "text-ink")}>
                         {lot.cost}
                       </Mono>
                     </TableCell>
@@ -197,8 +197,8 @@ export function ShipmentDetail({ detail }: { detail: ShipmentDetailPayload }) {
                 ))}
               </TableBody>
             </Table>
-            <div className="flex justify-between bg-slate-50/60 px-5 py-[11px] text-[13px]">
-              <span className="font-semibold text-slate-700">Total loaded</span>
+            <div className="flex justify-between bg-surface-alt/50 px-5 py-[11px] text-[13px]">
+              <span className="font-semibold text-soil">Total loaded</span>
               <Mono className="font-bold">
                 {detail.totalLoadedKg.toLocaleString("en-GH")} kg · {detail.totalLoadedCost}
               </Mono>
@@ -214,7 +214,7 @@ export function ShipmentDetail({ detail }: { detail: ShipmentDetailPayload }) {
                 <div
                   key={label}
                   className={cn(
-                    "flex h-24 items-center justify-center rounded-[6px] border border-dashed border-slate-200 bg-slate-50 px-2 text-center text-[11.5px] text-slate-400",
+                    "flex h-24 items-center justify-center rounded-[6px] border border-dashed border-soil/25 bg-surface-alt/70 px-2 text-center text-[11.5px] text-soil/70",
                     i === 2 ? "col-span-full" : detail.photoSlots.length === 1 ? "col-span-full" : undefined,
                   )}
                 >
@@ -222,7 +222,7 @@ export function ShipmentDetail({ detail }: { detail: ShipmentDetailPayload }) {
                 </div>
               ))}
             </div>
-            <div className="mt-2 text-[11.5px] text-slate-500">
+            <div className="mt-2 text-[11.5px] text-soil">
               Photos are captured by the agent at loading and attach to the waybill.
             </div>
           </AdminCard>
@@ -244,24 +244,24 @@ export function ShipmentDetail({ detail }: { detail: ShipmentDetailPayload }) {
             Payment milestone not met
           </ConsoleDialogBanner>
           <div className="px-5 py-[18px]">
-            <div className="text-[14px] leading-[1.55] text-slate-800">
+            <div className="text-[14px] leading-[1.55] text-ink">
               Dispatching {row.ref} requires <strong>{gate.requiredPct}% payment</strong> on Sale {gate.saleRef}.
             </div>
-            <div className="mt-3 rounded-[8px] border border-slate-200 bg-slate-50 px-3.5 py-3">
+            <div className="mt-3 rounded-[8px] border border-soil/25 bg-surface-alt/70 px-3.5 py-3">
               <div className="flex justify-between py-[3px] text-[13px]">
-                <span className="text-slate-500">Paid so far</span>
+                <span className="text-soil">Paid so far</span>
                 <Mono className="font-semibold">{formatCedis(gate.paidCedis)}</Mono>
               </div>
               <div className="flex justify-between py-[3px] text-[13px]">
-                <span className="text-slate-500">Required ({gate.requiredPct}%)</span>
+                <span className="text-soil">Required ({gate.requiredPct}%)</span>
                 <Mono className="font-semibold">{formatCedis(gate.requiredCedis)}</Mono>
               </div>
-              <div className="mt-1 flex justify-between border-t border-slate-200 pb-[3px] pt-[7px] text-[13px]">
+              <div className="mt-1 flex justify-between border-t border-soil/25 pb-[3px] pt-[7px] text-[13px]">
                 <span className="font-semibold text-[#7A5407]">Shortfall</span>
                 <Mono className="font-bold text-[#7A5407]">{formatCedis(gate.requiredCedis - gate.paidCedis)}</Mono>
               </div>
             </div>
-            <div className="mt-3 text-[13px] text-slate-500">
+            <div className="mt-3 text-[13px] text-soil">
               Proceeding sends this dispatch to the owner for approval. The truck stays at the warehouse until it is
               approved.
             </div>

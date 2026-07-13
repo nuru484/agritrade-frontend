@@ -67,10 +67,10 @@ export function CashflowChart() {
   return (
     <AdminCard className="min-w-0 px-[18px] py-3.5">
       <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2.5">
-        <div className="text-[11px] font-bold uppercase tracking-[0.1em] text-slate-700">
+        <div className="text-[11px] font-bold uppercase tracking-[0.1em] text-soil">
           Cash flow — last 30 days
         </div>
-        <div className="flex flex-wrap gap-3.5 text-[11.5px] text-slate-500">
+        <div className="flex flex-wrap gap-3.5 text-[11.5px] text-soil">
           <LegendSwatch color="#3E7A50" label="Sales received" />
           <LegendSwatch color="#3E6B8C" label="Purchases paid" />
           <LegendSwatch dashed label="Trend" />
@@ -97,7 +97,7 @@ export function CashflowChart() {
         <polyline points={lineOut} fill="none" stroke="#3E6B8C" strokeWidth="2" strokeLinejoin="round" />
         <polyline points={lineIn} fill="none" stroke="#3E7A50" strokeWidth="2.5" strokeLinejoin="round" />
       </svg>
-      <div className="mt-1.5 flex justify-between text-[11px] tabular-nums text-slate-400">
+      <div className="mt-1.5 flex justify-between text-[11px] tabular-nums text-soil/70">
         {xLabels.map((label) => (
           <span key={label}>{label}</span>
         ))}
