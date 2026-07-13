@@ -130,8 +130,8 @@ function NavbarUser() {
         >
           <UserAvatar size={32} />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-60 border-slate-200 p-0">
-          <div className="flex items-center gap-2.5 border-b border-slate-100 px-3.5 py-3">
+        <DropdownMenuContent align="end" className="w-60">
+          <div className="flex items-center gap-2.5 border-b border-dotted border-soil/40 px-3.5 py-3">
             <UserAvatar size={38} />
             <div className="min-w-0 flex-1">
               <div className="truncate text-[13px] font-semibold text-slate-800">
@@ -145,7 +145,7 @@ function NavbarUser() {
               </div>
             </div>
           </div>
-          <div className="p-1">
+          <div>
             <DropdownMenuItem
               className="cursor-pointer gap-2 text-[13px]"
               onClick={() => router.push(`${ADMIN_HOME}/profile`)}

@@ -145,7 +145,7 @@ export function UserActionsDropdown({ user }: { user: IUser }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
-          className="w-52 border-slate-200"
+          className="w-52"
           onClick={(e) => e.stopPropagation()}
         >
           <DropdownMenuLabel

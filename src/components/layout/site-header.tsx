@@ -26,14 +26,14 @@ import { cn } from "@/lib/utils";
 function BrandMark() {
   return (
     <Link href={routes.home} className="flex items-center gap-3">
-      <span className="stencil grid h-9 w-9 shrink-0 place-items-center rounded-[3px] border-[2.5px] border-forest text-[16px] text-forest shadow-block-sm">
-        N
+      <span className="stencil grid h-9 w-9 shrink-0 place-items-center rounded-[3px] border-[2.5px] border-forest text-[12px] tracking-[0.02em] text-forest shadow-block-sm">
+        DB
       </span>
       {/* Ultra-narrow screens (Galaxy Fold, ~280px) get the plate alone — the
           wordmark would crowd the MENU button. */}
       <span className="hidden flex-col min-[360px]:flex">
         <span className="font-display text-[17px] font-bold leading-[1.1] tracking-[0.04em] text-forest lg:text-[19px]">
-          NASARA AGRO
+          DB PLUS
         </span>
         <span className="stencil text-[8px] leading-none tracking-[0.3em] text-harvest-deep lg:text-[9px]">
           TRADING · TAMALE
@@ -91,10 +91,9 @@ export function SiteHeader() {
                     <ChevronDown aria-hidden="true" className="size-2.5 self-center" strokeWidth={3.2} />
                   </DropdownMenuTrigger>
                 )}
-                <DropdownMenuContent
-                  align="start"
-                  className="min-w-[236px] rounded-none border-0 border-t-[1.5px] border-b-[3px] border-t-soil/50 border-b-forest bg-surface p-0 shadow-[0_18px_36px_rgb(31_33_28/0.3)]"
-                >
+                {/* The plate chrome lives on the base DropdownMenuContent now —
+                    every dropdown in the app wears this same services skin. */}
+                <DropdownMenuContent align="start" className="min-w-[236px]">
                   <DropdownMenuLabel className="stencil px-4 pb-1 pt-3 text-[9px] tracking-[0.26em] text-harvest-deep">
                     SERVICES
                   </DropdownMenuLabel>
