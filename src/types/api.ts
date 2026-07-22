@@ -2,7 +2,18 @@
  * The single tag registry for the RTK Query api-slice. Every feature file
  * pulls tag names from here so invalidation can never typo a tag.
  */
-export const apiSliceTags = ["AuditLogs", "Enquiries", "Sales", "Users"] as const;
+export const apiSliceTags = [
+  "AuditLogs",
+  "Buyers",
+  "Commodities",
+  "Enquiries",
+  "ExpenseCategories",
+  "Sales",
+  "Settings",
+  "Suppliers",
+  "Users",
+  "Warehouses",
+] as const;
 
 export type ApiSliceTag = (typeof apiSliceTags)[number];
 

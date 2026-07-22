@@ -82,9 +82,7 @@ export type RegisterSlug =
   | "seasons"
   | "farmers"
   | "grants"
-  | "repayments"
-  | "suppliers"
-  | "buyers";
+  | "repayments";
 
 export const REGISTERS: Record<RegisterSlug, RegisterConfig & { rows: RegisterRow[] }> = {
   stock: {
@@ -344,59 +342,9 @@ export const REGISTERS: Record<RegisterSlug, RegisterConfig & { rows: RegisterRo
       ["R-1190", "Memunatu Iddrisu", "20 Jun 2026", "Cash at office", "GH₵ 400.00", { t: "Pending", tone: "harvest" }],
     ],
   },
-  suppliers: {
-    avatar: true,
-    title: "Suppliers",
-    sub: "Farmers, aggregators and co-ops we buy from",
-    single: "Supplier",
-    add: "+ Add supplier",
-    search: "Search supplier…",
-    filters: ["Location", "Status"],
-    newTag: { t: "Active", tone: "leaf" },
-    headers: [
-      { l: "Supplier" },
-      { l: "Location" },
-      { l: "Phone", wide: true },
-      { l: "Buys YTD", align: "right" },
-      { l: "Total bought", align: "right", money: true },
-      { l: "Status", tag: true },
-    ],
-    figs: [3, 4],
-    ledger: null,
-    rows: [
-      ["Alhassan Grains", "Savelugu", "024 909 1187", "22", "GH₵ 268,400", { t: "Active", tone: "leaf" }],
-      ["Tia Farms", "Kumbungu", "020 334 5521", "14", "GH₵ 152,800", { t: "Active", tone: "leaf" }],
-      ["Kukuo Women’s Co-op", "Kukuo", "055 667 0043", "11", "GH₵ 84,200", { t: "Active", tone: "leaf" }],
-      ["Fati Alhassan", "Walewale", "026 812 7754", "9", "GH₵ 96,300", { t: "Active", tone: "leaf" }],
-      ["Nyohini Traders", "Tamale", "024 210 8876", "3", "GH₵ 32,265", { t: "Inactive", tone: "slate" }],
-    ],
-  },
-  buyers: {
-    avatar: true,
-    title: "Buyers",
-    sub: "Companies and traders we sell to",
-    single: "Buyer",
-    add: "+ Add buyer",
-    search: "Search buyer…",
-    filters: ["Location", "Status"],
-    newTag: { t: "Prospect", tone: "sky" },
-    headers: [
-      { l: "Buyer" },
-      { l: "Location", wide: true },
-      { l: "Sales YTD", align: "right" },
-      { l: "Revenue", align: "right", money: true },
-      { l: "Balance due", align: "right", money: true },
-      { l: "Status", tag: true },
-    ],
-    figs: [3, 4],
-    ledger: null,
-    rows: [
-      ["Premium Foods Ltd", "Tema", "6", "GH₵ 412,000", { t: "GH₵ 80,000", c: "#B03A2E", w: 600 }, { t: "Active", tone: "leaf" }],
-      ["Ghana Nuts Co.", "Techiman", "4", "GH₵ 234,600", "GH₵ 0", { t: "Active", tone: "leaf" }],
-      ["Avnash Industries", "Tamale", "3", "GH₵ 188,000", { t: "GH₵ 62,900", c: "#B03A2E", w: 600 }, { t: "Active", tone: "leaf" }],
-      ["Wilmar Ghana", "Tema", "1", "GH₵ 79,900", "GH₵ 0", { t: "Prospect", tone: "sky" }],
-    ],
-  },
+  // `suppliers` and `buyers` retired from the stub registers: both are now
+  // live, backend-driven modules (src/app/admin/{suppliers,buyers} +
+  // components/admin/registry).
   // `users` retired from the stub registers: /admin/users is now a live,
   // backend-driven module (src/app/admin/users + components/admin/users).
   // `audit` retired from the stub registers: /admin/audit is now a live,

@@ -1,31 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import {
   AdminButton,
   AdminCard,
   AdminField,
   AdminPageHeader,
   adminInputClass,
-  adminSelectClass,
 } from "@/components/admin/ui";
-import { AdminToggle } from "@/components/admin/toggle";
+import { DataTableSkeleton } from "@/components/ui/DataTableSkeleton";
+import { ErrorMessage } from "@/components/ui/ErrorMessage";
+import {
+  useGetSettingsQuery,
+  useUpdateSettingsMutation,
+} from "@/redux/settings/settings-api";
+import { extractApiError } from "@/lib/extract-api-error";
 import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
-
-const TOGGLE_LABELS = [
-  "Require approval for voids and cancellations",
-  "Hide money columns for office staff by default",
-  "Require photo on agent purchases",
-] as const;
+import type {
+  ISystemSettings,
+  IUpdateSettingsInput,
+  SettingKey,
+} from "@/types/settings.types";
+import {
+  settingsSchema,
+  type SettingsValues,
+} from "@/validations/settings-schema";
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -35,27 +38,11 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** Bordered number input with a unit addon (% suffix / GH₵ prefix). */
-function UnitInput({
-  unit,
-  side,
+/** Bordered number input with a GH₵ prefix addon (console money idiom). */
+function GhsInput({
   error,
   ...props
-}: React.InputHTMLAttributes<HTMLInputElement> & {
-  unit: string;
-  side: "prefix" | "suffix";
-  error?: boolean;
-}) {
-  const addon = (
-    <span
-      className={cn(
-        "flex h-full items-center bg-surface-alt px-2.5 text-[13px] text-soil",
-        side === "suffix" ? "border-l border-soil/25" : "border-r border-soil/25",
-      )}
-    >
-      {unit}
-    </span>
-  );
+}: React.InputHTMLAttributes<HTMLInputElement> & { error?: boolean }) {
   return (
     <div
       className={cn(
@@ -63,145 +50,223 @@ function UnitInput({
         error ? "border-error" : "border-soil/35",
       )}
     >
-      {side === "prefix" ? addon : null}
+      <span className="flex h-full items-center border-r border-soil/25 bg-surface-alt px-2.5 text-[13px] text-soil">
+        GH₵
+      </span>
       <Input
         inputMode="decimal"
         className="font-adminmono h-full min-w-0 flex-1 rounded-none border-0 bg-transparent px-2.5 py-0 text-right text-[14px] tabular-nums text-ink outline-none placeholder:text-soil/55 focus-visible:ring-0"
         {...props}
       />
-      {side === "suffix" ? addon : null}
     </div>
   );
 }
 
-interface SettingsErrors {
-  name?: string;
-  milestone?: string;
-  expense?: string;
-}
+const toFormValues = (s: ISystemSettings): SettingsValues => ({
+  purchaseApprovalThresholdGhs: String(s.purchaseApprovalThresholdGhs),
+  lowFloatThresholdGhs: String(s.lowFloatThresholdGhs),
+  onlinePaymentsEnabled: s.onlinePaymentsEnabled,
+  companyContactPhone: s.companyContactPhone,
+  companyContactEmail: s.companyContactEmail,
+  companyContactAddress: s.companyContactAddress,
+});
 
-export function SettingsScreen() {
-  const [name, setName] = useState("DB Plus Trading Ltd");
-  const [milestone, setMilestone] = useState("80");
-  const [expense, setExpense] = useState("500");
-  const [toggles, setToggles] = useState<boolean[]>([true, true, false]);
-  const [errors, setErrors] = useState<SettingsErrors>({});
+function SettingsForm({
+  settings,
+  descriptions,
+}: {
+  settings: ISystemSettings;
+  descriptions: Record<SettingKey, string>;
+}) {
+  const [updateSettings, { isLoading: saving }] = useUpdateSettingsMutation();
 
-  const save = () => {
-    const next: SettingsErrors = {};
-    if (!name.trim()) next.name = "Enter the business name.";
-    const pct = Number(milestone);
-    if (!milestone.trim() || Number.isNaN(pct) || pct < 0 || pct > 100) {
-      next.milestone = "Enter a percentage between 0 and 100.";
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors, isDirty },
+  } = useForm<SettingsValues>({
+    resolver: zodResolver(settingsSchema),
+    defaultValues: toFormValues(settings),
+  });
+
+  const onSubmit = async (values: SettingsValues) => {
+    // Send only the keys whose value actually changed.
+    const next: ISystemSettings = {
+      purchaseApprovalThresholdGhs: Number(values.purchaseApprovalThresholdGhs),
+      lowFloatThresholdGhs: Number(values.lowFloatThresholdGhs),
+      onlinePaymentsEnabled: values.onlinePaymentsEnabled,
+      companyContactPhone: values.companyContactPhone.trim(),
+      companyContactEmail: values.companyContactEmail.trim(),
+      companyContactAddress: values.companyContactAddress.trim(),
+    };
+    const patch: IUpdateSettingsInput = {};
+    for (const key of Object.keys(next) as SettingKey[]) {
+      if (next[key] !== settings[key]) {
+        Object.assign(patch, { [key]: next[key] });
+      }
     }
-    const amt = Number(expense);
-    if (!expense.trim() || Number.isNaN(amt) || amt < 0) {
-      next.expense = "Enter a valid amount.";
+    if (Object.keys(patch).length === 0) {
+      notify.success("Nothing to save", {
+        description: "No setting was changed.",
+      });
+      return;
     }
-    setErrors(next);
-    if (Object.keys(next).length > 0) return;
-    notify.success("Settings saved");
+    try {
+      await updateSettings(patch).unwrap();
+      notify.success("Settings updated");
+    } catch (err) {
+      notify.error("Couldn't save the settings", {
+        description: extractApiError(err).message,
+      });
+    }
   };
 
   return (
-    <div className="max-w-[620px]">
-      <AdminPageHeader title="Settings" sub="Business rules and defaults" />
-
-      <div className="flex flex-col gap-4">
-        <AdminCard className="px-5 py-[18px]">
-          <SectionLabel>Business</SectionLabel>
-          <div className="flex flex-col gap-[13px]">
-            <AdminField label="Business name" error={errors.name}>
-              <Input
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                  setErrors((er) => ({ ...er, name: undefined }));
-                }}
-                className={cn(adminInputClass, errors.name && "border-error")}
-              />
-            </AdminField>
-            <div className="grid gap-[13px] sm:grid-cols-2">
-              <AdminField label="Currency">
-                <Select defaultValue="GH₵ — Ghana cedi">
-                  <SelectTrigger
-                    className={cn(adminSelectClass, "data-[size=default]:h-[38px]")}
-                  >
-                    {/* Static children keep the label server-rendered. */}
-                    <SelectValue>GH₵ — Ghana cedi</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="GH₵ — Ghana cedi">GH₵ — Ghana cedi</SelectItem>
-                  </SelectContent>
-                </Select>
-              </AdminField>
-              <AdminField label="Timezone">
-                <Select defaultValue="Africa/Accra (GMT)">
-                  <SelectTrigger
-                    className={cn(adminSelectClass, "data-[size=default]:h-[38px]")}
-                  >
-                    {/* Static children keep the label server-rendered. */}
-                    <SelectValue>Africa/Accra (GMT)</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Africa/Accra (GMT)">Africa/Accra (GMT)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </AdminField>
-            </div>
-          </div>
-        </AdminCard>
-
-        <AdminCard className="px-5 py-[18px]">
-          <SectionLabel>Approvals &amp; thresholds</SectionLabel>
-          <div className="flex flex-col gap-[13px]">
-            <div className="grid gap-[13px] sm:grid-cols-2">
-              <AdminField label="Dispatch payment milestone" error={errors.milestone}>
-                <UnitInput
-                  unit="%"
-                  side="suffix"
-                  value={milestone}
-                  error={Boolean(errors.milestone)}
-                  onChange={(e) => {
-                    setMilestone(e.target.value);
-                    setErrors((er) => ({ ...er, milestone: undefined }));
-                  }}
-                />
-              </AdminField>
-              <AdminField label="Expense approval above" error={errors.expense}>
-                <UnitInput
-                  unit="GH₵"
-                  side="prefix"
-                  value={expense}
-                  error={Boolean(errors.expense)}
-                  onChange={(e) => {
-                    setExpense(e.target.value);
-                    setErrors((er) => ({ ...er, expense: undefined }));
-                  }}
-                />
-              </AdminField>
-            </div>
-            {TOGGLE_LABELS.map((label, i) => (
-              <div key={label} className="flex items-center justify-between gap-3 py-1">
-                <span className="text-[13.5px] text-ink">{label}</span>
-                <AdminToggle
-                  checked={toggles[i]}
-                  label={label}
-                  onChange={(next) =>
-                    setToggles((ts) => ts.map((v, vi) => (vi === i ? next : v)))
-                  }
-                />
-              </div>
-            ))}
-          </div>
-        </AdminCard>
-
-        <div className="flex gap-2.5">
-          <AdminButton className="h-10 px-[22px] text-[14px]" onClick={save}>
-            Save settings
-          </AdminButton>
+    <form
+      noValidate
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex max-w-[560px] flex-col gap-4"
+    >
+      <AdminCard className="px-5 py-[18px]">
+        <SectionLabel>Money thresholds</SectionLabel>
+        <div className="flex flex-col gap-[13px]">
+          <AdminField
+            label="Purchase approval threshold"
+            hint={descriptions.purchaseApprovalThresholdGhs}
+            error={errors.purchaseApprovalThresholdGhs?.message}
+          >
+            <GhsInput
+              placeholder="10,000"
+              error={!!errors.purchaseApprovalThresholdGhs}
+              {...register("purchaseApprovalThresholdGhs")}
+            />
+          </AdminField>
+          <AdminField
+            label="Low float alert threshold"
+            hint={descriptions.lowFloatThresholdGhs}
+            error={errors.lowFloatThresholdGhs?.message}
+          >
+            <GhsInput
+              placeholder="1,000"
+              error={!!errors.lowFloatThresholdGhs}
+              {...register("lowFloatThresholdGhs")}
+            />
+          </AdminField>
         </div>
+      </AdminCard>
+
+      <AdminCard className="px-5 py-[18px]">
+        <SectionLabel>Payments</SectionLabel>
+        <Controller
+          control={control}
+          name="onlinePaymentsEnabled"
+          render={({ field }) => (
+            <label className="flex cursor-pointer items-center justify-between gap-3">
+              <span>
+                <span className="block text-[13px] font-semibold text-ink">
+                  Online payments
+                </span>
+                <span className="block text-[12px] text-soil">
+                  {descriptions.onlinePaymentsEnabled}
+                </span>
+              </span>
+              <Switch checked={field.value} onCheckedChange={field.onChange} />
+            </label>
+          )}
+        />
+      </AdminCard>
+
+      <AdminCard className="px-5 py-[18px]">
+        <SectionLabel>Company contact</SectionLabel>
+        <div className="flex flex-col gap-[13px]">
+          <AdminField
+            label="Phone"
+            hint={descriptions.companyContactPhone}
+            error={errors.companyContactPhone?.message}
+          >
+            <Input
+              type="tel"
+              placeholder="024 000 0000"
+              className={cn(
+                adminInputClass,
+                errors.companyContactPhone && "border-error",
+              )}
+              {...register("companyContactPhone")}
+            />
+          </AdminField>
+          <AdminField
+            label="Email"
+            hint={descriptions.companyContactEmail}
+            error={errors.companyContactEmail?.message}
+          >
+            <Input
+              type="email"
+              placeholder="info@dbplus.com"
+              className={cn(
+                adminInputClass,
+                errors.companyContactEmail && "border-error",
+              )}
+              {...register("companyContactEmail")}
+            />
+          </AdminField>
+          <AdminField
+            label="Address"
+            hint={descriptions.companyContactAddress}
+            error={errors.companyContactAddress?.message}
+          >
+            <Input
+              placeholder="Tamale, Northern Region"
+              className={cn(
+                adminInputClass,
+                errors.companyContactAddress && "border-error",
+              )}
+              {...register("companyContactAddress")}
+            />
+          </AdminField>
+        </div>
+      </AdminCard>
+
+      <div className="flex gap-2">
+        <AdminButton
+          type="submit"
+          disabled={saving || !isDirty}
+          className="h-[38px] px-[18px]"
+        >
+          {saving ? "Saving…" : "Save settings"}
+        </AdminButton>
       </div>
+    </form>
+  );
+}
+
+/** Owner-editable system configuration, wired to GET/PATCH /admin/settings.
+ * Values resolve from the backend's typed registry (missing rows fall back
+ * to its defaults) and every change is audited server-side with its
+ * before/after. */
+export function SettingsScreen() {
+  const { data, isLoading, isError, error, refetch } = useGetSettingsQuery();
+
+  return (
+    <div>
+      <AdminPageHeader
+        title="Settings"
+        sub="Thresholds, switches and company details the whole system reads"
+      />
+      {isLoading ? (
+        <DataTableSkeleton />
+      ) : isError || !data ? (
+        <ErrorMessage
+          description={extractApiError(error).message}
+          onRetry={() => void refetch()}
+        />
+      ) : (
+        <SettingsForm
+          key={JSON.stringify(data.data.settings)}
+          settings={data.data.settings}
+          descriptions={data.data.descriptions}
+        />
+      )}
     </div>
   );
 }
