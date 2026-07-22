@@ -2,7 +2,7 @@ import type { Tone } from "@/components/admin/ui";
 import { formatCedis } from "@/lib/format-money";
 
 /**
- * Trading stub data (purchases, sales, shipments) straight from the Nasara
+ * Trading stub data (purchases, sales, shipments) straight from the DB Plus
  * Console design. Everything here is display-shaped: the backend will later
  * replace these with API payloads of the same shape.
  */

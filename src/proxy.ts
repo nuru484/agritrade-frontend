@@ -9,7 +9,7 @@ import type { NextRequest } from "next/server";
  * Two cookies count as "sign of a session":
  *  - `refreshToken` — the real httpOnly session cookie, visible here only when
  *    the API shares this site's domain (local dev, same-domain deploys).
- *  - `nasara.auth.hint` — a first-party presence hint the client sets on login
+ *  - `dbplus.auth.hint` — a first-party presence hint the client sets on login
  *    and clears on logout, for production where the API lives on another
  *    origin and its cookies never reach this proxy.
  *
@@ -22,7 +22,7 @@ import type { NextRequest } from "next/server";
  * is the authority.
  */
 const SESSION_COOKIE = "refreshToken";
-const HINT_COOKIE = "nasara.auth.hint";
+const HINT_COOKIE = "dbplus.auth.hint";
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;

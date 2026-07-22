@@ -1,6 +1,6 @@
-# Nasara Agro — website
+# DB Plus — website
 
-Marketing site for **Nasara Agro Trading Ltd** (Tamale): bulk maize, soya
+Marketing site for **DB Plus Trading Ltd** (Tamale): bulk maize, soya
 beans and groundnuts, bought at the farm gate across Ghana's Northern Region
 and trucked south by the load.
 
@@ -68,7 +68,7 @@ npm run dev
 register, papers first) · `/farming-investment` (farmers/partners + season
 timeline) · `/about` · `/contact` (live enquiry form, deep-linkable with
 `?subject=` and `?about=`) · `/pay` (sale lookup + Hubtel payment states,
-minimal chrome, noindex; demo refs `NA-1042` outstanding / `NA-1017`
+minimal chrome, noindex; demo refs `DB-1042` outstanding / `DB-1017`
 settled) · `/style-guide` (internal).
 
 Photography: Wikimedia Commons contributors (CC BY-SA), credited in the

@@ -5,7 +5,7 @@ interface AuthState {
   user: IUser | null;
 }
 
-const STORAGE_KEY = "nasara.auth.user";
+const STORAGE_KEY = "dbplus.auth.user";
 
 // Rehydrate synchronously so the console doesn't flash a logged-out state on
 // reload. localStorage is unavailable during SSR (and in reducer unit tests),
@@ -30,7 +30,7 @@ const initialState: AuthState = {
 // cookies are httpOnly on the *API's* origin, which the proxy can't see when
 // the API lives on another domain (production) — so the /admin gate reads this
 // hint instead. It's presence-only: RequireAuth still does the real check.
-const HINT_COOKIE = "nasara.auth.hint";
+const HINT_COOKIE = "dbplus.auth.hint";
 
 const setAuthHint = (on: boolean) => {
   if (typeof document === "undefined") return;

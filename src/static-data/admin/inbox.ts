@@ -1,7 +1,7 @@
 import type { Tone } from "@/components/admin/ui";
 
 /**
- * Inbox stubs (from the Nasara Console design script): the approval queue,
+ * Inbox stubs (from the DB Plus Console design script): the approval queue,
  * the notification feed and the profile's active sessions. All placeholder
  * data until the backend hookup.
  */

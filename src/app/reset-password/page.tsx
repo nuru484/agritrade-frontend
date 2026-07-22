@@ -4,7 +4,7 @@ import { AuthCard } from "@/components/auth/auth-card";
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 
 export const metadata: Metadata = {
-  title: "Set a new password · Nasara Agro",
+  title: "Set a new password · DB Plus",
   // Auth plumbing — keep it out of search indexes.
   robots: { index: false, follow: false },
 };

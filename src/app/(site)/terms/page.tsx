@@ -5,7 +5,7 @@ import { siteConfig } from "@/lib/site";
 export const metadata = pageMetadata({
   title: "Terms of service",
   description:
-    "The terms Nasara Agro Trading Ltd trades on — quotes, weighing, delivery, payment, land sales and the farming investment scheme, in plain language.",
+    "The terms DB Plus Trading Ltd trades on — quotes, weighing, delivery, payment, land sales and the farming investment scheme, in plain language.",
   path: "/terms",
 });
 
@@ -13,7 +13,7 @@ const SECTIONS: LegalSection[] = [
   {
     title: "Who we are",
     paragraphs: [
-      `${siteConfig.legalName} ("Nasara Agro", "we") is an agro-commodity trading company operating from ${siteConfig.address}. We buy, aggregate and deliver grains and pulses, sell documented land plots around Tamale, and run an input-credit farming scheme. These terms cover your use of this website and, in outline, how we trade — the signed paperwork for a specific transaction always takes precedence over this page.`,
+      `${siteConfig.legalName} ("DB Plus", "we") is an agro-commodity trading company operating from ${siteConfig.address}. We buy, aggregate and deliver grains and pulses, sell documented land plots around Tamale, and run an input-credit farming scheme. These terms cover your use of this website and, in outline, how we trade — the signed paperwork for a specific transaction always takes precedence over this page.`,
     ],
   },
   {
@@ -37,7 +37,7 @@ const SECTIONS: LegalSection[] = [
   {
     title: "Payment",
     paragraphs: [
-      "Payment terms are agreed per order and stated on the invoice. Every sale carries a reference (e.g. NA-1042) — quote it when paying. Online payments through this website are processed by Hubtel; a payment is complete when the processor confirms it and we issue a receipt. Fees charged by your bank or mobile-money provider are yours.",
+      "Payment terms are agreed per order and stated on the invoice. Every sale carries a reference (e.g. DB-1042) — quote it when paying. Online payments through this website are processed by Hubtel; a payment is complete when the processor confirms it and we issue a receipt. Fees charged by your bank or mobile-money provider are yours.",
     ],
   },
   {

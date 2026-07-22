@@ -5,7 +5,7 @@ import { siteConfig } from "@/lib/site";
 export const metadata = pageMetadata({
   title: "Privacy policy",
   description:
-    "What Nasara Agro Trading Ltd collects when you enquire or pay, how it's used and kept, who it's shared with, and the rights you have over it.",
+    "What DB Plus Trading Ltd collects when you enquire or pay, how it's used and kept, who it's shared with, and the rights you have over it.",
   path: "/privacy",
 });
 

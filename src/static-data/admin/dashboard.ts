@@ -2,7 +2,7 @@ import type { Tone } from "@/components/admin/ui";
 import { ADMIN_HOME } from "@/static-data/admin/nav";
 
 /**
- * Dashboard stub data (values verbatim from the Nasara Console design).
+ * Dashboard stub data (values verbatim from the DB Plus Console design).
  * Display strings stay pre-formatted exactly as the design renders them;
  * chart series stay raw numbers so the SVG scaling math matches the design.
  */

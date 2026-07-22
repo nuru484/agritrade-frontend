@@ -30,7 +30,7 @@ const FACTS = [
 export function TrustStrip() {
   return (
     <section
-      aria-label="Why buyers trust Nasara Agro"
+      aria-label="Why buyers trust DB Plus"
       className="mx-auto max-w-[1312px] px-5 pt-14 lg:px-8 lg:pt-20"
     >
       <Reveal>

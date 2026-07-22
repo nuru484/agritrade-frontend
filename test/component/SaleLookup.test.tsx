@@ -16,8 +16,8 @@ vi.mock("@/redux/sales/sales-api", () => ({
 }));
 
 const outstandingSale: ISale = {
-  reference: "NA-1042",
-  seller: "Nasara Agro Trading Ltd",
+  reference: "DB-1042",
+  seller: "DB Plus Trading Ltd",
   status: "OUTSTANDING",
   amountOutstanding: 1_250_000,
   currency: "GHS",
@@ -42,13 +42,13 @@ describe("SaleLookup", () => {
       unwrap: () =>
         Promise.resolve({
           message: "Payment received",
-          data: { reference: "NA-1042", amountPaid: 1_250_000, currency: "GHS" },
+          data: { reference: "DB-1042", amountPaid: 1_250_000, currency: "GHS" },
         }),
     });
 
     render(<SaleLookup />);
-    await find("na-1042");
-    expect(lookupTrigger).toHaveBeenCalledWith("NA-1042");
+    await find("db-1042");
+    expect(lookupTrigger).toHaveBeenCalledWith("DB-1042");
     expect(await screen.findByText("Amount outstanding")).toBeInTheDocument();
     expect(screen.getByText("GH₵ 12,500.00")).toBeInTheDocument();
 
@@ -56,7 +56,7 @@ describe("SaleLookup", () => {
       screen.getByRole("button", { name: "Pay with Hubtel" }),
     );
     expect(await screen.findByText("Payment received.")).toBeInTheDocument();
-    expect(screen.getByText(/paid on sale NA-1042/)).toBeInTheDocument();
+    expect(screen.getByText(/paid on sale DB-1042/)).toBeInTheDocument();
   });
 
   it("shows the settled notice for a fully paid sale", async () => {
@@ -64,13 +64,13 @@ describe("SaleLookup", () => {
       unwrap: () =>
         Promise.resolve({
           message: "ok",
-          data: { ...outstandingSale, reference: "NA-1017", status: "SETTLED", amountOutstanding: 0 },
+          data: { ...outstandingSale, reference: "DB-1017", status: "SETTLED", amountOutstanding: 0 },
         }),
     });
     render(<SaleLookup />);
-    await find("NA-1017");
+    await find("DB-1017");
     expect(
-      await screen.findByText("Nothing outstanding on NA-1017."),
+      await screen.findByText("Nothing outstanding on DB-1017."),
     ).toBeInTheDocument();
   });
 
@@ -79,7 +79,7 @@ describe("SaleLookup", () => {
       unwrap: () => Promise.reject({ status: 404, data: { message: "no" } }),
     });
     render(<SaleLookup />);
-    await find("NA-9999");
+    await find("DB-9999");
     expect(await screen.findByText("Reference not found.")).toBeInTheDocument();
   });
 
@@ -91,7 +91,7 @@ describe("SaleLookup", () => {
       unwrap: () => Promise.reject({ status: 502, data: {} }),
     });
     render(<SaleLookup />);
-    await find("NA-1042");
+    await find("DB-1042");
     await userEvent.click(
       await screen.findByRole("button", { name: "Pay with Hubtel" }),
     );

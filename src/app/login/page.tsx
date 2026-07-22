@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { LoginClient } from "@/components/auth/login-client";
 
 export const metadata: Metadata = {
-  title: "Sign in · Nasara Agro",
+  title: "Sign in · DB Plus",
   // The sign-in page is private plumbing — keep it out of search indexes.
   robots: { index: false, follow: false },
 };

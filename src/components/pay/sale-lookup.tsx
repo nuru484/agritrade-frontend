@@ -93,7 +93,7 @@ export function SaleLookup() {
             onKeyDown={(e) => {
               if (e.key === "Enter") void onLookup();
             }}
-            placeholder="e.g. NA-1042"
+            placeholder="e.g. DB-1042"
             className="min-w-0 flex-1 rounded-[2px] border-[1.5px] border-soil/35 bg-[#FBFCF7] px-3.5 py-3.5 text-[16px] font-semibold uppercase tracking-[0.06em] text-ink outline-none transition-[border-color,box-shadow] placeholder:font-normal placeholder:normal-case placeholder:text-soil/55 focus:border-leaf focus:shadow-[0_0_0_3px_rgb(62_125_98/0.16)]"
           />
           <button
@@ -107,7 +107,7 @@ export function SaleLookup() {
         </div>
         <p className="mb-0 mt-2.5 text-[12.5px] leading-[1.55] text-soil">
           The reference is printed on your invoice or receipt — e.g.{" "}
-          <span className="font-semibold text-ink">NA-1042</span>.
+          <span className="font-semibold text-ink">DB-1042</span>.
         </p>
 
         {view.kind === "notfound" ? (

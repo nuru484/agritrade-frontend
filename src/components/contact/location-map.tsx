@@ -7,7 +7,7 @@ import { Loader2, Navigation } from "lucide-react";
 // approximate the area; nudge when the real pin is confirmed.
 const OFFICE_LAT = 9.4449;
 const OFFICE_LNG = -0.8394;
-const OFFICE_LABEL = "Nasara Agro Trading Ltd";
+const OFFICE_LABEL = "DB Plus Trading Ltd";
 
 /**
  * Live Google Maps embed (website-frontend's LocationMap pattern, worn in
@@ -54,7 +54,7 @@ export function LocationMap() {
         loading="lazy"
         onLoad={() => setIsLoading(false)}
         referrerPolicy="no-referrer-when-downgrade"
-        title="Nasara Agro warehouse location — Tamale"
+        title="DB Plus warehouse location — Tamale"
         className="transition-[filter] duration-700 ease-in-out group-hover:filter-none"
       />
 

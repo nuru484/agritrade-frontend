@@ -8,7 +8,7 @@ import { siteConfig } from "@/lib/site";
 export const metadata = pageMetadata({
   title: "Make a payment",
   description:
-    "Use the sale reference on your invoice or receipt to make a secure payment to Nasara Agro Trading Ltd by mobile money or card, processed by Hubtel.",
+    "Use the sale reference on your invoice or receipt to make a secure payment to DB Plus Trading Ltd by mobile money or card, processed by Hubtel.",
   path: "/pay",
   // Transactional page — no search value (khadys cart precedent).
   index: false,
@@ -18,7 +18,7 @@ const HOW_IT_WORKS = [
   {
     no: "01",
     title: "Find your reference",
-    body: "It's printed on your invoice or receipt — a short code like NA-1042.",
+    body: "It's printed on your invoice or receipt — a short code like DB-1042.",
   },
   {
     no: "02",

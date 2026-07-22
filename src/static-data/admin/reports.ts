@@ -1,5 +1,5 @@
 /**
- * Reports stub data (values verbatim from the Nasara Console design):
+ * Reports stub data (values verbatim from the DB Plus Console design):
  * Jun 2026 P&L vs May, six-month revenue/profit trend, commodity margins
  * and agent performance. Money stays as the design's display strings.
  */

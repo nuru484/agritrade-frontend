@@ -29,7 +29,7 @@ export function Story() {
             A trading house built one season at a time.
           </h1>
           <p className="mb-4 text-[14px] leading-[1.7] text-ink lg:text-[16.5px] lg:leading-[1.75]">
-            Nasara Agro started the way most trading in the north starts — one
+            DB Plus started the way most trading in the north starts — one
             buyer, a weighing scale and a rented corner of a warehouse in
             Tamale. Season by season the relationships grew: farmers who knew
             the scale was honest, agents who knew payment came the same day,

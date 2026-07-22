@@ -4,7 +4,7 @@ import { siteConfig } from "@/lib/site";
 /**
  * Shared brand template for every Open Graph card: husk field, forest band,
  * the "N" plate mark, page-specific text and a gold conversion tag — so every
- * share looks like a Nasara dispatch ticket.
+ * share looks like a DB Plus dispatch ticket.
  *
  * Satori (behind `ImageResponse`) supports only flexbox + a CSS subset — no
  * grid — so the layout stays flex-based. The mark is drawn inline, so no
@@ -80,12 +80,13 @@ export function brandOgImage({
               border: `6px solid ${FOREST}`,
               borderRadius: 8,
               color: FOREST,
-              fontSize: 52,
+              fontSize: 34,
               fontWeight: 700,
+              letterSpacing: 1,
               boxShadow: "5px 5px 0 rgba(89,82,59,.35)",
             }}
           >
-            N
+            DB
           </div>
         </div>
 

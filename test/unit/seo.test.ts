@@ -9,7 +9,7 @@ describe("pageMetadata", () => {
       path: "/contact",
     });
     expect(meta.title).toEqual({
-      absolute: "Contact the dispatch office · Nasara Agro",
+      absolute: "Contact the dispatch office · DB Plus",
     });
     expect(meta.alternates?.canonical).toBe("/contact");
     expect(meta.robots).toBeUndefined();
@@ -24,7 +24,7 @@ describe("pageMetadata", () => {
     });
     const title = (meta.title as { absolute: string }).absolute;
     expect(title.length).toBeLessThanOrEqual(60);
-    expect(title.endsWith("· Nasara Agro")).toBe(true);
+    expect(title.endsWith("· DB Plus")).toBe(true);
     expect((meta.description as string).length).toBeLessThanOrEqual(125);
     expect(meta.description).toMatch(/…$/);
   });

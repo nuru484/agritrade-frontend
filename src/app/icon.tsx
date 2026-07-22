@@ -30,13 +30,14 @@ export default function Icon() {
             border: "26px solid #155744",
             borderRadius: 30,
             color: "#155744",
-            fontSize: 230,
+            fontSize: 148,
             fontWeight: 700,
+            letterSpacing: 2,
             boxShadow: "20px 20px 0 rgba(89,82,59,.35)",
             fontFamily: "Georgia, serif",
           }}
         >
-          N
+          DB
         </div>
       </div>
     ),

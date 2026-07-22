@@ -35,7 +35,7 @@ const DOCS: PaperDoc[] = [
   },
   {
     title: "PAYMENT RECEIPT",
-    fileNo: "SALE NA-____",
+    fileNo: "SALE DB-____",
     rows: [
       { label: "REFERENCE", value: "Quoted on your invoice" },
       { label: "PAYMENT", value: "MoMo, card or transfer" },

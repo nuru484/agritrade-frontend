@@ -16,7 +16,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata = pageMetadata({
   title: "Design system",
   description:
-    "The Nasara Agro component sheet — Pale Husk v2.1 tokens, type scale, tags, the availability board, cards, form states and system states.",
+    "The DB Plus component sheet — Pale Husk v2.1 tokens, type scale, tags, the availability board, cards, form states and system states.",
   path: "/style-guide",
   index: false,
 });
@@ -70,7 +70,7 @@ export default function StyleGuidePage() {
       <div className="mx-auto max-w-[1312px] px-5 pt-10 lg:px-8 lg:pt-14">
         <SectionHeading
           eyebrow="INTERNAL · COMPONENT SHEET"
-          title="The Nasara Agro design system."
+          title="The DB Plus design system."
           lede="Pale Husk v2.1 — every token and component the site is built from, rendered live. This page is noindexed and linked from nowhere."
           className="mb-12"
         />
