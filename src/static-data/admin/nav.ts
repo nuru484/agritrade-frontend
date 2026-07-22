@@ -27,40 +27,44 @@ const item = (key: string, label: string, badge?: "approvals"): AdminNavItem => 
   badge,
 });
 
+/**
+ * Only BUILT modules appear in the rail - the sidebar is the honest map of
+ * what the system can do today, so an unbuilt tab never masquerades as a
+ * feature. Re-enable each commented entry in the step that ships it:
+ *
+ *   Step 3  - stock, approvals (+ badge), the approvals mobile tab
+ *   Step 4  - sales
+ *   Step 5  - shipments, expenses
+ *   Step 7  - notifications (+ topbar bell)
+ *   Step 8  - reports (dashboard goes live the same step)
+ *   Step 9  - plots, land-sales (Land & Farm group returns)
+ *   Step 10 - seasons, farmers, grants, repayments
+ */
 export const adminNavGroups: AdminNavGroup[] = [
   {
     label: "Overview",
     items: [
       item("dashboard", "Dashboard"),
-      item("approvals", "Approvals", "approvals"),
-      item("reports", "Reports"),
+      // item("approvals", "Approvals", "approvals"),
+      // item("reports", "Reports"),
     ],
   },
   {
     label: "Trading",
     items: [
       item("purchases", "Purchases"),
-      item("sales", "Sales"),
-      item("shipments", "Shipments"),
-      item("stock", "Stock"),
+      // item("sales", "Sales"),
+      // item("shipments", "Shipments"),
+      // item("stock", "Stock"),
       item("commodities", "Commodities"),
       item("warehouses", "Warehouses"),
       item("agents", "Agents & Floats"),
-      item("expenses", "Expenses"),
+      // item("expenses", "Expenses"),
       item("expense-categories", "Expense Categories"),
     ],
   },
-  {
-    label: "Land & Farm",
-    items: [
-      item("plots", "Plots"),
-      item("land-sales", "Land Sales"),
-      item("seasons", "Seasons"),
-      item("farmers", "Farmers"),
-      item("grants", "Grants"),
-      item("repayments", "Repayments"),
-    ],
-  },
+  // Land & Farm group returns with the land module (Step 9):
+  // { label: "Land & Farm", items: [plots, land-sales, seasons, farmers, grants, repayments] },
   {
     label: "Directory",
     items: [item("suppliers", "Suppliers"), item("buyers", "Buyers")],
@@ -70,15 +74,19 @@ export const adminNavGroups: AdminNavGroup[] = [
     items: [
       item("users", "Users"),
       item("audit", "Audit Log"),
-      item("notifications", "Notifications"),
+      // item("notifications", "Notifications"),
       // "My profile" and "Settings" deliberately absent: both live behind
       // the navbar avatar menu (dms-frontend convention), not the rail.
     ],
   },
 ];
 
-/** Number the bell + Approvals badge show until the backend supplies it. */
-export const PENDING_APPROVALS = 5;
+/**
+ * Pending-approvals badge count. Zero until the approvals module ships
+ * (Step 3) - a fake number on the bell/tab would advertise an unbuilt
+ * feature, exactly what the trimmed rail exists to prevent.
+ */
+export const PENDING_APPROVALS = 0;
 
 /** Resolve the active nav key for a pathname (details map to their register). */
 export function activeNavKey(pathname: string): string {

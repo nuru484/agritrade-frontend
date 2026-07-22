@@ -40,7 +40,6 @@ import { useLogoutMutation } from "@/redux/auth/auth-api";
 import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
 
-const APPROVALS_HREF = `${ADMIN_HOME}/approvals`;
 
 /** Console-scoped shadcn sidebar tokens — white rail, slate lines, forest ring. */
 const SIDEBAR_VARS = {
@@ -338,10 +337,12 @@ function ConsoleSidebar({ activeKey }: { activeKey: string }) {
   );
 }
 
+// The Approvals tab returns here when the approvals module ships (Step 3):
+// { key: "approvals", label: "Approvals", href: `${ADMIN_HOME}/approvals`, icon: "✓" }
 const MOBILE_TABS = [
   { key: "dashboard", label: "Dashboard", href: ADMIN_HOME, icon: "▦" },
-  { key: "approvals", label: "Approvals", href: APPROVALS_HREF, icon: "✓" },
   { key: "purchases", label: "Purchases", href: `${ADMIN_HOME}/purchases`, icon: "⇄" },
+  { key: "agents", label: "Agents", href: `${ADMIN_HOME}/agents`, icon: "₵" },
 ] as const;
 
 /** Bottom tabs (mobile) — the Menu tab opens the shadcn sidebar sheet. */
@@ -369,11 +370,7 @@ function MobileTabs({ activeKey }: { activeKey: string }) {
               {tab.icon}
             </span>
             <span className="text-[10.5px] font-semibold">{tab.label}</span>
-            {tab.key === "approvals" && PENDING_APPROVALS > 0 ? (
-              <span className="font-adminmono absolute right-[24%] top-2 flex h-[15px] min-w-[15px] items-center justify-center rounded-full bg-console-red text-[9.5px] font-bold text-white">
-                {PENDING_APPROVALS}
-              </span>
-            ) : null}
+            {/* The approvals badge returns with the Approvals tab (Step 3). */}
           </Link>
         );
       })}
@@ -466,28 +463,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <Crumbs />
           <div className="flex-1" />
           <NavbarSearch />
-          {/* Notifications: intentionally inert until the notifications feed
-              ships — it must NOT navigate anywhere. */}
-          <button
-            type="button"
-            aria-label={`Notifications — ${String(PENDING_APPROVALS)} pending`}
-            className="relative flex h-[34px] w-[34px] flex-none cursor-pointer items-center justify-center rounded-[6px] border border-soil/25 bg-paper hover:bg-surface-alt/70"
-          >
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-              <path
-                d="M10 2.5a5 5 0 0 0-5 5v3l-1.5 3h13L15 10.5v-3a5 5 0 0 0-5-5Z"
-                stroke="#4c5765"
-                strokeWidth="1.5"
-                strokeLinejoin="round"
-              />
-              <path d="M8 16a2 2 0 0 0 4 0" stroke="#4c5765" strokeWidth="1.5" />
-            </svg>
-            {PENDING_APPROVALS > 0 ? (
-              <span className="font-adminmono absolute -right-[5px] -top-[5px] flex h-4 min-w-4 items-center justify-center rounded-full bg-console-red px-1 text-[10px] font-bold text-white">
-                {PENDING_APPROVALS}
-              </span>
-            ) : null}
-          </button>
+          {/* The notifications bell returns here when the notifications feed
+              ships (Step 7) - an inert bell with a badge would advertise an
+              unbuilt feature. */}
           <NavbarUser />
         </header>
 
