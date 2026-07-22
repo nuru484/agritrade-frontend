@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 /**
- * Next.js Proxy — the first, cheap gate for the admin console. A visitor with
+ * Next.js Proxy — the first, cheap gate for the admin console and the agent
+ * field app. A visitor with
  * no sign of a session is redirected to /login before the admin bundle is
  * ever sent.
  *
@@ -30,7 +31,10 @@ export function proxy(request: NextRequest) {
   const hasSessionSign =
     request.cookies.has(SESSION_COOKIE) || request.cookies.has(HINT_COOKIE);
 
-  if (pathname.startsWith("/admin") && !hasSessionSign) {
+  if (
+    (pathname.startsWith("/admin") || pathname.startsWith("/agent")) &&
+    !hasSessionSign
+  ) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.search = "";
@@ -42,5 +46,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/agent/:path*"],
 };

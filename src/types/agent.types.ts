@@ -1,0 +1,156 @@
+import type { IPaginationMeta } from "./api";
+
+/**
+ * Agents, float ledgers and reconciliations, mirroring the backend
+ * `agent-float.mapper.ts` and the `/admin/agents` + `/agent` surfaces.
+ */
+
+/** Mirrors the backend `FloatTxType` enum (amounts are SIGNED in the ledger). */
+export enum FloatTxType {
+  TOP_UP = "TOP_UP",
+  PURCHASE = "PURCHASE",
+  FIELD_EXPENSE = "FIELD_EXPENSE",
+  ADJUSTMENT = "ADJUSTMENT",
+}
+
+/** Mirrors the backend `PaymentMethod` enum (GATEWAY is Hubtel-only). */
+export enum PaymentMethod {
+  CASH = "CASH",
+  MOMO = "MOMO",
+  BANK = "BANK",
+  GATEWAY = "GATEWAY",
+}
+
+/** One float ledger line (`toFloatTransactionDTO`); amountGhs is signed. */
+export interface IFloatTransaction {
+  id: string;
+  type: FloatTxType;
+  amountGhs: number;
+  method: PaymentMethod | null;
+  reason: string | null;
+  purchaseId: string | null;
+  expenseId: string | null;
+  idempotencyKey: string | null;
+  occurredAt: string;
+}
+
+/** An agent row in the admin register (`AgentSummaryDTO`). */
+export interface IAgentSummary {
+  userId: string;
+  /** Null until the agent's float is first opened (top-up or purchase). */
+  profileId: string | null;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string | null;
+  region: string | null;
+  isActive: boolean;
+  balanceGhs: number;
+}
+
+/** Mirrors `toReconciliationDTO`: the immutable sit-down count snapshot. */
+export interface IReconciliation {
+  id: string;
+  openingGhs: number;
+  topUpsGhs: number;
+  purchasesGhs: number;
+  expensesGhs: number;
+  expectedGhs: number;
+  countedGhs: number;
+  varianceGhs: number;
+  adjustmentTxId: string | null;
+  notes: string | null;
+  performedAt: string;
+}
+
+/** Mirrors the backend `ReconciliationPreview` (adjustments stay signed). */
+export interface IReconciliationPreview {
+  agentProfileId: string;
+  openingGhs: number;
+  topUpsGhs: number;
+  purchasesGhs: number;
+  expensesGhs: number;
+  adjustmentsGhs: number;
+  expectedGhs: number;
+  /** The previous reconciliation's instant; null for the first count. */
+  since: string | null;
+}
+
+export interface IAgentDetail extends IAgentSummary {
+  lastReconciliation: IReconciliation | null;
+}
+
+export interface IAgentListResponse {
+  message: string;
+  data: IAgentSummary[];
+  meta: IPaginationMeta;
+}
+
+export interface IAgentDetailResponse {
+  message: string;
+  data: { agent: IAgentDetail };
+}
+
+/** Paginated ledger with the live balance riding in `summary`. */
+export interface IFloatLedgerResponse {
+  message: string;
+  data: IFloatTransaction[];
+  meta: IPaginationMeta;
+  summary: { balanceGhs: number };
+}
+
+export interface IFloatTransactionResponse {
+  message: string;
+  data: { transaction: IFloatTransaction };
+}
+
+export interface IReconciliationListResponse {
+  message: string;
+  data: IReconciliation[];
+  meta: IPaginationMeta;
+}
+
+export interface IReconciliationPreviewResponse {
+  message: string;
+  data: { preview: IReconciliationPreview };
+}
+
+export interface IReconciliationResponse {
+  message: string;
+  data: { reconciliation: IReconciliation };
+}
+
+export interface IAgentListQuery {
+  page?: number;
+  limit?: number;
+  search?: string;
+  isActive?: boolean;
+}
+
+/** Ledger paging (dates travel as YYYY-MM-DD). */
+export interface IFloatLedgerQuery {
+  page?: number;
+  limit?: number;
+  from?: string;
+  to?: string;
+}
+
+/** Mirrors backend `topUpSchema` (floats move by hand - never GATEWAY). */
+export interface ITopUpInput {
+  amountGhs: number;
+  method: PaymentMethod.CASH | PaymentMethod.MOMO | PaymentMethod.BANK;
+  reason?: string;
+}
+
+export interface ICreateReconciliationInput {
+  countedGhs: number;
+  notes?: string;
+}
+
+/** Mirrors backend `fieldExpenseSchema` (agent self-recorded). */
+export interface IAgentExpenseInput {
+  categoryId: string;
+  amountGhs: number;
+  description?: string;
+  incurredAt: string;
+}

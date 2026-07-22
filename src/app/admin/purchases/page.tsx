@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { PurchasesRegister } from "@/components/admin/trading/purchases-register";
+import { PurchasesTable } from "@/components/admin/purchases/purchases-table";
 
 export const metadata: Metadata = {
   title: "Purchases",
-  description: "Goods bought from suppliers and farmers.",
+  description: "Goods bought at the farm gate and beyond.",
 };
 
 export default function PurchasesPage() {
-  return <PurchasesRegister />;
+  return <PurchasesTable />;
 }

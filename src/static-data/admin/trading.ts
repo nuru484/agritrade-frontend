@@ -2,7 +2,9 @@ import type { Tone } from "@/components/admin/ui";
 import { formatCedis } from "@/lib/format-money";
 
 /**
- * Trading stub data (purchases, sales, shipments) straight from the DB Plus
+ * Trading stub data (sales, shipments) straight from the DB Plus
+ * Console design. `purchases` went live (components/admin/purchases) - its
+ * rows below remain only because the sales/shipments stubs reference them.
  * Console design. Everything here is display-shaped: the backend will later
  * replace these with API payloads of the same shape.
  */

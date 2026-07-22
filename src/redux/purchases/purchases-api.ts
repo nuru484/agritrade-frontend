@@ -1,0 +1,117 @@
+import { apiSlice } from "../api-slice";
+import { toQueryString } from "@/lib/to-query-string";
+import type {
+  ICreatePurchaseInput,
+  IPurchaseListQuery,
+  IPurchaseListResponse,
+  IPurchaseResponse,
+  IReceivePurchaseInput,
+  IVoidPurchaseInput,
+} from "@/types/purchase.types";
+
+/** Builds the request body: multipart when a weigh-slip travels with the
+ * save (`payload` JSON part + `photo` file), plain JSON otherwise. */
+const withOptionalPhoto = (body: object, photo?: File) => {
+  if (!photo) return body;
+  const form = new FormData();
+  form.append("payload", JSON.stringify(body));
+  form.append("photo", photo);
+  return form;
+};
+
+/** The purchase pipeline, mirroring the backend `/admin/purchases` surface. */
+export const purchasesApi = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    getPurchases: builder.query<
+      IPurchaseListResponse,
+      IPurchaseListQuery | void
+    >({
+      query: (params) => `admin/purchases${toQueryString(params ?? {})}`,
+      providesTags: (result) =>
+        result
+          ? [
+              { type: "Purchases" as const, id: "LIST" },
+              ...result.data.map((p) => ({
+                type: "Purchases" as const,
+                id: p.id,
+              })),
+            ]
+          : [{ type: "Purchases" as const, id: "LIST" }],
+    }),
+
+    getPurchase: builder.query<IPurchaseResponse, string>({
+      query: (id) => `admin/purchases/${id}`,
+      providesTags: (_r, _e, id) => [{ type: "Purchases", id }],
+    }),
+
+    createPurchase: builder.mutation<
+      IPurchaseResponse,
+      { body: ICreatePurchaseInput; photo?: File }
+    >({
+      query: ({ body, photo }) => ({
+        url: "admin/purchases",
+        method: "POST",
+        body: withOptionalPhoto(body, photo),
+      }),
+      // An AGENT-sourced purchase debits a float the moment it is recorded.
+      invalidatesTags: [
+        { type: "Purchases", id: "LIST" },
+        { type: "Agents", id: "LIST" },
+        { type: "FloatLedger", id: "LIST" },
+      ],
+    }),
+
+    markPurchaseInTransit: builder.mutation<IPurchaseResponse, string>({
+      query: (id) => ({
+        url: `admin/purchases/${id}/in-transit`,
+        method: "PATCH",
+      }),
+      invalidatesTags: (_r, _e, id) => [
+        { type: "Purchases", id },
+        { type: "Purchases", id: "LIST" },
+      ],
+    }),
+
+    receivePurchase: builder.mutation<
+      IPurchaseResponse,
+      { id: string; body: IReceivePurchaseInput }
+    >({
+      query: ({ id, body }) => ({
+        url: `admin/purchases/${id}/receive`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: (_r, _e, { id }) => [
+        { type: "Purchases", id },
+        { type: "Purchases", id: "LIST" },
+      ],
+    }),
+
+    voidPurchase: builder.mutation<
+      IPurchaseResponse,
+      { id: string; body: IVoidPurchaseInput }
+    >({
+      query: ({ id, body }) => ({
+        url: `admin/purchases/${id}/void`,
+        method: "PATCH",
+        body,
+      }),
+      // Voiding compensates the paying float, so balances move too.
+      invalidatesTags: (_r, _e, { id }) => [
+        { type: "Purchases", id },
+        { type: "Purchases", id: "LIST" },
+        { type: "Agents", id: "LIST" },
+        { type: "FloatLedger", id: "LIST" },
+      ],
+    }),
+  }),
+});
+
+export const {
+  useGetPurchasesQuery,
+  useGetPurchaseQuery,
+  useCreatePurchaseMutation,
+  useMarkPurchaseInTransitMutation,
+  useReceivePurchaseMutation,
+  useVoidPurchaseMutation,
+} = purchasesApi;

@@ -75,7 +75,6 @@ export interface RegisterConfig {
 
 export type RegisterSlug =
   | "stock"
-  | "agents"
   | "expenses"
   | "plots"
   | "land-sales"
@@ -117,40 +116,6 @@ export const REGISTERS: Record<RegisterSlug, RegisterConfig & { rows: RegisterRo
       ["LOT-0428", "Soybeans", "Main WH, Tamale", "9,450 kg", "6.78", "GH₵ 64,071", { t: "Available", tone: "leaf" }],
       ["LOT-0419", "Shea nuts", "Walewale Store", "12,800 kg", "5.07", "GH₵ 64,896", { t: "Available", tone: "leaf" }],
       ["LOT-0412", "Groundnuts", "Main WH, Tamale", "2,240 kg", "7.50", "GH₵ 16,800", { t: "Reserved", tone: "harvest" }],
-    ],
-  },
-  agents: {
-    avatar: true,
-    title: "Agents & Floats",
-    sub: "Field agents, their cash floats and activity",
-    single: "Agent",
-    add: "+ Add agent",
-    search: "Search agent…",
-    filters: ["Status"],
-    newTag: { t: "Active", tone: "leaf" },
-    headers: [
-      { l: "Agent" },
-      { l: "Phone", wide: true },
-      { l: "Float", align: "right", money: true },
-      { l: "Buys 30d", align: "right", wide: true },
-      { l: "Volume 30d", align: "right" },
-      { l: "Status", tag: true },
-    ],
-    figs: [2, 4],
-    ledger: {
-      title: "Float ledger",
-      rows: [
-        { date: "10 Jul 2026", desc: "Purchase P-0891 — maize, Savelugu", amount: "−GH₵ 52,080.00", amtColor: "#B03A2E", after: "GH₵ 1,240.00" },
-        { date: "05 Jul 2026", desc: "Float top-up — bank transfer", amount: "+GH₵ 30,000.00", amtColor: "#2F5E3D", after: "GH₵ 53,320.00" },
-        { date: "03 Jul 2026", desc: "Expense — fuel, Tolon round", amount: "−GH₵ 420.00", amtColor: "#B03A2E", after: "GH₵ 23,320.00" },
-      ],
-    },
-    rows: [
-      ["Ibrahim Fuseini", "024 556 8841", "GH₵ 1,240.00", "18", "38,400 kg", { t: "Active", tone: "leaf" }],
-      ["Salifu Issahaku", "020 771 2204", { t: "−GH₵ 480.00", c: "#B03A2E", w: 600 }, "14", "29,150 kg", { t: "Fronted", tone: "alert" }],
-      ["Yakubu Mohammed", "055 302 9917", "GH₵ 2,905.00", "9", "13,940 kg", { t: "Active", tone: "leaf" }],
-      ["Fuseina Alhassan", "024 118 6630", "GH₵ 12,455.00", "12", "21,300 kg", { t: "Active", tone: "leaf" }],
-      ["Musah Wumpini", "026 447 1029", "GH₵ 0.00", "0", "0 kg", { t: "Inactive", tone: "slate" }],
     ],
   },
   expenses: {
@@ -347,6 +312,8 @@ export const REGISTERS: Record<RegisterSlug, RegisterConfig & { rows: RegisterRo
   // components/admin/registry).
   // `users` retired from the stub registers: /admin/users is now a live,
   // backend-driven module (src/app/admin/users + components/admin/users).
+  // `agents` retired from the stub registers: /admin/agents is now a live,
+  // backend-driven module (src/app/admin/agents + components/admin/agents).
   // `audit` retired from the stub registers: /admin/audit is now a live,
   // backend-driven module (src/app/admin/audit + components/admin/audit).
 };

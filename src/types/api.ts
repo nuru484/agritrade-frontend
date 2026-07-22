@@ -3,11 +3,15 @@
  * pulls tag names from here so invalidation can never typo a tag.
  */
 export const apiSliceTags = [
+  "Agents",
   "AuditLogs",
   "Buyers",
   "Commodities",
   "Enquiries",
   "ExpenseCategories",
+  "FloatLedger",
+  "Purchases",
+  "Reconciliations",
   "Sales",
   "Settings",
   "Suppliers",
