@@ -29,6 +29,25 @@ export function PurchaseStatusBadge({ status }: { status: PurchaseStatus }) {
   );
 }
 
+/**
+ * The threshold-approval overlay chip: amber while the owner's sign-off is
+ * pending, muted once rejected (the cue to void). Renders nothing below the
+ * threshold or after approval - an acknowledged purchase needs no extra ink.
+ */
+export function ApprovalOverlayBadge({
+  approval,
+}: {
+  approval: { status: string } | null;
+}) {
+  if (approval?.status === "PENDING") {
+    return <ToneBadge tone="harvest">Needs approval</ToneBadge>;
+  }
+  if (approval?.status === "REJECTED") {
+    return <ToneBadge tone="slate">Approval rejected</ToneBadge>;
+  }
+  return null;
+}
+
 export const PURCHASE_STATUS_FILTER_OPTIONS = [
   { value: "all", label: "All statuses" },
   { value: PurchaseStatus.RECORDED, label: "Recorded" },

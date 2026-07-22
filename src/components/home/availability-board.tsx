@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PlankRows } from "@/components/shared/plank-rows";
 import { routes } from "@/lib/routes";
+import type { CommodityLine } from "@/static-data/availability";
 
 /**
  * The signature element: the warehouse plank board (home edition). The shared
@@ -10,7 +11,13 @@ import { routes } from "@/lib/routes";
  * the board never reads as a wall of buttons. Forest (not board-black) keeps
  * the section from going heavy while the planks stay dark against it.
  */
-export function AvailabilityBoard({ updatedOn }: { updatedOn: string }) {
+export function AvailabilityBoard({
+  updatedOn,
+  lines,
+}: {
+  updatedOn: string;
+  lines: CommodityLine[];
+}) {
   return (
     <section
       aria-label="Today at the warehouse — commodity availability"
@@ -32,7 +39,7 @@ export function AvailabilityBoard({ updatedOn }: { updatedOn: string }) {
           </span>
         </div>
 
-        <PlankRows />
+        <PlankRows lines={lines} />
 
         <div className="mt-5 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
           <span className="max-w-[60ch] text-[12.5px] leading-[1.6] text-surface/70">

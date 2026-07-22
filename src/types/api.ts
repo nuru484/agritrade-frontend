@@ -4,6 +4,8 @@
  */
 export const apiSliceTags = [
   "Agents",
+  "Approvals",
+  "ApprovalsCount",
   "AuditLogs",
   "Buyers",
   "Commodities",
@@ -14,6 +16,8 @@ export const apiSliceTags = [
   "Reconciliations",
   "Sales",
   "Settings",
+  "Stock",
+  "StockMovements",
   "Suppliers",
   "Users",
   "Warehouses",

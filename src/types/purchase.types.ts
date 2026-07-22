@@ -1,4 +1,5 @@
 import type { IPaginationMeta } from "./api";
+import type { ApprovalStatus } from "./approval.types";
 import type { PurchaseSource } from "./registry.types";
 
 /**
@@ -24,6 +25,12 @@ export interface IPurchase {
   supplier: { id: string; name: string } | null;
   agent: { profileId: string; name: string } | null;
   warehouse: { id: string; name: string } | null;
+  /**
+   * PURCHASE_ABOVE_THRESHOLD overlay: PENDING flags the purchase in lists,
+   * REJECTED is the owner's cue to void. Null below the threshold (and on
+   * agent-facing reads, which do not surface approvals).
+   */
+  approval: { id: string; status: ApprovalStatus } | null;
   weightKg: number;
   receivedKg: number | null;
   /** Recorded minus received weight (spillage/moisture); null until receipt. */

@@ -31,10 +31,10 @@ import {
   ADMIN_HOME,
   activeNavKey,
   adminNavGroups,
-  PENDING_APPROVALS,
   screenTitle,
 } from "@/static-data/admin/nav";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { usePendingApprovalsCount } from "@/hooks/use-pending-approvals";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useLogoutMutation } from "@/redux/auth/auth-api";
 import { notify } from "@/lib/notify";
@@ -288,6 +288,7 @@ function SidebarSignOut() {
  * On mobile shadcn renders it as a sheet, opened from the Menu tab below. */
 function ConsoleSidebar({ activeKey }: { activeKey: string }) {
   const { setOpenMobile } = useSidebar();
+  const pendingApprovals = usePendingApprovalsCount();
   return (
     <Sidebar>
       <SidebarHeader className="gap-0 border-b border-soil/15 px-5 pb-4 pt-5">
@@ -318,8 +319,8 @@ function ConsoleSidebar({ activeKey }: { activeKey: string }) {
                         onClick={() => setOpenMobile(false)}
                       >
                         <span className="whitespace-nowrap">{item.label}</span>
-                        {item.badge === "approvals" && PENDING_APPROVALS > 0 ? (
-                          <NavBadge count={PENDING_APPROVALS} />
+                        {item.badge === "approvals" && pendingApprovals > 0 ? (
+                          <NavBadge count={pendingApprovals} />
                         ) : null}
                       </Link>
                     </SidebarMenuButton>
@@ -337,17 +338,16 @@ function ConsoleSidebar({ activeKey }: { activeKey: string }) {
   );
 }
 
-// The Approvals tab returns here when the approvals module ships (Step 3):
-// { key: "approvals", label: "Approvals", href: `${ADMIN_HOME}/approvals`, icon: "✓" }
 const MOBILE_TABS = [
   { key: "dashboard", label: "Dashboard", href: ADMIN_HOME, icon: "▦" },
+  { key: "approvals", label: "Approvals", href: `${ADMIN_HOME}/approvals`, icon: "✓" },
   { key: "purchases", label: "Purchases", href: `${ADMIN_HOME}/purchases`, icon: "⇄" },
-  { key: "agents", label: "Agents", href: `${ADMIN_HOME}/agents`, icon: "₵" },
 ] as const;
 
 /** Bottom tabs (mobile) — the Menu tab opens the shadcn sidebar sheet. */
 function MobileTabs({ activeKey }: { activeKey: string }) {
   const { openMobile, setOpenMobile } = useSidebar();
+  const pendingApprovals = usePendingApprovalsCount();
   return (
     <nav
       aria-label="Console quick navigation"
@@ -370,7 +370,11 @@ function MobileTabs({ activeKey }: { activeKey: string }) {
               {tab.icon}
             </span>
             <span className="text-[10.5px] font-semibold">{tab.label}</span>
-            {/* The approvals badge returns with the Approvals tab (Step 3). */}
+            {tab.key === "approvals" && pendingApprovals > 0 ? (
+              <span className="font-adminmono absolute right-[24%] top-2 flex h-[15px] min-w-[15px] items-center justify-center rounded-full bg-console-red text-[9.5px] font-bold text-white">
+                {pendingApprovals}
+              </span>
+            ) : null}
           </Link>
         );
       })}

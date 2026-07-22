@@ -32,7 +32,6 @@ const item = (key: string, label: string, badge?: "approvals"): AdminNavItem => 
  * what the system can do today, so an unbuilt tab never masquerades as a
  * feature. Re-enable each commented entry in the step that ships it:
  *
- *   Step 3  - stock, approvals (+ badge), the approvals mobile tab
  *   Step 4  - sales
  *   Step 5  - shipments, expenses
  *   Step 7  - notifications (+ topbar bell)
@@ -45,7 +44,7 @@ export const adminNavGroups: AdminNavGroup[] = [
     label: "Overview",
     items: [
       item("dashboard", "Dashboard"),
-      // item("approvals", "Approvals", "approvals"),
+      item("approvals", "Approvals", "approvals"),
       // item("reports", "Reports"),
     ],
   },
@@ -55,7 +54,7 @@ export const adminNavGroups: AdminNavGroup[] = [
       item("purchases", "Purchases"),
       // item("sales", "Sales"),
       // item("shipments", "Shipments"),
-      // item("stock", "Stock"),
+      item("stock", "Stock"),
       item("commodities", "Commodities"),
       item("warehouses", "Warehouses"),
       item("agents", "Agents & Floats"),
@@ -80,13 +79,6 @@ export const adminNavGroups: AdminNavGroup[] = [
     ],
   },
 ];
-
-/**
- * Pending-approvals badge count. Zero until the approvals module ships
- * (Step 3) - a fake number on the bell/tab would advertise an unbuilt
- * feature, exactly what the trimmed rail exists to prevent.
- */
-export const PENDING_APPROVALS = 0;
 
 /** Resolve the active nav key for a pathname (details map to their register). */
 export function activeNavKey(pathname: string): string {

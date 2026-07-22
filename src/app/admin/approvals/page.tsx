@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { ApprovalsScreen } from "@/components/admin/approvals/approvals-screen";
+import { ApprovalsInbox } from "@/components/admin/approvals/approvals-inbox";
 
 export const metadata: Metadata = { title: "Approvals" };
 
 export default function ApprovalsPage() {
-  return <ApprovalsScreen />;
+  return <ApprovalsInbox />;
 }

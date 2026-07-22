@@ -7,6 +7,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { ConsoleDataTable } from "@/components/admin/data-table";
 import {
   ConsoleFilterBar,
+  ConsoleDateField,
   ConsoleLabeledSelect,
 } from "@/components/admin/filter-bar";
 import { AdminCard, Mono } from "@/components/admin/ui";
@@ -29,6 +30,7 @@ import {
 import { columnMeta, Absent } from "@/components/admin/registry/registry-bits";
 import {
   CompactCedis,
+  ApprovalOverlayBadge,
   formatConsoleDate,
   PURCHASE_STATUS_FILTER_OPTIONS,
   purchaseCounterparty,
@@ -41,6 +43,8 @@ const FILTER_DEFAULTS = {
   source: "all",
   commodity: "all",
   warehouse: "all",
+  from: "",
+  to: "",
   size: "10",
 };
 
@@ -67,7 +71,7 @@ export function PurchasesTable() {
 
   const pageSize = Number(filters.size) || 10;
   const search = (queryParams.search as string | undefined) ?? "";
-  const { status, source, commodity, warehouse } = filters;
+  const { status, source, commodity, warehouse, from, to } = filters;
 
   // Filter selects are fed from the registry (first page covers the
   // vocabulary at this scale; pickers in forms use the same source).
@@ -83,17 +87,20 @@ export function PurchasesTable() {
       ...(source !== "all" ? { source: source as PurchaseSource } : {}),
       ...(commodity !== "all" ? { commodityId: commodity } : {}),
       ...(warehouse !== "all" ? { warehouseId: warehouse } : {}),
+      ...(from ? { from } : {}),
+      ...(to ? { to } : {}),
     }),
-    [page, pageSize, search, status, source, commodity, warehouse],
+    [page, pageSize, search, status, source, commodity, warehouse, from, to],
   );
 
   const { data, isLoading, isFetching, isError, error, refetch } =
     useGetPurchasesQuery(queryArgs);
   const purchases = data?.data ?? [];
   const totalCount = data?.meta.total ?? 0;
-  const activeFilterCount = [status, source, commodity, warehouse].filter(
-    (v) => v !== "all",
-  ).length;
+  const activeFilterCount =
+    [status, source, commodity, warehouse].filter((v) => v !== "all").length +
+    (from ? 1 : 0) +
+    (to ? 1 : 0);
 
   const columns = useMemo<ColumnDef<IPurchase, unknown>[]>(
     () => [
@@ -170,7 +177,12 @@ export function PurchasesTable() {
         header: "Status",
         enableSorting: false,
         meta: columnMeta(),
-        cell: ({ row }) => <PurchaseStatusBadge status={row.original.status} />,
+        cell: ({ row }) => (
+          <span className="flex flex-wrap items-center gap-1">
+            <PurchaseStatusBadge status={row.original.status} />
+            <ApprovalOverlayBadge approval={row.original.approval} />
+          </span>
+        ),
       },
     ],
     [],
@@ -244,6 +256,20 @@ export function PurchasesTable() {
             ]}
             active={warehouse !== "all"}
             className="lg:w-[170px]"
+          />
+          <ConsoleDateField
+            label="From"
+            value={from}
+            max={to || undefined}
+            onChange={(v) => setFilter("from", v)}
+            className="lg:w-[150px]"
+          />
+          <ConsoleDateField
+            label="To"
+            value={to}
+            min={from || undefined}
+            onChange={(v) => setFilter("to", v)}
+            className="lg:w-[150px]"
           />
         </ConsoleFilterBar>
       )}

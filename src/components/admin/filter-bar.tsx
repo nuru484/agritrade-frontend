@@ -139,17 +139,20 @@ export function ConsoleDateField({
  * anchored beside the toggle.
  */
 export function ConsoleFilterBar({
-  search,
+  search = "",
   onSearch,
   searchPlaceholder = "Search…",
+  hideSearch = false,
   activeCount = 0,
   onClear,
   action,
   children,
 }: {
-  search: string;
-  onSearch: (value: string) => void;
+  search?: string;
+  onSearch?: (value: string) => void;
   searchPlaceholder?: string;
+  /** Screens with nothing meaningful to search (stock) drop the box. */
+  hideSearch?: boolean;
   /** Number of non-default filters, shown on the toggle. */
   activeCount?: number;
   /** Resets every filter (rendered only while any is active). */
@@ -161,7 +164,7 @@ export function ConsoleFilterBar({
 }) {
   const [open, setOpen] = useState(false);
 
-  const searchField = (
+  const searchField = hideSearch ? null : (
     <label
       className={cn(
         boxField(search.length > 0),
@@ -175,7 +178,7 @@ export function ConsoleFilterBar({
       <Input
         type="search"
         value={search}
-        onChange={(e) => onSearch(e.target.value)}
+        onChange={(e) => onSearch?.(e.target.value)}
         placeholder={searchPlaceholder}
         aria-label={searchPlaceholder}
         className="[&::-webkit-search-cancel-button]:hidden h-full w-full min-w-0 rounded-none border-0 bg-transparent p-0 text-[13px] text-ink shadow-none outline-none placeholder:text-soil/45 focus-visible:ring-0 md:text-[13px]"
@@ -183,7 +186,7 @@ export function ConsoleFilterBar({
       {search ? (
         <button
           type="button"
-          onClick={() => onSearch("")}
+          onClick={() => onSearch?.("")}
           aria-label="Clear search"
           className="flex h-4 w-4 flex-none cursor-pointer items-center justify-center rounded-full text-soil/70 hover:bg-soil/20 hover:text-soil"
         >

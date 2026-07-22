@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Reveal } from "@/components/ui/Reveal";
 import { Stamp } from "@/components/ui/Stamp";
 import { routes } from "@/lib/routes";
-import { availabilityBoard, commodityLots } from "@/static-data/availability";
+import type { MergedLot } from "@/lib/public-commodities";
 import { cn } from "@/lib/utils";
 
 const SPEC_LABELS = ["GRADES", "SEASON", "SOLD AS"] as const;
@@ -13,14 +13,12 @@ const SPEC_LABELS = ["GRADES", "SEASON", "SOLD AS"] as const;
  * alternating sides, a cropped ghost stencil behind each, and the stock stamp
  * ("IN STOCK" solid leaf / "ON ORDER" dashed soil) following the board.
  */
-export function LotFiles() {
+export function LotFiles({ lots }: { lots: MergedLot[] }) {
   return (
     <div className="overflow-hidden py-14 lg:py-[88px]">
-      {commodityLots.map((lot, i) => {
+      {lots.map((lot, i) => {
         const flipped = i % 2 === 1;
-        const inStock =
-          availabilityBoard.find((line) => line.name === lot.boardName)
-            ?.available ?? false;
+        const inStock = lot.inStock;
         const specs = [lot.grades, lot.season, lot.soldAs];
         return (
           <div key={lot.lotNo}>
@@ -30,7 +28,12 @@ export function LotFiles() {
                 className="ledger-rule mx-auto mb-12 max-w-[1312px] px-5 lg:mb-[72px] lg:px-8"
               />
             ) : null}
-            <Reveal className="relative mx-auto grid max-w-[1312px] items-center gap-8 px-5 pb-12 last:pb-0 lg:grid-cols-2 lg:gap-14 lg:px-8 lg:pb-[72px]">
+            <Reveal
+              className={cn(
+                "relative mx-auto grid max-w-[1312px] items-center gap-8 px-5 pb-12 last:pb-0 lg:gap-14 lg:px-8 lg:pb-[72px]",
+                lot.photo ? "lg:grid-cols-2" : "lg:max-w-[880px]",
+              )}
+            >
               <span
                 aria-hidden="true"
                 className={cn(
@@ -98,23 +101,25 @@ export function LotFiles() {
                 </Stamp>
               </div>
 
-              <div
-                className={cn(
-                  "relative h-[220px] border border-soil/30 sm:h-[300px] lg:h-[380px]",
-                  flipped
-                    ? "shadow-[-6px_6px_0_rgb(31_33_28/0.18)] lg:order-1"
-                    : "shadow-[6px_6px_0_rgb(31_33_28/0.18)]",
-                )}
-              >
-                <Image
-                  src={lot.photo}
-                  alt={lot.photoAlt}
-                  fill
-                  sizes="(min-width: 1024px) 560px, 100vw"
-                  className="object-cover saturate-[0.72]"
-                />
-                <div aria-hidden="true" className="photo-treatment absolute inset-0" />
-              </div>
+              {lot.photo ? (
+                <div
+                  className={cn(
+                    "relative h-[220px] border border-soil/30 sm:h-[300px] lg:h-[380px]",
+                    flipped
+                      ? "shadow-[-6px_6px_0_rgb(31_33_28/0.18)] lg:order-1"
+                      : "shadow-[6px_6px_0_rgb(31_33_28/0.18)]",
+                  )}
+                >
+                  <Image
+                    src={lot.photo}
+                    alt={lot.photoAlt}
+                    fill
+                    sizes="(min-width: 1024px) 560px, 100vw"
+                    className="object-cover saturate-[0.72]"
+                  />
+                  <div aria-hidden="true" className="photo-treatment absolute inset-0" />
+                </div>
+              ) : null}
             </Reveal>
           </div>
         );

@@ -6,6 +6,10 @@ import { PaperTrail } from "@/components/home/paper-trail";
 import { TrustStrip } from "@/components/home/trust-strip";
 import { WaybillSteps } from "@/components/home/waybill-steps";
 import { WhyUs } from "@/components/home/why-us";
+import {
+  fetchPublicCommodities,
+  toBoardLines,
+} from "@/lib/public-commodities";
 import { pageMetadata } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
 
@@ -16,20 +20,20 @@ export const metadata = pageMetadata({
   keywords: [...siteConfig.keywords],
 });
 
-// The availability board's "Updated …" line reflects when the stock lines in
-// static-data were last shipped — i.e. this build. It becomes the API's
-// timestamp when the warehouse records endpoint arrives.
-const updatedOn = new Date().toLocaleDateString("en-GB", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-});
-
-export default function HomePage() {
+export default async function HomePage() {
+  // Live availability with a 5-minute ISR window; the fetch failing (or
+  // nothing published yet) falls back to the static board lines, so the
+  // page never renders bare or 500s because the API is down.
+  const lines = toBoardLines(await fetchPublicCommodities());
+  const updatedOn = new Date().toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
   return (
     <>
       <Hero />
-      <AvailabilityBoard updatedOn={updatedOn} />
+      <AvailabilityBoard updatedOn={updatedOn} lines={lines} />
       <div className="texture-grain bg-surface">
         <TrustStrip />
         <WaybillSteps />

@@ -1,4 +1,5 @@
 import { AvailabilityBoard } from "@/components/home/availability-board";
+import { availabilityBoard } from "@/static-data/availability";
 import { InteractiveDemos } from "@/components/style-guide/interactive-demos";
 import { Button } from "@/components/ui/button";
 import { DataTableSkeleton } from "@/components/ui/DataTableSkeleton";
@@ -205,7 +206,7 @@ export default function StyleGuidePage() {
           {/* The signature board, live */}
           <Sheet label="LIVE AVAILABILITY BOARD (SIGNATURE ELEMENT)" className="[&>span]:mb-0">
             <div className="mt-4 overflow-hidden rounded-[2px]">
-              <AvailabilityBoard updatedOn="today" />
+              <AvailabilityBoard updatedOn="today" lines={availabilityBoard} />
             </div>
             <p className="mt-3.5 text-[13px] leading-[1.6] text-soil">
               Forest-deep board, wood-grained planks, stencil commodity names;

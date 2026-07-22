@@ -74,7 +74,6 @@ export interface RegisterConfig {
 }
 
 export type RegisterSlug =
-  | "stock"
   | "expenses"
   | "plots"
   | "land-sales"
@@ -84,40 +83,6 @@ export type RegisterSlug =
   | "repayments";
 
 export const REGISTERS: Record<RegisterSlug, RegisterConfig & { rows: RegisterRow[] }> = {
-  stock: {
-    title: "Stock",
-    sub: "On-hand inventory by lot and warehouse",
-    single: "Lot",
-    add: "+ Stock adjustment",
-    search: "Search lot or commodity…",
-    filters: ["Commodity", "Warehouse"],
-    newTag: { t: "Available", tone: "leaf" },
-    headers: [
-      { l: "Lot" },
-      { l: "Commodity" },
-      { l: "Warehouse", wide: true },
-      { l: "Weight", align: "right" },
-      { l: "Cost/kg", align: "right", money: true, wide: true },
-      { l: "Value", align: "right", money: true },
-      { l: "Status", tag: true },
-    ],
-    figs: [3, 4, 5],
-    ledger: {
-      title: "Stock movements",
-      rows: [
-        { date: "10 Jul 2026", desc: "Received from P-0891", amount: "+12,400 kg", amtColor: "#2F5E3D", after: "12,400 kg" },
-        { date: "10 Jul 2026", desc: "Allocated to SH-0119", amount: "−12,400 kg", amtColor: "#B03A2E", after: "0 kg free" },
-      ],
-    },
-    rows: [
-      ["LOT-0455", "Maize (white)", "Main WH, Tamale", "12,400 kg", "4.20", "GH₵ 52,080", { t: "Allocated", tone: "sky" }],
-      ["LOT-0442", "Maize (white)", "Main WH, Tamale", "8,000 kg", "4.15", "GH₵ 33,200", { t: "Allocated", tone: "sky" }],
-      ["LOT-0431", "Maize (white)", "Savelugu Depot", "7,600 kg", { t: "~4.10", c: "#7A5407" }, { t: "~GH₵ 31,160", c: "#7A5407" }, { t: "Estimated", tone: "harvest" }],
-      ["LOT-0428", "Soybeans", "Main WH, Tamale", "9,450 kg", "6.78", "GH₵ 64,071", { t: "Available", tone: "leaf" }],
-      ["LOT-0419", "Shea nuts", "Walewale Store", "12,800 kg", "5.07", "GH₵ 64,896", { t: "Available", tone: "leaf" }],
-      ["LOT-0412", "Groundnuts", "Main WH, Tamale", "2,240 kg", "7.50", "GH₵ 16,800", { t: "Reserved", tone: "harvest" }],
-    ],
-  },
   expenses: {
     title: "Expenses",
     sub: "Operating costs across trucks, warehouses and agents",

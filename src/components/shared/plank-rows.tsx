@@ -1,5 +1,5 @@
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { availabilityBoard } from "@/static-data/availability";
+import type { CommodityLine } from "@/static-data/availability";
 import { cn } from "@/lib/utils";
 
 /** Per-plank wood grain + tilt so the board reads hand-built, not cloned. */
@@ -18,11 +18,11 @@ const TAG_TILTS = ["-1.1deg", "0.8deg", "-0.7deg"];
  * closes with ONE quiet caption + action of its own, so the section never
  * reads as a wall of buttons ("other grains on request" lives in the caption).
  */
-export function PlankRows() {
+export function PlankRows({ lines }: { lines: CommodityLine[] }) {
   return (
     <>
       <div className="flex flex-col gap-[5px] border-t border-dashed border-surface/30 pt-2.5">
-        {availabilityBoard.map((line, i) => {
+        {lines.map((line, i) => {
           const plank = PLANK_STYLES[i % PLANK_STYLES.length];
           const label = line.available ? "AVAILABLE NOW" : "ASK US";
           const tagAnimation = `tag-settle .5s cubic-bezier(.2,.9,.3,1) ${String(0.75 + i * 0.1)}s backwards`;

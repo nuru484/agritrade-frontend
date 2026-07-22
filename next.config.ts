@@ -11,6 +11,8 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "commons.wikimedia.org" },
       { protocol: "https", hostname: "upload.wikimedia.org" },
+      // Commodity photos uploaded from the console (Cloudinary).
+      { protocol: "https", hostname: "res.cloudinary.com" },
     ],
   },
 };

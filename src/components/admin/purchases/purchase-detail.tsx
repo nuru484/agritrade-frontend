@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -48,6 +49,7 @@ import { SOURCE_LABEL } from "@/components/admin/registry/registry-bits";
 import {
   formatConsoleDate,
   purchaseCounterparty,
+  ApprovalOverlayBadge,
   PurchaseStatusBadge,
   todayInputValue,
 } from "./purchase-bits";
@@ -353,8 +355,36 @@ export function PurchaseDetail({ id }: { id: string }) {
       <AdminPageHeader
         title={`${p.commodity.name} · ${formatKg(p.weightKg)}`}
         sub={`${SOURCE_LABEL[p.source]} purchase from ${purchaseCounterparty(p)}`}
-        actions={<PurchaseStatusBadge status={p.status} />}
+        actions={
+          <span className="flex flex-wrap items-center gap-1.5">
+            <PurchaseStatusBadge status={p.status} />
+            <ApprovalOverlayBadge approval={p.approval} />
+          </span>
+        }
       />
+
+      {p.approval && p.approval.status !== "APPROVED" ? (
+        <AdminCard className="mb-3 border-console-gold/50 bg-console-gold/8 px-4 py-3 text-[13px] leading-[1.55] text-ink">
+          {p.approval.status === "PENDING" ? (
+            <>
+              This purchase is at or above the approval threshold and is
+              waiting for sign-off.{" "}
+              <Link
+                href="/admin/approvals"
+                className="font-semibold text-console underline-offset-2 hover:underline"
+              >
+                Open the approvals inbox →
+              </Link>
+            </>
+          ) : (
+            <>
+              The approval for this purchase was <strong>rejected</strong> -
+              rejection undoes nothing by itself; voiding below reverses the
+              money and stock.
+            </>
+          )}
+        </AdminCard>
+      ) : null}
 
       <AdminCard className="px-5 py-2">
         <DetailRow label="Total" mono>

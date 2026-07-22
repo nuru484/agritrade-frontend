@@ -1,10 +1,17 @@
 import { PlankRows } from "@/components/shared/plank-rows";
 import { StencilLabel } from "@/components/ui/StencilLabel";
+import type { CommodityLine } from "@/static-data/availability";
 
 /** The commodities page opens ON the board — eyebrow, H1 and the planks.
  * Same restraint as the home board: forest (not board-black) and a single
  * caption line under the planks, no extra button rows. */
-export function BoardHeader({ updatedOn }: { updatedOn: string }) {
+export function BoardHeader({
+  updatedOn,
+  lines,
+}: {
+  updatedOn: string;
+  lines: CommodityLine[];
+}) {
   return (
     <section
       aria-label="The board — commodity availability"
@@ -31,7 +38,7 @@ export function BoardHeader({ updatedOn }: { updatedOn: string }) {
           </div>
         </div>
 
-        <PlankRows />
+        <PlankRows lines={lines} />
 
         <p className="mt-4 max-w-[72ch] text-[12.5px] leading-[1.6] text-surface/70">
           Other grains &amp; pulses on request. No prices, no stock figures
