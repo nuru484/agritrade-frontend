@@ -9,8 +9,15 @@
  * origin when that ships and nothing else changes.
  */
 export const env = {
-  /** Origin of the Nasara Agro API. Empty = same-origin `/api/v1` stubs. */
+  /** Origin of the DB Plus API. Empty = same-origin `/api/v1` stubs. */
   SERVER_URI: (process.env.NEXT_PUBLIC_SERVER_URI ?? "").replace(/\/$/, ""),
   /** Canonical site origin, used for metadata/links. */
   BASE_URL: process.env.NEXT_PUBLIC_BASE_URL ?? "",
+  /**
+   * Cloudflare Turnstile site key for the public forms. Optional BY DESIGN,
+   * mirroring the backend's TURNSTILE_SECRET_KEY: when unset (local dev), the
+   * widget renders nothing and submission proceeds unblocked — the backend
+   * skips verification too. Set BOTH keys to enforce in production.
+   */
+  TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "",
 } as const;

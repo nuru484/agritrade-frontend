@@ -50,8 +50,21 @@ describe("EnquiryForm", () => {
         fullName: "Kwame Mensah",
         subject: "General enquiry",
         email: undefined,
+        // Bot-protection fields ride along: empty honeypot, and no Turnstile
+        // token while no site key is configured (see EnquiryFormTurnstile.test).
+        website: "",
+        turnstileToken: undefined,
       }),
     );
+  });
+
+  it("renders the honeypot hidden from people and assistive tech", () => {
+    const { container } = render(<EnquiryForm />);
+    const honeypot = container.querySelector('input[name="website"]');
+    expect(honeypot).not.toBeNull();
+    expect(honeypot).toHaveAttribute("aria-hidden", "true");
+    expect(honeypot).toHaveAttribute("tabindex", "-1");
+    expect(honeypot).toHaveAttribute("autocomplete", "off");
   });
 
   it("prefills the subject and message from a service-page deep link", async () => {

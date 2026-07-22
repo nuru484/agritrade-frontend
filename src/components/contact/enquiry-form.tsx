@@ -7,6 +7,10 @@ import { Button } from "@/components/ui/button";
 import { DocCard } from "@/components/ui/DocCard";
 import { FieldError } from "@/components/ui/FieldError";
 import { Stamp } from "@/components/ui/Stamp";
+import {
+  TURNSTILE_ENABLED,
+  TurnstileWidget,
+} from "@/components/ui/TurnstileWidget";
 import { extractApiError } from "@/lib/extract-api-error";
 import { notify } from "@/lib/notify";
 import { siteConfig } from "@/lib/site";
@@ -28,6 +32,10 @@ const labelClass = "stencil text-[11px] tracking-[0.14em] text-harvest-deep";
  * rule: error text sits under the field, never as a toast — the toast is for
  * transport failures only). Success swaps the sheet for the "RECEIVED" file.
  *
+ * Bot protection mirrors the backend's: a hidden honeypot field bots fill and
+ * people never see, plus Cloudflare Turnstile when a site key is configured
+ * (without one the widget renders nothing and submission proceeds unblocked).
+ *
  * Service pages deep-link here with a preselected subject (and optionally
  * what the enquiry is about, e.g. a plot reference) via `defaultSubject` /
  * `defaultAbout` — the contact page derives both from its search params.
@@ -41,6 +49,11 @@ export function EnquiryForm({
 }) {
   const fieldId = useId();
   const [reference, setReference] = useState<string | null>(null);
+  // Cloudflare Turnstile: the token gates submit only when a site key is set
+  // (mirrors the backend, which skips verification without its secret key).
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileError, setTurnstileError] = useState(false);
+  const [turnstileReset, setTurnstileReset] = useState(0);
   const [createEnquiry, { isLoading: submitting }] = useCreateEnquiryMutation();
 
   const {
@@ -57,10 +70,15 @@ export function EnquiryForm({
       email: "",
       subject: defaultSubject,
       message: defaultAbout ? `Regarding ${defaultAbout} — ` : "",
+      website: "",
     },
   });
 
   const onSubmit = async (values: EnquiryValues) => {
+    if (TURNSTILE_ENABLED && !turnstileToken) {
+      setTurnstileError(true);
+      return;
+    }
     try {
       const res = await createEnquiry({
         fullName: values.fullName.trim(),
@@ -68,6 +86,8 @@ export function EnquiryForm({
         email: values.email || undefined,
         subject: values.subject,
         message: values.message.trim(),
+        website: values.website ?? "",
+        turnstileToken: turnstileToken || undefined,
       }).unwrap();
       setReference(res.data.reference);
     } catch (err) {
@@ -85,6 +105,8 @@ export function EnquiryForm({
         }
       }
       notify.error("Couldn't send your enquiry", { description: message });
+      // A Turnstile token is single-use — reset so a retry gets a fresh one.
+      setTurnstileReset((n) => n + 1);
     }
   };
 
@@ -238,6 +260,35 @@ export function EnquiryForm({
           <FieldError
             id={`${fieldId}-message-error`}
             message={errors.message?.message}
+          />
+        </div>
+
+        {/* Honeypot: invisible to people, irresistible to bots. The backend
+            rejects any submission that fills it. */}
+        <input
+          {...register("website")}
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          className="absolute -left-[9999px] h-0 w-0 opacity-0"
+        />
+
+        <div className="flex flex-col gap-[7px]">
+          <TurnstileWidget
+            onVerify={(token) => {
+              setTurnstileToken(token);
+              if (token) setTurnstileError(false);
+            }}
+            resetSignal={turnstileReset}
+          />
+          <FieldError
+            id={`${fieldId}-turnstile-error`}
+            message={
+              turnstileError
+                ? "Please complete the verification to send your enquiry."
+                : undefined
+            }
           />
         </div>
 

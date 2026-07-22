@@ -9,7 +9,7 @@ import type { IEnquiryInput, IEnquiryResponse } from "@/types/enquiry.types";
 export const enquiriesApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     createEnquiry: builder.mutation<IEnquiryResponse, IEnquiryInput>({
-      query: (body) => ({ url: "enquiries", method: "POST", body }),
+      query: (body) => ({ url: "public/enquiries", method: "POST", body }),
       invalidatesTags: ["Enquiries"],
     }),
   }),
