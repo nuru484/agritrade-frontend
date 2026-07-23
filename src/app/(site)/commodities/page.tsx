@@ -1,4 +1,5 @@
 import { BoardHeader } from "@/components/commodities/board-header";
+import { EmptyLots } from "@/components/commodities/empty-lots";
 import { LotFiles } from "@/components/commodities/lot-files";
 import {
   fetchPublicCommodities,
@@ -21,8 +22,10 @@ export const metadata = pageMetadata({
 });
 
 export default async function CommoditiesPage() {
-  // One live read feeds both the planks and the lot files (5-minute ISR);
-  // any failure falls back to the static content unchanged.
+  // One live read feeds both the planks and the lot files, cached under the
+  // `commodities` tag - the backend purges it on every stock/register write,
+  // so the board follows the records within seconds. Nothing published (or
+  // the API briefly down) renders the designed empty board, never stand-ins.
   const commodities = await fetchPublicCommodities();
   const lines = toBoardLines(commodities);
   const lots = toLots(commodities);
@@ -34,7 +37,7 @@ export default async function CommoditiesPage() {
   return (
     <div className="texture-grain bg-surface">
       <BoardHeader updatedOn={updatedOn} lines={lines} />
-      <LotFiles lots={lots} />
+      {lots.length === 0 ? <EmptyLots /> : <LotFiles lots={lots} />}
     </div>
   );
 }

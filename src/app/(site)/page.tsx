@@ -21,9 +21,9 @@ export const metadata = pageMetadata({
 });
 
 export default async function HomePage() {
-  // Live availability with a 5-minute ISR window; the fetch failing (or
-  // nothing published yet) falls back to the static board lines, so the
-  // page never renders bare or 500s because the API is down.
+  // Live availability cached under the `commodities` tag - the backend
+  // purges it on every stock/register write. Nothing published (or the API
+  // briefly down) renders the board's designed empty plank.
   const lines = toBoardLines(await fetchPublicCommodities());
   const updatedOn = new Date().toLocaleDateString("en-GB", {
     day: "numeric",

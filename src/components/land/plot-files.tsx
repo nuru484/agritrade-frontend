@@ -3,10 +3,10 @@ import Link from "next/link";
 import { Reveal } from "@/components/ui/Reveal";
 import { Stamp } from "@/components/ui/Stamp";
 import { StencilLabel } from "@/components/ui/StencilLabel";
-import { formatMoney } from "@/lib/format-money";
+import { formatCedis } from "@/lib/format-money";
 import { routes } from "@/lib/routes";
 import { siteConfig } from "@/lib/site";
-import { plotRegister, type Plot } from "@/static-data/plots";
+import type { PublicLandPlot } from "@/lib/public-land";
 import { cn } from "@/lib/utils";
 
 /** The torn-ledger perforation strip down a plot document's left edge. */
@@ -33,9 +33,9 @@ function PlotRow({ label, children }: { label: string; children: React.ReactNode
   );
 }
 
-function PlotCard({ plot, offset }: { plot: Plot; offset: boolean }) {
+function PlotCard({ plot, offset }: { plot: PublicLandPlot; offset: boolean }) {
   const available = plot.status === "AVAILABLE";
-  const enquiryHref = `${routes.contact}?subject=${encodeURIComponent("Land / plots")}&about=${encodeURIComponent(`Plot ${plot.ref} — ${plot.name}`)}`;
+  const enquiryHref = `${routes.contact}?subject=${encodeURIComponent("Land / plots")}&about=${encodeURIComponent(`Plot ${plot.reference} - ${plot.name}`)}`;
   return (
     <article
       className={cn(
@@ -46,22 +46,37 @@ function PlotCard({ plot, offset }: { plot: Plot; offset: boolean }) {
       <PerforatedEdge />
       <div>
         <div className="relative h-[180px] border-b-[1.5px] border-soil/50 sm:h-[210px]">
-          <Image
-            src={plot.photo}
-            alt={plot.photoAlt}
-            fill
-            sizes="(min-width: 1024px) 560px, 100vw"
-            className="object-cover saturate-[0.72]"
-          />
-          <div
-            aria-hidden="true"
-            className={cn(
-              "absolute inset-0",
-              available
-                ? "photo-treatment"
-                : "bg-[linear-gradient(rgb(21_87_68/0.42),rgb(89_82_59/0.5))]",
-            )}
-          />
+          {plot.photo ? (
+            <>
+              <Image
+                src={plot.photo}
+                alt={plot.photoAlt ?? `Plot ${plot.reference} - ${plot.name}`}
+                fill
+                sizes="(min-width: 1024px) 560px, 100vw"
+                className="object-cover saturate-[0.72]"
+              />
+              <div
+                aria-hidden="true"
+                className={cn(
+                  "absolute inset-0",
+                  available
+                    ? "photo-treatment"
+                    : "bg-[linear-gradient(rgb(21_87_68/0.42),rgb(89_82_59/0.5))]",
+                )}
+              />
+            </>
+          ) : (
+            // No photo on file yet: the ruled ledger paper keeps the card's
+            // document framing instead of a broken image slot.
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 bg-[repeating-linear-gradient(180deg,transparent_0px,transparent_35px,rgb(89_82_59/0.28)_35px,rgb(89_82_59/0.28)_36px)]"
+            >
+              <span className="stencil absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-4deg] whitespace-nowrap text-[13px] tracking-[0.16em] text-soil">
+                PHOTO TO FOLLOW
+              </span>
+            </div>
+          )}
         </div>
         <div className="relative px-5 pb-6 pt-6 sm:px-7">
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
@@ -69,17 +84,17 @@ function PlotCard({ plot, offset }: { plot: Plot; offset: boolean }) {
               {plot.name}
             </h3>
             <span className="stencil text-[11px] tracking-[0.14em] text-harvest-deep lg:text-[12px]">
-              PLOT {plot.ref}
+              PLOT {plot.reference}
             </span>
           </div>
           <dl className="mb-[18px] flex flex-col gap-2.5 sm:gap-1.5">
             <PlotRow label="SIZE">
-              {plot.size} · {plot.use}
+              {plot.use ? `${plot.sizeText} · ${plot.use}` : plot.sizeText}
             </PlotRow>
-            {plot.price != null ? (
+            {plot.priceGhs != null ? (
               <PlotRow label="PRICE">
                 <span className="font-bold text-forest">
-                  {formatMoney(plot.price)}
+                  {formatCedis(Number(plot.priceGhs))}
                 </span>
               </PlotRow>
             ) : null}
@@ -171,8 +186,8 @@ function EmptyRegister() {
   );
 }
 
-/** CURRENT PLOT FILES — the register grid, or the empty ledger page. */
-export function PlotFiles() {
+/** CURRENT PLOT FILES - the live register grid, or the empty ledger page. */
+export function PlotFiles({ plots }: { plots: PublicLandPlot[] }) {
   return (
     <section className="mx-auto max-w-[1312px] px-5 pb-16 lg:px-8 lg:pb-24">
       <div className="mb-9 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 lg:mb-[34px]">
@@ -183,13 +198,13 @@ export function PlotFiles() {
           Plots are added as they become available.
         </span>
       </div>
-      {plotRegister.length === 0 ? (
+      {plots.length === 0 ? (
         <EmptyRegister />
       ) : (
         <Reveal>
           <div className="grid items-start gap-10 lg:grid-cols-2 lg:gap-[30px]">
-            {plotRegister.map((plot, i) => (
-              <PlotCard key={plot.ref} plot={plot} offset={i % 2 === 1} />
+            {plots.map((plot, i) => (
+              <PlotCard key={plot.id} plot={plot} offset={i % 2 === 1} />
             ))}
           </div>
         </Reveal>

@@ -19,6 +19,48 @@ const TAG_TILTS = ["-1.1deg", "0.8deg", "-0.7deg"];
  * reads as a wall of buttons ("other grains on request" lives in the caption).
  */
 export function PlankRows({ lines }: { lines: CommodityLine[] }) {
+  // An empty register (nothing published, or the feed briefly unreachable)
+  // gets ONE honest plank - never a stand-in list that makes the warehouse
+  // look stocked when the records say otherwise.
+  if (lines.length === 0) {
+    const plank = PLANK_STYLES[0];
+    return (
+      <div className="flex flex-col gap-[5px] border-t border-dashed border-surface/30 pt-2.5">
+        <div
+          className={cn(
+            "relative flex items-center justify-between gap-4 border-t border-surface/9 border-b-2 border-b-[#072620] bg-gradient-to-b px-4 py-[18px] shadow-[inset_0_2px_0_rgb(255_255_255/0.05),inset_0_-5px_9px_rgb(0_0_0/0.35)] lg:px-7 lg:py-5",
+            plank.shade,
+          )}
+          style={{ transform: plank.tilt }}
+        >
+          <span className="min-w-0">
+            <span className="stencil block whitespace-nowrap pr-16 text-[17px] leading-none tracking-[0.08em] text-surface/85 sm:pr-24 sm:text-[24px] lg:pr-0 lg:tracking-[0.1em] lg:text-[32px]">
+              NOTHING ON THE BOARD
+            </span>
+            <span className="mt-2 hidden text-[12.5px] font-medium tracking-[0.04em] text-surface/65 lg:block">
+              The register is being updated - call for today&rsquo;s position
+            </span>
+          </span>
+          <span className="absolute right-2 top-1/2 -translate-y-1/2 -rotate-[7deg] lg:hidden">
+            <StatusBadge
+              variant="dashed"
+              className="px-2 py-[7px] text-[8px] tracking-[0.14em] sm:px-2.5 sm:py-2 sm:text-[10px]"
+            >
+              ASK US
+            </StatusBadge>
+          </span>
+          <span
+            className="hidden lg:inline-block"
+            style={{ transform: `rotate(${TAG_TILTS[0]})` }}
+          >
+            <StatusBadge variant="dashed" className="px-5 py-[13px] text-[15px]">
+              ASK US
+            </StatusBadge>
+          </span>
+        </div>
+      </div>
+    );
+  }
   return (
     <>
       <div className="flex flex-col gap-[5px] border-t border-dashed border-surface/30 pt-2.5">

@@ -21,7 +21,7 @@ export function LotFiles({ lots }: { lots: MergedLot[] }) {
         const inStock = lot.inStock;
         const specs = [lot.grades, lot.season, lot.soldAs];
         return (
-          <div key={lot.lotNo}>
+          <div key={lot.id}>
             {i > 0 ? (
               <div
                 aria-hidden="true"
