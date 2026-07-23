@@ -36,12 +36,17 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const cachedUser = useCurrentUser();
   const hydrated = useHydrated();
-  const { data, isError } = useGetMeQuery();
+  const { data, isError, isFetching } = useGetMeQuery();
   const [logout] = useLogoutMutation();
   const handled = useRef(false);
 
   useEffect(() => {
-    if (isError && !handled.current) {
+    // Act only on a SETTLED failure. On remount RTK Query serves the cached
+    // result instantly while revalidating - after a logout→login round trip
+    // that cache holds the logout's 401, and treating it as a verdict here
+    // fired a logout that revoked the brand-new session (login said success,
+    // console never appeared until a hard refresh cleared the store).
+    if (isError && !isFetching && !handled.current) {
       handled.current = true;
       // The session is invalid (commonly a stale cookie from a reset DB). Clear
       // the httpOnly cookies server-side so the proxy's gate no longer treats
@@ -54,7 +59,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
           router.replace(`/login?from=${encodeURIComponent(pathname)}`);
         });
     }
-  }, [isError, logout, pathname, router]);
+  }, [isError, isFetching, logout, pathname, router]);
 
   // Once the check has failed, hold the loading screen while the redirect
   // fires. (getMe's onQueryStarted also clears the persisted user, so

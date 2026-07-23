@@ -11,7 +11,27 @@ import type {
   IMessageResponse,
 } from "@/types/auth.types";
 import { isTwoFactorChallenge } from "@/types/auth.types";
-import type { IUserResponse } from "@/types/user.types";
+import type { IUser, IUserResponse } from "@/types/user.types";
+
+/**
+ * Seeds the `getMe` cache with the user a sign-in just returned. Without
+ * this, the cache still holds the previous logout's 401 rejection when the
+ * console mounts — RequireAuth would read that stale error while the refetch
+ * is in flight and tear down the brand-new session (see require-auth.tsx).
+ * Seeding also spares the console an extra `/auth/me` round trip on login.
+ */
+const seedSession = (
+  dispatch: (action: unknown) => unknown,
+  message: string,
+  user: IUser,
+) => {
+  dispatch(
+    authApi.util.upsertQueryData("getMe", undefined, {
+      message,
+      data: { user },
+    }),
+  );
+};
 
 /**
  * Auth endpoints, injected into the single `apiSlice`. These mirror the
@@ -30,6 +50,7 @@ export const authApi = apiSlice.injectEndpoints({
           // A 2FA challenge is not a session — only store a real user.
           if (!isTwoFactorChallenge(data.data)) {
             dispatch(userLoggedIn({ user: data.data.user }));
+            seedSession(dispatch, data.message, data.data.user);
           }
         } catch {
           // Surfaced to the caller via `unwrap()`.
@@ -110,6 +131,7 @@ export const authApi = apiSlice.injectEndpoints({
         try {
           const { data } = await queryFulfilled;
           dispatch(userLoggedIn({ user: data.data.user }));
+          seedSession(dispatch, data.message, data.data.user);
         } catch {
           // Surfaced to the caller via `unwrap()`.
         }
@@ -129,6 +151,7 @@ export const authApi = apiSlice.injectEndpoints({
         try {
           const { data } = await queryFulfilled;
           dispatch(userLoggedIn({ user: data.data.user }));
+          seedSession(dispatch, data.message, data.data.user);
         } catch {
           // Surfaced to the caller via `unwrap()`.
         }
