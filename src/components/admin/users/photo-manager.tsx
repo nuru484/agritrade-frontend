@@ -5,6 +5,7 @@ import { Camera, Check, Trash2, X } from "lucide-react";
 import { useConfirm } from "@/hooks/use-confirm";
 import { cn } from "@/lib/utils";
 import { notify } from "@/lib/notify";
+import { optimizeImage } from "@/lib/optimize-image";
 import type { IUser } from "@/types/user.types";
 import { IdentityAvatar, PhotoViewDialog } from "./user-identity";
 
@@ -55,16 +56,18 @@ export function PhotoManager({
     [],
   );
 
-  const pick = (file: File | undefined) => {
+  const pick = async (file: File | undefined) => {
     if (!file) return;
     if (!file.type.startsWith("image/")) {
       notify.error("Choose an image file (JPG or PNG).");
       return;
     }
+    // Downscaled before staging, so the preview shows exactly what uploads.
+    const staged = await optimizeImage(file);
     if (chosenUrl.current) URL.revokeObjectURL(chosenUrl.current);
-    const url = URL.createObjectURL(file);
+    const url = URL.createObjectURL(staged);
     chosenUrl.current = url;
-    setChosen({ file, url });
+    setChosen({ file: staged, url });
   };
 
   const save = async () => {
@@ -191,7 +194,7 @@ export function PhotoManager({
         type="file"
         accept="image/*"
         className="hidden"
-        onChange={(e) => pick(e.target.files?.[0])}
+        onChange={(e) => void pick(e.target.files?.[0])}
       />
       {user.profilePicture ? (
         <PhotoViewDialog

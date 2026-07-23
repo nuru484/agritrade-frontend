@@ -27,6 +27,7 @@ import {
 } from "@/redux/commodities/commodities-api";
 import { extractApiError } from "@/lib/extract-api-error";
 import { notify } from "@/lib/notify";
+import { optimizeImage } from "@/lib/optimize-image";
 import { cn } from "@/lib/utils";
 import type {
   ICommodity,
@@ -294,8 +295,10 @@ function CommodityFormFields({ commodity }: { commodity?: ICommodity }) {
               onChange={(e) => {
                 const file = e.target.files?.[0] ?? null;
                 if (file) {
-                  setPhotoFile(file);
-                  setRemovePhoto(false);
+                  void optimizeImage(file).then((staged) => {
+                    setPhotoFile(staged);
+                    setRemovePhoto(false);
+                  });
                 }
               }}
             />

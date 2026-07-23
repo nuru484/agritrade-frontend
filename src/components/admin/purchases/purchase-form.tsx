@@ -31,6 +31,7 @@ import { useGetWarehousesQuery } from "@/redux/warehouses/warehouses-api";
 import { extractApiError } from "@/lib/extract-api-error";
 import { formatCedis } from "@/lib/format-money";
 import { notify } from "@/lib/notify";
+import { optimizeImage } from "@/lib/optimize-image";
 import { cn } from "@/lib/utils";
 import { PurchaseSource } from "@/types/registry.types";
 import {
@@ -396,7 +397,14 @@ export function PurchaseCreate() {
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)}
+                onChange={(e) => {
+                  const file = e.target.files?.[0] ?? null;
+                  if (!file) {
+                    setPhotoFile(null);
+                    return;
+                  }
+                  void optimizeImage(file).then(setPhotoFile);
+                }}
               />
             </div>
           </AdminField>
