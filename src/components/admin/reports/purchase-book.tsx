@@ -20,6 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRemoteSearch } from "@/hooks/use-remote-search";
+import { useTableQuery } from "@/hooks/use-table-query";
 import { env } from "@/lib/env";
 import { toQueryString } from "@/lib/to-query-string";
 import { cn } from "@/lib/utils";
@@ -113,12 +114,13 @@ const sheetDate = (iso: string) =>
 function Particulars({ row, side }: { row: IPurchaseBookRow; side: Side }) {
   if (!row.reference || !row.documentId) return <>{row.particulars}</>;
   const cut = row.reference.lastIndexOf("-") + 1;
+  const href = row.kind === "LOAD" ? "/admin/shipments" : WORDS[side].href;
   return (
     <>
       {row.particulars}{" "}
       <Link
         className="whitespace-nowrap underline-offset-2 hover:underline"
-        href={`${WORDS[side].href}/${row.documentId}`}
+        href={`${href}/${row.documentId}`}
       >
         ({row.reference.slice(0, cut)}
         <span className={cn("font-bold", SHEET.red)}>
@@ -134,15 +136,30 @@ function Particulars({ row, side }: { row: IPurchaseBookRow; side: Side }) {
 const validYear = (text: string) =>
   /^\d{4}$/.test(text) && Number(text) >= 2000 && Number(text) <= 2100;
 
+/**
+ * Which book is open, kept in the address so a refresh, a shared link or
+ * coming back through the sidebar opens the same one. Ids only: the names
+ * come back with the book itself.
+ */
+const BOOK_FILTERS = {
+  commodity: "",
+  /** The supplier or buyer whose book is open: none yet, ALL, or one id. */
+  party: "",
+  side: "PURCHASE",
+  year: String(new Date().getFullYear()),
+};
+
 export function PurchaseBook() {
-  const [side, setSide] = useState<Side>("PURCHASE");
-  // The supplier or buyer whose book is open: none yet, ALL, or one record.
-  const [party, setParty] = useState({ id: "", name: "" });
-  const [picked, setPicked] = useState({ id: "", name: "" });
-  // What is typed in the year box, and the last full year it held: the book
-  // follows the box only once it reads as a year.
-  const [yearText, setYearText] = useState(String(new Date().getFullYear()));
-  const [year, setYear] = useState(new Date().getFullYear());
+  const { filters, setFilter } = useTableQuery({ defaults: BOOK_FILTERS });
+  const side: Side = filters.side === "SALE" ? "SALE" : "PURCHASE";
+  const year = validYear(filters.year)
+    ? Number(filters.year)
+    : new Date().getFullYear();
+  // Names of what was picked on this visit, until the book brings its own.
+  const [names, setNames] = useState({ commodity: "", party: "" });
+  // A year being typed: the book follows the box only once it reads as one.
+  const [yearDraft, setYearDraft] = useState<null | string>(null);
+  const yearText = yearDraft ?? String(year);
   const words = WORDS[side];
   const buying = side === "PURCHASE";
 
@@ -156,12 +173,9 @@ export function PurchaseBook() {
   });
   // Until one is chosen the book opens on the first commodity in the register.
   const first = firstCommodities.data?.data[0];
-  const commodity = picked.id
-    ? picked
-    : { id: first?.id ?? "", name: first?.name ?? "" };
-  const commodityId = commodity.id;
-  const partyId = party.id === ALL ? undefined : party.id;
-  const ready = Boolean(commodityId && party.id);
+  const commodityId = filters.commodity || (first?.id ?? "");
+  const partyId = filters.party === ALL ? undefined : filters.party;
+  const ready = Boolean(commodityId && filters.party);
 
   const search = useRemoteSearch();
   const suppliers = useGetSuppliersQuery(
@@ -187,6 +201,19 @@ export function PurchaseBook() {
   const book = buying ? purchaseBook : salesBook;
   const pages = book.data?.pages;
   const data = pages?.[0]?.data;
+
+  const commodityName =
+    (data?.commodity.id === commodityId ? data.commodity.name : "") ||
+    names.commodity ||
+    commodities.data?.data.find((c) => c.id === commodityId)?.name ||
+    (commodityId === first?.id ? first.name : "");
+  const partyName =
+    filters.party === ALL
+      ? words.all
+      : (data?.party?.id === filters.party ? data.party.name : "") ||
+        names.party ||
+        people.data?.data.find((p) => p.id === filters.party)?.name ||
+        "";
   // The sheet is shown whole at every width, scrolling sideways on a phone:
   // the book is the owner's Excel workbook, and it reads as one.
   return (
@@ -222,17 +249,19 @@ export function PurchaseBook() {
           ]}
           value={side}
           onChange={(next) => {
-            setSide(next);
+            setFilter("side", next);
             // A supplier is not a buyer: the other side starts unchosen.
-            setParty({ id: "", name: "" });
+            setFilter("party", "");
+            setNames((n) => ({ ...n, party: "" }));
           }}
         />
         <SearchableSelect
           className="w-[200px]"
-          value={party.id}
+          value={filters.party}
           onChange={(id) => {
             const name = people.data?.data.find((p) => p.id === id)?.name ?? "";
-            setParty({ id, name });
+            setNames((n) => ({ ...n, party: name }));
+            setFilter("party", id);
           }}
           options={[
             { value: ALL, label: words.all },
@@ -244,7 +273,7 @@ export function PurchaseBook() {
           placeholder={words.choose}
           onSearchChange={search.onSearchChange}
           loading={people.isFetching}
-          selectedLabel={party.name}
+          selectedLabel={partyName}
         />
         <SearchableSelect
           className="w-[200px]"
@@ -252,7 +281,8 @@ export function PurchaseBook() {
           onChange={(id) => {
             const name =
               commodities.data?.data.find((c) => c.id === id)?.name ?? "";
-            setPicked({ id, name });
+            setNames((n) => ({ ...n, commodity: name }));
+            setFilter("commodity", id);
           }}
           options={(commodities.data?.data ?? []).map((c) => ({
             value: c.id,
@@ -261,7 +291,7 @@ export function PurchaseBook() {
           placeholder="Choose a commodity"
           onSearchChange={commoditySearch.onSearchChange}
           loading={commodities.isFetching}
-          selectedLabel={commodity.name}
+          selectedLabel={commodityName}
         />
         {/* Any year can be typed: the book is not limited to a list. */}
         <Input
@@ -273,8 +303,12 @@ export function PurchaseBook() {
           min={2000}
           onChange={(e) => {
             const text = e.target.value;
-            setYearText(text);
-            if (validYear(text)) setYear(Number(text));
+            if (validYear(text)) {
+              setFilter("year", text);
+              setYearDraft(null);
+            } else {
+              setYearDraft(text);
+            }
           }}
           title="Type any year from 2000 to 2100"
           type="number"
@@ -561,7 +595,12 @@ const PageRows = memo(function PageRows({
     <tbody>
       {rows.map((row, i) => {
         const cash = row.kind === "CASH";
-        const na = cash ? cn(td, SHEET.blank) : td;
+        const load = row.kind === "LOAD";
+        // A cell that does not apply to this kind of row is shaded, as the
+        // workbook shades it: a load has no price or quality, a purchase or
+        // sale row leaves the dispatch columns to its loads.
+        const doc = cash || load ? cn(td, SHEET.blank) : td;
+        const sent = load ? td : cn(td, SHEET.blank);
         return (
           <tr key={`${row.kind}-${row.documentId ?? row.date}-${String(i)}`}>
             <td className={cn(td, "whitespace-nowrap")}>
@@ -570,9 +609,9 @@ const PageRows = memo(function PageRows({
             <td className={cn(td, "text-left font-sans")}>
               <Particulars row={row} side={side} />
             </td>
-            <td className={na}>{int(row.bags)}</td>
-            <td className={na}>{dec(row.priceGhs)}</td>
-            <td className={na}>{int(row.weightKg)}</td>
+            <td className={doc}>{int(row.bags)}</td>
+            <td className={doc}>{dec(row.priceGhs)}</td>
+            <td className={doc}>{int(row.weightKg)}</td>
             <td className={cn(td, "text-right")}>
               {amount(row.payableGhs ?? (cash ? 0 : null))}
             </td>
@@ -586,11 +625,11 @@ const PageRows = memo(function PageRows({
             >
               {amount(row.balanceCashGhs)}
             </td>
-            <td className={cn(na, "font-bold", SHEET.red)}>
+            <td className={cn(doc, "font-bold", SHEET.red)}>
               {dec(row.fmPercent)}
             </td>
-            <td className={na}>{int(row.dispatchedBags)}</td>
-            <td className={na}>{int(row.dispatchedKg)}</td>
+            <td className={sent}>{int(row.dispatchedBags)}</td>
+            <td className={sent}>{int(row.dispatchedKg)}</td>
             <td className={td}>{int(row.balanceBags ?? 0)}</td>
             <td className={td}>{int(row.balanceKg ?? 0)}</td>
             <td className={cn(td, SHEET.blank)}>

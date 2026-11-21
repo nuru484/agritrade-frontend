@@ -215,4 +215,44 @@ describe("BookSheet", () => {
     await userEvent.click(screen.getByRole("button", { name: "Try again" }));
     expect(onMore).toHaveBeenCalledTimes(1);
   });
+  it("links a load row to its shipment, with the truck's figures in dispatch", () => {
+    const loaded: IPurchaseBookResponse = {
+      ...page(1, [1]),
+      data: {
+        ...page(1, [1]).data,
+        rows: [
+          {
+            ...row(1),
+            bags: null,
+            balanceBags: 0,
+            balanceKg: 0,
+            dispatchedBags: 10,
+            dispatchedKg: 1000,
+            documentId: "ship-1",
+            kind: "LOAD",
+            particulars: "SOYA LOADED FROM FARMER 1 TO KUMASI, TRUCK GT-1-24",
+            payableGhs: null,
+            priceGhs: null,
+            reference: "SHP-2026-00007",
+            weightKg: null,
+          },
+        ],
+      },
+    };
+    render(
+      <BookSheet
+        failed={false}
+        hasMore={false}
+        loadingMore={false}
+        onMore={vi.fn()}
+        pages={[loaded]}
+      />,
+    );
+    expect(
+      screen.getByText(/LOADED FROM FARMER 1 TO KUMASI/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /SHP-2026-00007/ }),
+    ).toHaveAttribute("href", "/admin/shipments/ship-1");
+  });
 });

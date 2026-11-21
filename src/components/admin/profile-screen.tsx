@@ -3,11 +3,10 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Check, Pencil } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import {
-  ActionRow,
   AdminButton,
   AdminCard,
   AdminField,
@@ -352,7 +351,7 @@ function PasswordCard() {
   };
 
   return (
-    <AdminCard className="px-6 py-[18px]">
+    <AdminCard className="@container/pw px-6 py-[18px]">
       <SectionHeading>Password</SectionHeading>
       {open ? (
         <form
@@ -424,7 +423,7 @@ function PasswordCard() {
           </CommitRow>
         </form>
       ) : (
-        <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col items-start gap-3 @min-[440px]/pw:flex-row @min-[440px]/pw:items-center @min-[440px]/pw:justify-between">
           <div className="min-w-0">
             <div className="font-adminmono text-[12.5px] tracking-[0.2em] text-adm-faint">
               ••••••••••
@@ -577,149 +576,175 @@ function TwoFactorCard() {
     }
   };
 
+  const closeStep = () => {
+    setStep("idle");
+    setCode("");
+    setPassword("");
+  };
+
+  /** The password check that guards turning 2FA off or replacing the codes. */
+  const passwordStep = (purpose: "disable" | "regen") => (
+    <div className="mt-3 grid gap-3">
+      <AdminField
+        label={
+          purpose === "disable"
+            ? "Your password, to turn this off"
+            : "Your password, to replace the codes"
+        }
+      >
+        <PasswordInput
+          autoComplete="current-password"
+          autoFocus
+          placeholder="Your password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className={adminInputClass}
+        />
+      </AdminField>
+      <CommitRow>
+        <AdminButton variant="outline" onClick={closeStep}>
+          Cancel
+        </AdminButton>
+        <AdminButton
+          variant={purpose === "disable" ? "danger" : "primary"}
+          disabled={
+            (purpose === "disable" ? isDisabling : isRegenerating) ||
+            password.length === 0
+          }
+          onClick={purpose === "disable" ? submitDisable : submitRegenerate}
+        >
+          {purpose === "disable"
+            ? isDisabling
+              ? "Turning off…"
+              : "Turn off 2FA"
+            : isRegenerating
+              ? "Generating…"
+              : "Generate new codes"}
+        </AdminButton>
+      </CommitRow>
+    </div>
+  );
+
+  // Each setting reads top to bottom - what it is, what it does, then its
+  // action - so the card stays legible in the narrow side rail it lives in.
   return (
     <AdminCard className="px-6 py-[18px]">
-      <SectionHeading>Two-factor authentication</SectionHeading>
-      <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0">
-          <div className="text-[11.5px] font-semibold text-adm-ink">
-            {enabled ? "Email codes - enabled" : "Email codes - off"}
-          </div>
-          <div className="mt-0.5 text-[11px] text-adm-muted">
-            {enabled
-              ? `A 6-digit code is emailed to ${user?.email ?? "you"} at every sign-in.`
-              : "Add a second step to sign-in: a 6-digit code emailed to you."}
-          </div>
-        </div>
-        {enabled ? (
-          <ActionRow className="w-full flex-none sm:w-auto">
-            <AdminButton
-              variant="secondary"
-              className="whitespace-nowrap"
-              onClick={() => {
-                setStep(step === "regen" ? "idle" : "regen");
-                setPassword("");
-              }}
+      <SectionHeading
+        actions={
+          <ToneBadge tone={enabled ? "forest" : "slate"}>
+            {enabled ? "On" : "Off"}
+          </ToneBadge>
+        }
+        hint="A second check at sign-in, so a password on its own cannot open your account."
+      >
+        Two-factor authentication
+      </SectionHeading>
+
+      <section aria-label="Email codes">
+        <h3 className="text-[12px] font-semibold text-adm-ink">Email codes</h3>
+        <p className="mt-1 text-[11.5px] leading-[1.6] text-adm-muted [overflow-wrap:anywhere]">
+          {enabled ? (
+            <>
+              Every sign-in asks for a 6-digit code sent to{" "}
+              <span className="font-medium text-adm-ink">
+                {user?.email ?? "your email"}
+              </span>
+              , on top of your password.
+            </>
+          ) : (
+            "Add a second step to signing in: a 6-digit code emailed to you each time, on top of your password."
+          )}
+        </p>
+
+        {step === "confirm" ? (
+          <div className="mt-3 grid gap-3">
+            <AdminField
+              label="Code from the email"
+              hint="We sent a 6-digit code to your email. It confirms you can receive them."
             >
-              New recovery codes
-            </AdminButton>
-            <AdminButton
-              variant="ghost"
-              className="whitespace-nowrap text-console-red hover:text-console-red"
-              onClick={() => {
-                setStep(step === "disable" ? "idle" : "disable");
-                setPassword("");
-              }}
-            >
-              Turn off
-            </AdminButton>
-          </ActionRow>
+              <Input
+                autoComplete="one-time-code"
+                autoFocus
+                className={cn(
+                  adminInputClass,
+                  "font-adminmono tracking-[0.3em]",
+                )}
+                inputMode="numeric"
+                maxLength={6}
+                onChange={(e) => setCode(e.target.value)}
+                placeholder="123456"
+                value={code}
+              />
+            </AdminField>
+            <CommitRow>
+              <AdminButton variant="outline" onClick={closeStep}>
+                Cancel
+              </AdminButton>
+              <AdminButton
+                disabled={isConfirming || !/^\d{6}$/.test(code.trim())}
+                onClick={confirmCode}
+              >
+                {isConfirming ? "Confirming…" : "Confirm and turn on"}
+              </AdminButton>
+            </CommitRow>
+          </div>
+        ) : step === "disable" ? (
+          passwordStep("disable")
         ) : (
-          <AdminButton
-            className="flex-none whitespace-nowrap"
-            disabled={isRequesting || step === "confirm"}
-            onClick={begin}
-          >
-            {isRequesting ? "Sending code…" : "Turn on"}
-          </AdminButton>
+          <div className="mt-3">
+            {enabled ? (
+              <AdminButton
+                variant="outline"
+                className="text-console-red hover:text-console-red"
+                onClick={() => {
+                  setStep("disable");
+                  setPassword("");
+                }}
+              >
+                Turn off
+              </AdminButton>
+            ) : (
+              <AdminButton disabled={isRequesting} onClick={begin}>
+                {isRequesting ? "Sending code…" : "Turn on"}
+              </AdminButton>
+            )}
+          </div>
         )}
-      </div>
+      </section>
 
-      {step === "confirm" ? (
-        <div className="mt-3.5 grid max-w-[560px] gap-2.5">
-          <AdminField label="Confirmation code">
-            <Input
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              maxLength={6}
-              placeholder="123456"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              className={adminInputClass}
+      {enabled || freshCodes ? (
+        <section
+          aria-label="Recovery codes"
+          className="mt-5 border-t border-adm-hairline pt-4"
+        >
+          <h3 className="text-[12px] font-semibold text-adm-ink">
+            Recovery codes
+          </h3>
+          <p className="mt-1 text-[11.5px] leading-[1.6] text-adm-muted">
+            One-time codes that sign you in when the email code does not arrive.
+            A new set replaces the old one.
+          </p>
+          {freshCodes ? (
+            <RecoveryCodesPanel
+              codes={freshCodes}
+              onDismiss={() => setFreshCodes(null)}
             />
-          </AdminField>
-          <CommitRow>
-            <AdminButton
-              variant="ghost"
-              onClick={() => {
-                setStep("idle");
-                setCode("");
-              }}
-            >
-              Cancel
-            </AdminButton>
-            <AdminButton
-              disabled={isConfirming || !/^\d{6}$/.test(code.trim())}
-              onClick={confirmCode}
-            >
-              {isConfirming ? "Confirming…" : "Confirm & enable"}
-            </AdminButton>
-          </CommitRow>
-        </div>
-      ) : null}
-
-      {step === "disable" || step === "regen" ? (
-        <div className="mt-3.5 grid max-w-[560px] gap-2.5">
-          <AdminField
-            label={
-              step === "disable"
-                ? "Confirm your password to turn off 2FA"
-                : "Confirm your password to replace your recovery codes"
-            }
-          >
-            <PasswordInput
-              autoComplete="current-password"
-              placeholder="Your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={adminInputClass}
-            />
-          </AdminField>
-          <CommitRow>
-            <AdminButton
-              variant="outline"
-              onClick={() => {
-                setStep("idle");
-                setPassword("");
-              }}
-            >
-              Cancel
-            </AdminButton>
-            <AdminButton
-              variant={step === "disable" ? "danger" : "primary"}
-              disabled={
-                (step === "disable" ? isDisabling : isRegenerating) ||
-                password.length === 0
-              }
-              onClick={step === "disable" ? submitDisable : submitRegenerate}
-            >
-              {step === "disable"
-                ? isDisabling
-                  ? "Turning off…"
-                  : "Turn off 2FA"
-                : isRegenerating
-                  ? "Generating…"
-                  : "Generate new codes"}
-            </AdminButton>
-          </CommitRow>
-        </div>
-      ) : null}
-
-      {enabled && freshCodes === null && step === "idle" ? (
-        <div className="mt-3 flex items-center gap-2 rounded-none bg-[#E6F0E9] px-3 py-[9px] text-[11px] text-[#2F5E3D]">
-          <Check className="h-3.5 w-3.5 flex-none" aria-hidden="true" />
-          <span>
-            Two-factor authentication is on. Lost your recovery codes? Generate
-            a new set above.
-          </span>
-        </div>
-      ) : null}
-
-      {freshCodes ? (
-        <RecoveryCodesPanel
-          codes={freshCodes}
-          onDismiss={() => setFreshCodes(null)}
-        />
+          ) : step === "regen" ? (
+            passwordStep("regen")
+          ) : (
+            <div className="mt-3">
+              <AdminButton
+                variant="secondary"
+                onClick={() => {
+                  setStep("regen");
+                  setPassword("");
+                }}
+              >
+                Generate new codes
+              </AdminButton>
+            </div>
+          )}
+        </section>
       ) : null}
       {confirmationDialog}
     </AdminCard>

@@ -206,10 +206,11 @@ export interface IDebtorsQuery {
  * for purchases; `balanceCashGhs` runs paid minus payable.
  */
 export interface IPurchaseBookRow {
-  kind: "CASH" | "PURCHASE" | "SALE";
+  /** LOAD: one truck's load of this book's goods, dated when it left. */
+  kind: "CASH" | "LOAD" | "PURCHASE" | "SALE";
   date: string;
   particulars: string;
-  /** The purchase's or sale's document number; null on a cash row. */
+  /** The purchase's, sale's or shipment's number; null on a cash row. */
   reference: string | null;
   documentId: string | null;
   bags: number | null;
@@ -221,6 +222,7 @@ export interface IPurchaseBookRow {
   fmPercent: number | null;
   dispatchedBags: number | null;
   dispatchedKg: number | null;
+  /** Running: everything bought (or sold) so far less everything loaded. */
   balanceBags: number | null;
   balanceKg: number | null;
   fmDeductionPct: number | null;

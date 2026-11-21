@@ -8,6 +8,7 @@ import {
   BookOpenCheck,
   BookUser,
   ChevronDown,
+  ExternalLink,
   Globe,
   HandCoins,
   LayoutDashboard,
@@ -193,6 +194,18 @@ function NavbarUser() {
                 Settings
               </DropdownMenuItem>
             ) : null}
+            {/* The public site, in a new tab so the console stays where it
+                was left. */}
+            <DropdownMenuItem
+              asChild
+              className="cursor-pointer gap-2 text-[11.5px]"
+            >
+              <a href="/" rel="noopener" target="_blank">
+                <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+                View the website
+                <span className="sr-only"> (opens in a new tab)</span>
+              </a>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               disabled={isLoading}

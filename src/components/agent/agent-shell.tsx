@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useLogoutMutation } from "@/redux/auth/auth-api";
 import { useCurrentUser } from "@/hooks/use-current-user";
@@ -101,6 +101,20 @@ export function AgentShell({ children }: { children: ReactNode }) {
         ) : null}
         {children}
       </main>
+      {/* The public site, out of the way of the work: the header has no room
+          for a third button on a phone. A new tab keeps the form in progress. */}
+      <footer className="mx-auto max-w-[560px] px-4 pt-2 pb-8">
+        <a
+          className="inline-flex min-h-11 items-center gap-1.5 text-[13px] font-medium text-soil underline-offset-2 transition-colors hover:text-ink hover:underline"
+          href="/"
+          rel="noopener"
+          target="_blank"
+        >
+          <ExternalLink className="h-4 w-4" aria-hidden="true" />
+          Visit the DB Plus website
+          <span className="sr-only"> (opens in a new tab)</span>
+        </a>
+      </footer>
       {confirmationDialog}
     </div>
   );
