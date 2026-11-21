@@ -22,6 +22,7 @@ export const expensePaymentFields = {
   useExistingPayment: z.boolean().optional(),
   paymentAccountId: z.string(),
   reference: z.string().trim().max(120),
+  transactionId: z.string().trim().max(120).optional(),
 };
 
 /** The shape those fields parse to, for a form's values type. */
@@ -31,6 +32,7 @@ export interface ExpensePaymentValues {
   useExistingPayment?: boolean;
   paymentAccountId: string;
   reference: string;
+  transactionId?: string;
 }
 
 /**
@@ -86,6 +88,7 @@ export interface ExpensePaymentBody {
   paidAt: string;
   paymentAccountId?: string;
   reference?: string;
+  transactionId?: string;
 }
 
 /**
@@ -106,6 +109,9 @@ export const expensePaymentBody = (
           ? { paymentAccountId: values.paymentAccountId }
           : {}),
         ...(values.reference ? { reference: values.reference } : {}),
+        ...(values.transactionId
+          ? { transactionId: values.transactionId }
+          : {}),
       }
     : undefined;
 
@@ -117,12 +123,13 @@ export const expensePaymentBody = (
  */
 export const PAYMENT_FIELD_FOR_CODE: Record<
   string,
-  "paymentAccountId" | "reference"
+  "paymentAccountId" | "reference" | "transactionId"
 > = {
   ACCOUNT_METHOD_MISMATCH: "paymentAccountId",
   ACCOUNT_NOT_SETTLEABLE: "paymentAccountId",
   ACCOUNT_REQUIRED: "paymentAccountId",
   ACCOUNT_RETIRED: "paymentAccountId",
   DUPLICATE_REFERENCE: "reference",
+  DUPLICATE_TRANSACTION_ID: "transactionId",
   REFERENCE_REQUIRED: "reference",
 };

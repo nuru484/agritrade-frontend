@@ -165,6 +165,7 @@ export interface IRecordPurchasePaymentInput {
   paymentAccountId?: string;
   reference?: string;
   sourceMovementId?: string;
+  transactionId?: string;
 }
 
 export interface IPurchasePayment {
@@ -179,6 +180,8 @@ export interface IPurchasePayment {
   reference: string | null;
   reversalReason: string | null;
   reversedByPaymentId: string | null;
+  /** The provider's transaction ID; unique across purchase payments. */
+  transactionId: string | null;
   transactionNo: string;
 }
 

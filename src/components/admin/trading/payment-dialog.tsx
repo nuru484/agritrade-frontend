@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PaymentAccountField } from "@/components/admin/payment-account-field";
+import { TransactionIdField } from "@/components/admin/payment-handles";
 import { useIdempotencyKey } from "@/components/admin/disbursements/disbursement-bits";
 import {
   AdminButton,
@@ -158,6 +159,9 @@ export function PaymentDialog({
           method: values.method,
           ...(values.reference?.trim()
             ? { reference: values.reference.trim() }
+            : {}),
+          ...(values.transactionId?.trim()
+            ? { transactionId: values.transactionId.trim() }
             : {}),
           ...(values.paidAt ? { paidAt: values.paidAt } : {}),
           ...(values.paymentAccountId
@@ -434,7 +438,7 @@ export function PaymentDialog({
               hint={
                 method === "CASH"
                   ? undefined
-                  : "The transaction ID on the transfer. It is what stops this being recorded twice."
+                  : "The reference on the transfer. Recording the same one twice against this sale is refused."
               }
               error={errors.reference?.message}
             >
@@ -451,6 +455,11 @@ export function PaymentDialog({
                 {...register("reference")}
               />
             </AdminField>
+
+            <TransactionIdField
+              error={errors.transactionId?.message}
+              registration={register("transactionId")}
+            />
           </section>
 
           <ResponsiveDialogFooter className="gap-2">

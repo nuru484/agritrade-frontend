@@ -1,6 +1,10 @@
 "use client";
 
 import { CsvExportButton } from "@/components/admin/csv-export-button";
+import {
+  PaymentHandles,
+  TransactionIdField,
+} from "@/components/admin/payment-handles";
 import { acquisitionPaymentsCsvColumns } from "@/components/admin/csv-columns";
 
 import { useEffect, useState } from "react";
@@ -150,6 +154,9 @@ function PaymentDialog({
           ...(!source && values.reference?.trim()
             ? { reference: values.reference.trim() }
             : {}),
+          ...(!source && values.transactionId?.trim()
+            ? { transactionId: values.transactionId.trim() }
+            : {}),
           ...(!source && values.paidAt ? { paidAt: values.paidAt } : {}),
           ...(values.paymentAccountId
             ? { paymentAccountId: values.paymentAccountId }
@@ -247,6 +254,12 @@ function PaymentDialog({
                 {...register("reference")}
               />
             </AdminField>
+          ) : null}
+          {!useExisting ? (
+            <TransactionIdField
+              error={errors.transactionId?.message}
+              registration={register("transactionId")}
+            />
           ) : null}
           {!useExisting ? (
             <AdminField label="Payment date" optional>
@@ -622,8 +635,12 @@ export function LandAcquisitionDetail({ id }: { id: string }) {
                         time is a midnight stamp nobody chose. */}
                     <span className="ml-2 text-[11px] text-adm-muted">
                       <DateOnlyCell value={p.paidAt} muted />
-                      {p.reference ? ` · ${p.reference}` : ""}
                     </span>
+                    <PaymentHandles
+                      className="mt-0.5"
+                      reference={p.reference}
+                      transactionId={p.transactionId}
+                    />
                   </div>
                   <div className="flex flex-none items-center gap-2">
                     {/* Signed: a reversal (money returned by the seller) is

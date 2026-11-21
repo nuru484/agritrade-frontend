@@ -1,6 +1,10 @@
 "use client";
 
 import { CsvExportButton } from "@/components/admin/csv-export-button";
+import {
+  PaymentHandles,
+  TransactionIdField,
+} from "@/components/admin/payment-handles";
 import { expensePaymentsCsvColumns } from "@/components/admin/csv-columns";
 
 import { useState } from "react";
@@ -132,6 +136,7 @@ const paymentSchema = z.object({
   paidAt: z.string().min(1, "Pick a date"),
   paymentAccountId: z.string(),
   reference: z.string().trim().max(120),
+  transactionId: z.string().trim().max(120),
 });
 type PaymentValues = z.infer<typeof paymentSchema>;
 
@@ -165,6 +170,7 @@ function PayDialog({
       paidAt: todayInputValue(),
       paymentAccountId: "",
       reference: "",
+      transactionId: "",
     },
     resolver: zodResolver(paymentSchema),
   });
@@ -208,6 +214,9 @@ function PayDialog({
             ? { paymentAccountId: values.paymentAccountId }
             : {}),
           ...(values.reference ? { reference: values.reference } : {}),
+          ...(values.transactionId
+            ? { transactionId: values.transactionId }
+            : {}),
         },
         expenseId,
       }).unwrap();
@@ -321,6 +330,13 @@ function PayDialog({
                 {...register("reference")}
               />
             </AdminField>
+          ) : null}
+
+          {!matchedSend ? (
+            <TransactionIdField
+              error={errors.transactionId?.message}
+              registration={register("transactionId")}
+            />
           ) : null}
 
           <ResponsiveDialogFooter className="gap-2">
@@ -611,6 +627,11 @@ export function ExpenseSettlementCard({
                         <ToneBadge tone="slate">Reversed</ToneBadge>
                       ) : null}
                     </div>
+                    <PaymentHandles
+                      className="mt-0.5"
+                      reference={p.reference}
+                      transactionId={p.transactionId}
+                    />
                     {p.reversalReason ? (
                       <p className="mt-0.5 text-[11px] text-adm-muted [overflow-wrap:anywhere]">
                         {p.reversalReason}

@@ -49,6 +49,7 @@ export interface IDriverPayment {
   paidAt: string;
   paymentAccount: { id: string; label: string } | null;
   reference: string | null;
+  transactionId: string | null;
   /** True for the compensating row, so the ledger can mark it as such. */
   isReversal: boolean;
   reversalReason: string | null;
@@ -190,6 +191,7 @@ export interface IRecordDriverPaymentInput {
   paidAt?: string;
   paymentAccountId?: string;
   reference?: string;
+  transactionId?: string;
   sourceMovementId?: string;
 }
 
@@ -209,6 +211,7 @@ export interface IExpensePayment {
   paidAt: string;
   paymentAccount: { id: string; label: string } | null;
   reference: string | null;
+  transactionId: string | null;
   sourceType:
     | "ACCOUNT_OUTFLOW"
     | "DRIVER_PAYMENT"

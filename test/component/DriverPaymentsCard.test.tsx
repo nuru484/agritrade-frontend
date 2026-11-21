@@ -46,6 +46,7 @@ const row = (
     id: "trip-1",
     transactionNo: "SHP-2026-0001",
   },
+  transactionId: null,
   transactionNo: "DRP-2026-00042",
   ...overrides,
 });

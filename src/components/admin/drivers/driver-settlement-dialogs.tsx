@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 import { PaidThroughSystemField } from "@/components/admin/paid-through-system-field";
+import { TransactionIdField } from "@/components/admin/payment-handles";
 import { useIdempotencyKey } from "@/components/admin/disbursements/disbursement-bits";
 import { ExistingOutflowPicker } from "@/components/admin/expenses/existing-outflow-picker";
 import { PaymentAccountField } from "@/components/admin/payment-account-field";
@@ -201,6 +202,7 @@ const paymentSchema = z.object({
   paidAt: z.string().min(1, "Pick a date"),
   paymentAccountId: z.string(),
   reference: z.string().trim().max(120),
+  transactionId: z.string().trim().max(120),
 });
 type PaymentValues = z.infer<typeof paymentSchema>;
 
@@ -235,6 +237,7 @@ export function DriverPaymentDialog({
       paidAt: todayInputValue(),
       paymentAccountId: "",
       reference: "",
+      transactionId: "",
     },
     resolver: zodResolver(paymentSchema),
   });
@@ -306,6 +309,9 @@ export function DriverPaymentDialog({
             : {}),
           ...(!source && values.reference
             ? { reference: values.reference }
+            : {}),
+          ...(!source && values.transactionId
+            ? { transactionId: values.transactionId }
             : {}),
         },
         shipmentId,
@@ -500,6 +506,13 @@ export function DriverPaymentDialog({
                 {...register("reference")}
               />
             </AdminField>
+          ) : null}
+
+          {!matchedSend && !useExisting ? (
+            <TransactionIdField
+              error={errors.transactionId?.message}
+              registration={register("transactionId")}
+            />
           ) : null}
 
           <ResponsiveDialogFooter className="gap-2">

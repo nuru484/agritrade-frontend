@@ -1,6 +1,7 @@
 "use client";
 
 import { CsvExportButton } from "@/components/admin/csv-export-button";
+import { PaymentHandles } from "@/components/admin/payment-handles";
 import { driverPaymentsCsvColumns } from "@/components/admin/csv-columns";
 
 import { useState } from "react";
@@ -282,6 +283,11 @@ function PaymentRow({
             </HelpWrap>
           ) : null}
         </div>
+        <PaymentHandles
+          className="mt-0.5"
+          reference={payment.reference}
+          transactionId={payment.transactionId}
+        />
         {payment.reversalReason ? (
           <p className="mt-0.5 text-[11px] text-adm-muted [overflow-wrap:anywhere]">
             {payment.reversalReason}

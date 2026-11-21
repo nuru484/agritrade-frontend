@@ -81,6 +81,7 @@ export interface ILandSalePayment {
   amountGhs: number | null;
   method: "BANK" | "CASH" | "MOMO";
   reference: string | null;
+  transactionId: string | null;
   paidAt: string;
 }
 
@@ -147,6 +148,7 @@ export interface IRecordLandPaymentInput {
   idempotencyKey?: string;
   method: "BANK" | "CASH" | "MOMO";
   reference?: string;
+  transactionId?: string;
   paidAt?: string;
   /** Company account the money landed in. Required for BANK/MOMO. */
   paymentAccountId?: string;
@@ -213,6 +215,7 @@ export interface ILandAcquisitionPayment {
   amountGhs: number | null;
   method: "BANK" | "CASH" | "MOMO";
   reference: string | null;
+  transactionId: string | null;
   paidAt: string;
 }
 
@@ -285,6 +288,7 @@ export interface IRecordAcquisitionPaymentInput {
   idempotencyKey?: string;
   method: "BANK" | "CASH" | "MOMO";
   reference?: string;
+  transactionId?: string;
   paidAt?: string;
   /** Company account the seller was paid FROM. Required for BANK/MOMO. */
   paymentAccountId?: string;

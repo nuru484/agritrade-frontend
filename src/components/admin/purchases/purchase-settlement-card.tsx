@@ -8,6 +8,10 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
+import {
+  PaymentHandles,
+  TransactionIdField,
+} from "@/components/admin/payment-handles";
 import { ReverseReasonDialog } from "@/components/admin/drivers/driver-settlement-dialogs";
 import { useIdempotencyKey } from "@/components/admin/disbursements/disbursement-bits";
 import { ExistingOutflowPicker } from "@/components/admin/expenses/existing-outflow-picker";
@@ -115,6 +119,7 @@ const paymentSchema = z.object({
   paidAt: z.string().min(1, "Pick a date"),
   paymentAccountId: z.string(),
   reference: z.string().trim().max(120),
+  transactionId: z.string().trim().max(120),
 });
 type PaymentValues = z.infer<typeof paymentSchema>;
 
@@ -151,6 +156,7 @@ function PayDialog({
       paidAt: todayInputValue(),
       paymentAccountId: "",
       reference: "",
+      transactionId: "",
     },
     resolver: zodResolver(paymentSchema),
   });
@@ -205,6 +211,9 @@ function PayDialog({
             : {}),
           ...(!source && values.reference
             ? { reference: values.reference }
+            : {}),
+          ...(!source && values.transactionId
+            ? { transactionId: values.transactionId }
             : {}),
         },
         purchaseId,
@@ -355,6 +364,13 @@ function PayDialog({
                 {...register("reference")}
               />
             </AdminField>
+          ) : null}
+
+          {!matchedSend && !useExisting ? (
+            <TransactionIdField
+              error={errors.transactionId?.message}
+              registration={register("transactionId")}
+            />
           ) : null}
 
           <ResponsiveDialogFooter className="gap-2">
@@ -537,6 +553,11 @@ export function PurchaseSettlementCard({
                         <ToneBadge tone="slate">Reversed</ToneBadge>
                       ) : null}
                     </div>
+                    <PaymentHandles
+                      className="mt-0.5"
+                      reference={p.reference}
+                      transactionId={p.transactionId}
+                    />
                     {p.reversalReason ? (
                       <p className="mt-0.5 text-[11px] text-adm-muted [overflow-wrap:anywhere]">
                         {p.reversalReason}

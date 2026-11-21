@@ -49,6 +49,7 @@ export interface ISalePayment {
   amountGhs: number | null;
   method: SalePaymentMethod;
   reference: string | null;
+  transactionId: string | null;
   paidAt: string;
   /** Which company account the money landed in; null for cash into the till. */
   paymentAccountId: null | string;
@@ -164,6 +165,7 @@ export interface IRecordPaymentInput {
   idempotencyKey?: string;
   method: "BANK" | "CASH" | "MOMO";
   reference?: string;
+  transactionId?: string;
   paidAt?: string;
   /** Company account the money landed in. Required for BANK/MOMO. */
   paymentAccountId?: string;

@@ -52,6 +52,7 @@ export const recordPaymentSchema = z
     amountGhs: requiredNumber("amount", 100_000_000),
     method: z.enum(["CASH", "MOMO", "BANK"]),
     reference: z.string().trim().max(120).or(z.literal("")).optional(),
+    transactionId: z.string().trim().max(120).or(z.literal("")).optional(),
     paidAt: z.string().optional(),
     paymentAccountId: z.string().optional(),
   })

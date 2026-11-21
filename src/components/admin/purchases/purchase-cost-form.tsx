@@ -142,6 +142,7 @@ export function PurchaseCostDialog({
       useExistingPayment: canSeeMoney,
       paymentAccountId: "",
       reference: "",
+      transactionId: "",
     },
   });
 
@@ -165,6 +166,7 @@ export function PurchaseCostDialog({
       useExistingPayment: canSeeMoney,
       paymentAccountId: "",
       reference: "",
+      transactionId: "",
     });
     setMatchedOutflows([]);
   }, [canSeeMoney, open, reset]);

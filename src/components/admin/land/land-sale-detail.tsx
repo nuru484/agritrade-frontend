@@ -1,6 +1,10 @@
 "use client";
 
 import { CsvExportButton } from "@/components/admin/csv-export-button";
+import {
+  PaymentHandles,
+  TransactionIdField,
+} from "@/components/admin/payment-handles";
 import { landSalePaymentsCsvColumns } from "@/components/admin/csv-columns";
 
 import Link from "next/link";
@@ -138,6 +142,9 @@ function PaymentDialog({
           ...(values.reference?.trim()
             ? { reference: values.reference.trim() }
             : {}),
+          ...(values.transactionId?.trim()
+            ? { transactionId: values.transactionId.trim() }
+            : {}),
           ...(values.paidAt ? { paidAt: values.paidAt } : {}),
           ...(values.paymentAccountId
             ? { paymentAccountId: values.paymentAccountId }
@@ -207,6 +214,10 @@ function PaymentDialog({
               {...register("reference")}
             />
           </AdminField>
+          <TransactionIdField
+            error={errors.transactionId?.message}
+            registration={register("transactionId")}
+          />
           <AdminField label="Payment date" optional>
             <DateInput
               className={adminInputClass}
@@ -646,8 +657,12 @@ export function LandSaleDetail({ id }: { id: string }) {
                         time is a midnight stamp nobody chose. */}
                     <span className="ml-2 text-[11px] text-adm-muted">
                       <DateOnlyCell value={p.paidAt} muted />
-                      {p.reference ? ` · ${p.reference}` : ""}
                     </span>
+                    <PaymentHandles
+                      className="mt-0.5"
+                      reference={p.reference}
+                      transactionId={p.transactionId}
+                    />
                   </div>
                   <div className="flex flex-none items-center gap-2">
                     <Mono

@@ -550,6 +550,7 @@ export const purchasePaymentsCsvColumns = csvColumns<IPurchasePayment>([
   ["Amount (GHS)", "amountGhs"],
   ["Method", "method"],
   ["Payment reference", "reference"],
+  ["Transaction ID", "transactionId"],
   ["Account", "paymentAccount.label"],
   ["From float", "fromFloat"],
   ["Reversal", "isReversal"],
@@ -562,6 +563,7 @@ export const expensePaymentsCsvColumns = csvColumns<IExpensePayment>([
   ["Amount (GHS)", "amountGhs"],
   ["Method", "method"],
   ["Payment reference", "reference"],
+  ["Transaction ID", "transactionId"],
   ["Account", "paymentAccount.label"],
   ["Source", "sourceType"],
   ["Reversal", "isReversal"],
@@ -574,6 +576,7 @@ export const driverPaymentsCsvColumns = csvColumns<IDriverPayment>([
   ["Amount (GHS)", "amountGhs"],
   ["Method", "method"],
   ["Payment reference", "reference"],
+  ["Transaction ID", "transactionId"],
   ["Account", "paymentAccount.label"],
   ["Reversal", "isReversal"],
   ["Reversal reason", "reversalReason"],
@@ -586,6 +589,7 @@ export const driverPaymentHistoryCsvColumns =
     ["Amount (GHS)", "amountGhs"],
     ["Method", "method"],
     ["Payment reference", "reference"],
+    ["Transaction ID", "transactionId"],
     ["Trip", "shipment.transactionNo"],
     ["Destination", "shipment.destination"],
     ["Account", "paymentAccount.label"],
@@ -599,6 +603,7 @@ export const salePaymentsCsvColumns = csvColumns<ISalePayment>([
   ["Amount (GHS)", "amountGhs"],
   ["Method", "method"],
   ["Payment reference", "reference"],
+  ["Transaction ID", "transactionId"],
   ["Reverses payment ID", "reversesId"],
   ["Reversal reason", "reversalReason"],
 ]);
@@ -609,6 +614,7 @@ export const landSalePaymentsCsvColumns = csvColumns<ILandSalePayment>([
   ["Amount (GHS)", "amountGhs"],
   ["Method", "method"],
   ["Payment reference", "reference"],
+  ["Transaction ID", "transactionId"],
 ]);
 
 export const acquisitionPaymentsCsvColumns =
@@ -618,6 +624,7 @@ export const acquisitionPaymentsCsvColumns =
     ["Amount (GHS)", "amountGhs"],
     ["Method", "method"],
     ["Payment reference", "reference"],
+    ["Transaction ID", "transactionId"],
   ]);
 
 export const debtorsCsvColumns = csvColumns<IDebtorRow>([

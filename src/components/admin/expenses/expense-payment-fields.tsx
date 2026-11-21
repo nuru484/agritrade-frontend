@@ -13,6 +13,7 @@ import {
   adminSelectClass,
 } from "@/components/admin/ui";
 import { PaymentAccountField } from "@/components/admin/payment-account-field";
+import { TransactionIdField } from "@/components/admin/payment-handles";
 import { SimpleSelect } from "@/components/ui/simple-select";
 import { PAYMENT_METHOD_OPTIONS } from "@/components/admin/trading/sale-bits";
 import type { ExpensePaymentValues } from "@/validations/expense-payment-fields";
@@ -60,7 +61,7 @@ export function ExpensePaymentFields<T extends ExpensePaymentValues>({
   register: UseFormRegister<T>;
 }) {
   const fieldError = (
-    name: "paymentAccountId" | "reference",
+    name: "paymentAccountId" | "reference" | "transactionId",
   ): string | undefined =>
     (errors[name as keyof FieldErrors<T>] as { message?: string } | undefined)
       ?.message;
@@ -197,6 +198,13 @@ export function ExpensePaymentFields<T extends ExpensePaymentValues>({
                 {...register("reference" as Path<T>)}
               />
             </AdminField>
+          ) : null}
+
+          {!useExistingPayment ? (
+            <TransactionIdField
+              error={fieldError("transactionId")}
+              registration={register("transactionId" as Path<T>)}
+            />
           ) : null}
         </>
       ) : (

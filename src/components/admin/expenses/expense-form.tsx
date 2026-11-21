@@ -121,6 +121,7 @@ export function ExpenseFormDialog({
       useExistingPayment: canSeeMoney,
       paymentAccountId: "",
       reference: "",
+      transactionId: "",
     },
   });
 
@@ -145,6 +146,7 @@ export function ExpenseFormDialog({
       useExistingPayment: canSeeMoney,
       paymentAccountId: "",
       reference: "",
+      transactionId: "",
     });
     setMatchedOutflows([]);
   }, [canSeeMoney, expense, open, reset]);

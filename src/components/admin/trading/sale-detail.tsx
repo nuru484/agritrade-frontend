@@ -1,6 +1,7 @@
 "use client";
 
 import { CsvExportButton } from "@/components/admin/csv-export-button";
+import { PaymentHandles } from "@/components/admin/payment-handles";
 import { salePaymentsCsvColumns } from "@/components/admin/csv-columns";
 
 import { useState } from "react";
@@ -503,8 +504,12 @@ export function SaleDetail({
                     is a midnight stamp nobody chose. */}
                 <span className="ml-2 text-[11px] text-adm-muted">
                   <DateOnlyCell value={p.paidAt} muted />
-                  {p.reference ? ` · ${p.reference}` : ""}
                 </span>
+                <PaymentHandles
+                  className="mt-0.5"
+                  reference={p.reference}
+                  transactionId={p.transactionId}
+                />
               </div>
               <div className="flex flex-none items-center gap-2">
                 <Mono
